@@ -196,46 +196,71 @@ const FAMILIES = [
     langs.forEach((l) => { if (!state.langLabels.has(l.key)) state.langLabels.set(l.key, l.label); });
   }
 
-  /* Drapeau : généré depuis le nom du pays (Intl.DisplayNames), uniquement si le système sait afficher les emoji-drapeaux */
-  let flagSupport = null;
-  let regionByName = null;
-  function flagsSupported() {
-    if (flagSupport !== null) return flagSupport;
-    flagSupport = false;
-    try {
-      const c = document.createElement('canvas');
-      c.width = c.height = 16;
-      const x = c.getContext('2d');
-      if (!x) return false;
-      x.textBaseline = 'top';
-      x.font = '14px sans-serif';
-      x.fillText('\uD83C\uDDEB\uD83C\uDDF7', 0, 0);
-      const d = x.getImageData(0, 0, 16, 16).data;
-      for (let i = 0; i < d.length; i += 4) {
-        if (d[i + 3] > 0 && Math.abs(d[i] - d[i + 2]) > 40) { flagSupport = true; break; }   // pixels colorés = vrai drapeau
-      }
-    } catch (e) { /* pas de canvas : on garde l'icône */ }
-    return flagSupport;
-  }
 
-  function countryFlag(name) {
-    if (!flagsSupported()) return '';
-    if (!regionByName) {
-      regionByName = new Map();
-      try {
-        const dn = new Intl.DisplayNames(['fr'], { type: 'region' });
+/* Drapeau : généré depuis le nom du pays (Intl.DisplayNames),
+   en français ou en anglais, uniquement si le système sait afficher les emoji-drapeaux */
+let flagSupport = null;
+let regionByName = null;
+
+function flagsSupported() {
+  if (flagSupport !== null) return flagSupport;
+  flagSupport = false;
+
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = 16;
+    const x = c.getContext('2d');
+    if (!x) return false;
+
+    x.textBaseline = 'top';
+    x.font = '14px sans-serif';
+    x.fillText('\uD83C\uDDEB\uD83C\uDDF7', 0, 0);
+
+    const d = x.getImageData(0, 0, 16, 16).data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] > 0 && Math.abs(d[i] - d[i + 2]) > 40) {
+        flagSupport = true;
+        break;
+      }
+    }
+  } catch (e) { /* Pas de canvas : on garde l'icône */ }
+
+  return flagSupport;
+}
+
+function countryFlag(name) {
+  if (!flagsSupported() || !name) return '';
+
+  if (!regionByName) {
+    regionByName = new Map();
+
+    try {
+      for (const locale of ['en', 'fr']) {
+        const dn = new Intl.DisplayNames([locale], { type: 'region' });
+
         for (let a = 65; a <= 90; a++) {
           for (let b = 65; b <= 90; b++) {
             const code = String.fromCharCode(a, b);
             const n = dn.of(code);
-            if (n && n !== code) regionByName.set(normalize(n), code);
+
+            if (n && n !== code) {
+              regionByName.set(normalize(n), code);
+            }
           }
         }
-      } catch (e) { /* Intl.DisplayNames indisponible */ }
-    }
-    const code = regionByName.get(normalize(name));
-    return code ? String.fromCodePoint(...[...code].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65)) : '';
+      }
+    } catch (e) { /* Intl.DisplayNames indisponible */ }
   }
+
+  const code = regionByName.get(normalize(name));
+  return code
+    ? String.fromCodePoint(...[...code].map(
+        c => 0x1F1E6 + c.charCodeAt(0) - 65
+      ))
+    : '';
+}
+
+
 
   /* ---------- Éléments d'interface ---------- */
   function icon(name) {
