@@ -59,46 +59,7 @@ window.STATIONS = [
 },
   
 
-{
-  id: "france-inter",
-  name: "France Inter",
-  country: "France",
-  language: "Français",
-  genre: "Actualités, Culture, Débats",
-  streamUrl: "https://icecast.radiofrance.fr/franceinter-midfi.mp3?id=openapi",
-  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/franceinter&sz=128",
-  website: "https://www.radiofrance.fr/franceinter"
-},
-{
-  id: "rtl-france",
-  name: "RTL",
-  country: "France",
-  language: "Français",
-  genre: "Généraliste, Actualités, Divertissement",
-  streamUrl: "https://icecast.rtl.fr/rtl-1-44-128",
-  logoUrl: "https://www.google.com/s2/favicons?domain=www.rtl.fr&sz=128",
-  website: "https://www.rtl.fr/direct"
-},
-{
-  id: "franceinfo",
-  name: "Franceinfo",
-  country: "France",
-  language: "Français",
-  genre: "Actualités, Information",
-  streamUrl: "https://icecast.radiofrance.fr/franceinfo-midfi.mp3?id=openapi",
-  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/franceinfo&sz=128",
-  website: "https://www.radiofrance.fr/franceinfo"
-},
-{
-  id: "nrj-france",
-  name: "NRJ",
-  country: "France",
-  language: "Français",
-  genre: "Pop, Hits, Dance",
-  streamUrl: "https://streaming.nrjaudio.fm/oufdfatx4thg",
-  logoUrl: "https://www.google.com/s2/favicons?domain=www.nrj.fr&sz=128",
-  website: "https://www.nrj.fr/"
-},
+
 {
   id: "fip-france",
   name: "FIP",
@@ -234,6 +195,46 @@ window.STATIONS = [
   website: "https://www.radioswissclassic.ch/"
 },
 {
+  id: "france-inter",
+  name: "France Inter",
+  country: "France",
+  language: "French",
+  genre: "News, Culture & Debates",
+  streamUrl: "https://icecast.radiofrance.fr/franceinter-midfi.mp3?id=openapi",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/franceinter&sz=128",
+  website: "https://www.radiofrance.fr/franceinter"
+},
+{
+  id: "rtl-france",
+  name: "RTL",
+  country: "France",
+  language: "French",
+  genre: "General Interest, News & Entertainment",
+  streamUrl: "https://icecast.rtl.fr/rtl-1-44-128",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.rtl.fr&sz=128",
+  website: "https://www.rtl.fr/direct"
+},
+{
+  id: "franceinfo",
+  name: "Franceinfo",
+  country: "France",
+  language: "French",
+  genre: "News & Information",
+  streamUrl: "https://icecast.radiofrance.fr/franceinfo-midfi.mp3?id=openapi",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/franceinfo&sz=128",
+  website: "https://www.radiofrance.fr/franceinfo"
+},
+{
+  id: "nrj-france",
+  name: "NRJ",
+  country: "France",
+  language: "French",
+  genre: "Pop, Hits & Dance",
+  streamUrl: "https://streaming.nrjaudio.fm/oufdfatx4thg",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.nrj.fr&sz=128",
+  website: "https://www.nrj.fr/"
+},
+{
   id: "france-musique-classique-plus",
   name: "France Musique Classique Plus",
   country: "France",
@@ -256,7 +257,7 @@ window.STATIONS = [
 {
   id: "france-culture",
   name: "France Culture",
-  country: "France",
+  
   language: "French",
   genre: "Culture, Science, Philosophy & Ideas",
   streamUrl: "https://icecast.radiofrance.fr/franceculture-midfi.mp3?id=openapi",
@@ -286,7 +287,7 @@ window.STATIONS = [
 {
   id: "los40-es",
   name: "LOS40",
-  country: "Espagne",
+  country: "Spain",
   language: "Espagnol",
   genre: "Pop, hits espagnols et internationaux",
   streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3",
@@ -296,7 +297,7 @@ window.STATIONS = [
 {
   id: "cadena-ser-es",
   name: "Cadena SER",
-  country: "Espagne",
+  country: "Spain",
   language: "Espagnol",
   genre: "Actualités, débats, sport",
   streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3",
@@ -306,7 +307,7 @@ window.STATIONS = [
 {
   id: "cope-es",
   name: "COPE",
-  country: "Espagne",
+  country: "Spain",
   language: "Espagnol",
   genre: "Actualités, débats, sport",
   streamUrl: "https://madrid-cope-rrcast.flumotion.com/cope/madrid.mp3",
