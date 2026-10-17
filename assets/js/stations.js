@@ -60,16 +60,6 @@ window.STATIONS = [
   
 
 
-{
-  id: "fip-france",
-  name: "FIP",
-  country: "France",
-  language: "Instrumental",
-  genre: "Éclectique, Jazz, Rock, Classique, Musiques du monde",
-  streamUrl: "https://icecast.radiofrance.fr/fip-midfi.mp3",
-  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/fip&sz=128",
-  website: "https://www.radiofrance.fr/fip"
-},
 
   {
     id: "nightride-fm",
@@ -195,6 +185,16 @@ window.STATIONS = [
   website: "https://www.radioswissclassic.ch/"
 },
 {
+  id: "fip-france",
+  name: "FIP",
+  country: "France",
+  language: "Instrumental",
+  genre: "Eclectic, Jazz, Rock, Classical & World Music",
+  streamUrl: "https://icecast.radiofrance.fr/fip-midfi.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.radiofrance.fr/fip&sz=128",
+  website: "https://www.radiofrance.fr/fip"
+},
+{
   id: "france-inter",
   name: "France Inter",
   country: "France",
@@ -264,12 +264,13 @@ window.STATIONS = [
   logoUrl: "https://www.google.com/s2/favicons?domain=radiofrance.fr/franceculture&sz=128",
   website: "https://www.radiofrance.fr/franceculture"
 },
+
 {
   id: "nostalgie-fr",
   name: "Nostalgie",
   country: "France",
-  language: "Français",
-  genre: "Variété française, hits rétro",
+  language: "French",
+  genre: "French Variety & Retro Hits",
   streamUrl: "https://streaming.nrjaudio.fm/oug7girb92oc",
   logoUrl: "https://www.google.com/s2/favicons?domain=nostalgie.fr&sz=128",
   website: "https://www.nostalgie.fr/"
@@ -278,18 +279,20 @@ window.STATIONS = [
   id: "fun-radio-fr",
   name: "Fun Radio",
   country: "France",
-  language: "Français",
-  genre: "Dance, électro, hits",
+  language: "French",
+  genre: "Dance, Electronic & Hits",
   streamUrl: "https://icecast.funradio.fr/fun-1-44-128",
   logoUrl: "https://www.google.com/s2/favicons?domain=funradio.fr&sz=128",
   website: "https://www.funradio.fr/"
 },
+
+
 {
   id: "los40-es",
   name: "LOS40",
   country: "Spain",
-  language: "Espagnol",
-  genre: "Pop, hits espagnols et internationaux",
+  language: "Spanish",
+  genre: "Pop, Spanish & International Hits",
   streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=los40.com&sz=128",
   website: "https://los40.com/"
@@ -298,8 +301,8 @@ window.STATIONS = [
   id: "cadena-ser-es",
   name: "Cadena SER",
   country: "Spain",
-  language: "Espagnol",
-  genre: "Actualités, débats, sport",
+  language: "Spanish",
+  genre: "News, Debates & Sports",
   streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=cadenaser.com&sz=128",
   website: "https://cadenaser.com/"
@@ -308,18 +311,20 @@ window.STATIONS = [
   id: "cope-es",
   name: "COPE",
   country: "Spain",
-  language: "Espagnol",
-  genre: "Actualités, débats, sport",
+  language: "Spanish",
+  genre: "News, Debates & Sports",
   streamUrl: "https://madrid-cope-rrcast.flumotion.com/cope/madrid.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=cope.es&sz=128",
   website: "https://www.cope.es/"
 },
+
+
 {
   id: "deutschlandfunk-kultur-de",
   name: "Deutschlandfunk Kultur",
-  country: "Allemagne",
-  language: "Allemand",
-  genre: "Culture, arts, débats, musique",
+  country: "Germany",
+  language: "German",
+  genre: "Culture, Arts, Debates & Music",
   streamUrl: "https://st02.sslstream.dlf.de/dlf/02/128/mp3/stream.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.deutschlandfunkkultur.de&sz=128",
   website: "https://www.deutschlandfunkkultur.de/"
@@ -327,19 +332,20 @@ window.STATIONS = [
 {
   id: "n-joy-de",
   name: "N-JOY",
-  country: "Allemagne",
-  language: "Allemand",
-  genre: "Pop, hits contemporains",
+  country: "Germany",
+  language: "German",
+  genre: "Pop & Contemporary Hits",
   streamUrl: "https://icecast.ndr.de/ndr/njoy/live/mp3/128/stream.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.n-joy.de&sz=128",
   website: "https://www.n-joy.de/"
 },
+
 {
   id: "radio-deejay-it",
   name: "Radio Deejay",
-  country: "Italie",
-  language: "Italien",
-  genre: "Musique populaire, divertissement",
+  country: "Italy",
+  language: "Italian",
+  genre: "Popular Music & Entertainment",
   streamUrl: "https://stream.deejay.hr/",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.deejay.it&sz=128",
   website: "https://www.deejay.it/"
@@ -347,19 +353,20 @@ window.STATIONS = [
 {
   id: "rai-radio-1-it",
   name: "Rai Radio 1",
-  country: "Italie",
-  language: "Italien",
-  genre: "Actualités, sport, généraliste",
+  country: "Italy",
+  language: "Italian",
+  genre: "News, Sports & General Interest",
   streamUrl: "https://radiounoita-live.akamaized.net/hls/live/2032820/radiounoita/radiounoita/playlist.m3u8",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.raiplaysound.it&sz=128",
   website: "https://www.raiplaysound.it/"
 },
+
 {
   id: "npo-radio-2-nl",
   name: "NPO Radio 2",
-  country: "Pays-Bas",
-  language: "Néerlandais",
-  genre: "Pop, grands classiques",
+  country: "Netherlands",
+  language: "Dutch",
+  genre: "Pop & Classics",
   streamUrl: "https://icecast.omroep.nl/radio2-bb-mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.nporadio2.nl&sz=128",
   website: "https://www.nporadio2.nl/"
@@ -367,29 +374,33 @@ window.STATIONS = [
 {
   id: "qmusic-nl",
   name: "Qmusic",
-  country: "Pays-Bas",
-  language: "Néerlandais",
-  genre: "Hits, musique populaire",
+  country: "Netherlands",
+  language: "Dutch",
+  genre: "Hits & Popular Music",
   streamUrl: "https://audio-streaming.qmusic.nl/Qmusic_nl_live_high.aac",
   logoUrl: "https://www.google.com/s2/favicons?domain=qmusic.nl&sz=128",
   website: "https://qmusic.nl/"
 },
+
+
 {
   id: "sveriges-radio-p1-se",
   name: "Sveriges Radio Finska",
-  country: "Suède",
-  language: "Suédois",
-  genre: "Actualités, société, culture",
+  country: "Sweden",
+  language: "Swedish",
+  genre: "News, Society & Culture",
   streamUrl: "https://www.sverigesradio.se/topsy/direkt/srapi/226.mp3",
   logoUrl: "https://www.google.com/s2/favicons?domain=www.sverigesradio.se&sz=128",
   website: "https://www.sverigesradio.se/"
 },
+
+
 {
   id: "nrk-p1-no",
   name: "NRK P1",
-  country: "Norvège",
-  language: "Norvégien",
-  genre: "Généraliste, actualités",
+  country: "Norway",
+  language: "Norwegian",
+  genre: "General Interest & News",
   streamUrl: "https://nrk-live-radio-world.akamaized.net/p1/muxed.m3u8",
   logoUrl: "https://www.google.com/s2/favicons?domain=radio.nrk.no&sz=128",
   website: "https://radio.nrk.no/"
