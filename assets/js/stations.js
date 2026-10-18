@@ -406,4 +406,35 @@ window.STATIONS = [
   website: "https://radio.nrk.no/"
 },
 
+{
+  id: "top-albania-radio",
+  name: "Top Albania Radio",
+  country: "Albania",
+  language: "Albanian",
+  genre: "Pop, Top 40 & Entertainment",
+  streamUrl: "https://live.top-media.al/tar",
+  logoUrl: "https://www.google.com/s2/favicons?domain=topalbaniaradio.com&sz=128",
+  website: "https://www.topalbaniaradio.com/"
+},
+{
+  id: "club-fm-al",
+  name: "Club FM",
+  country: "Albania",
+  language: "Albanian",
+  genre: "Dance, House & Electronic Music",
+  streamUrl: "https://cp1.sednastream.com/proxy/clubfm?mp=/stream",
+  logoUrl: "https://www.google.com/s2/favicons?domain=clubfm.al&sz=128",
+  website: "https://clubfm.al/"
+},
+{
+  id: "radio-tirana-1-al",
+  name: "Radio Tirana 1",
+  country: "Albania",
+  language: "Albanian",
+  genre: "News, Culture, Talk & Public Broadcasting",
+  streamUrl: "http://79.106.48.2:8000/radiotirana1",
+  logoUrl: "https://www.google.com/s2/favicons?domain=rtsh.al&sz=128",
+  website: "https://rtsh.al/radio/kanale/radio-tirana-1/"
+},
+
 ];
