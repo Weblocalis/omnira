@@ -437,4 +437,24 @@ window.STATIONS = [
   website: "https://rtsh.al/radio/kanale/radio-tirana-1/"
 },
 
+{
+  id: "radio-nacional-andorra",
+  name: "Ràdio Nacional d'Andorra",
+  country: "Andorra",
+  language: "Catalan",
+  genre: "News, Current Affairs & General Interest",
+  streamUrl: "https://livesg.rtva.hiway.media/restreamer/rtva_client/gpu-f-c0-7/restreamer/outgest/578e48f3-c654-4638-948a-be990c90807b/manifest.m3u8",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.rtva.ad&sz=128",
+  website: "https://www.rtva.ad/en-directe/rna"
+},
+{
+  id: "andorra-musica",
+  name: "Andorra Música",
+  country: "Andorra",
+  language: "Catalan",
+  genre: "Pop, Rock & International Music",
+  streamUrl: "https://livesg.rtva.hiway.media/restreamer/rtva_client/gpu-g-c0-3/restreamer/outgest/e2b4dcb0-7ae3-4335-992a-23ba82e529b3/manifest.m3u8",
+  logoUrl: "https://www.google.com/s2/favicons?domain=www.rtva.ad&sz=128",
+  website: "https://www.rtva.ad/"
+},
 ];
