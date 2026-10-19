@@ -1,5 +1,5 @@
 /*
- * Ma Radio — logique du lecteur (JavaScript natif, sans dépendance).
+ * Omnira — logique du lecteur (JavaScript natif, sans dépendance).
  * Le catalogue est lu depuis window.STATIONS (assets/js/stations.js).
  * Toutes les données de station sont affichées via textContent : aucune injection HTML.
  */
@@ -16,6 +16,7 @@
   };
   const CONNECT_TIMEOUT_MS = 15000;
   const ALL = ''; // valeur « tous » des filtres
+  const UNSPECIFIED = '__unspecified__';   // valeur interne d'un champ de catalogue absent (affichée via i18n : data.unspecified)
   const HISTORY_MAX = 12;
   // Après une interruption plus longue que ça, le flux en direct est relancé pour rattraper le direct (au lieu de rejouer un tampon périmé).
   const LIVE_REFRESH_MS = 20000;
@@ -27,44 +28,42 @@
    * Une station peut aussi imposer ses thèmes avec un champ facultatif dans stations.js : themes: ["focus", "work"]. */
 
 const THEMES = [
-  { id: 'focus', title: 'Focus and Coding', desc: 'Ambient, mellow electronic, lo-fi', icon: 'bi-code-slash',
+  { id: 'focus', icon: 'bi-code-slash',
     match: 'ambient|concentration|lo-?fi|chillhop|chillsynth|synthwave|idm|glitch|programmation|informatique|hacking|drone' },
-  { id: 'work', title: 'Work and Productivity', desc: 'Classical, jazz, instrumental', icon: 'bi-briefcase',
+  { id: 'work', icon: 'bi-briefcase',
     match: 'musique classique|^classique \\||orchestr|jazz|instrumental|lo-?fi|chill|downtempo|ambient' },
-  { id: 'sport', title: 'Sports and Fitness', desc: 'Energy to keep you moving', icon: 'bi-lightning-charge-fill',
+  { id: 'sport', icon: 'bi-lightning-charge-fill',
     match: 'sport|fitness|workout|energique|dance|running' },
-  { id: 'relax', title: 'Relaxation and Unwinding', desc: 'Take a moment to unwind', icon: 'bi-cup-hot',
+  { id: 'relax', icon: 'bi-cup-hot',
     match: 'relax|detente|chill|downtempo|lounge|tarab|andalou|musique classique|^classique \\||orchestr|jazz|ambient' },
-  { id: 'sleep', title: 'Sleep and Calm Ambience', desc: 'Soft and soothing sounds', icon: 'bi-moon-stars',
+  { id: 'sleep', icon: 'bi-moon-stars',
     match: 'sommeil|sleep|calme|ambient|drone|deep space' },
-  { id: 'drive', title: 'Driving and Travel', desc: 'Your soundtrack for the road', icon: 'bi-car-front-fill',
+  { id: 'drive', icon: 'bi-car-front-fill',
     match: '\\bpop\\b|\\brock\\b|route|voyage|conduite|synthwave|outrun|retrowave|dance|eclectique|variete|electro' },
-  { id: 'discover', title: 'Discover New Music', desc: 'Eclectic sounds from around the world', icon: 'bi-compass',
+  { id: 'discover', icon: 'bi-compass',
     match: 'eclectique|decouverte|monde|world|tarab|andalou|oriental|vaporwave|idm|space disco' },
-  { id: 'news', title: 'News and Information', desc: 'News, debate and culture', icon: 'bi-newspaper',
+  { id: 'news', icon: 'bi-newspaper',
     match: 'information|actualit|news|journal|generaliste|culture|sciences|philosophie|idees|debat' }
 ];
   
 
 const FAMILIES = [
-  { id: 'ambient', label: 'Ambient', icon: 'bi-cloud-haze2', match: 'ambient|drone' },
-  { id: 'lofi', label: 'Lo-fi and Chillhop', icon: 'bi-headphones', match: 'lo-?fi|chillhop|hip-?hop' },
-  { id: 'electro', label: 'Electronic and Synthwave', icon: 'bi-soundwave',
+  { id: 'ambient', icon: 'bi-cloud-haze2', match: 'ambient|drone' },
+  { id: 'lofi', icon: 'bi-headphones', match: 'lo-?fi|chillhop|hip-?hop' },
+  { id: 'electro', icon: 'bi-soundwave',
     match: 'electro|synthwave|idm|vaporwave|chillsynth|techno|house|edm|glitch|space disco|cyberpunk' },
-  { id: 'classique', label: 'Classical and Orchestral', icon: 'bi-music-note-list', match: '^classique$|musique classique|orchestr|symphon|opera' },
-  { id: 'jazz', label: 'Jazz', icon: 'bi-music-note', match: 'jazz' },
-  { id: 'rock', label: 'Rock', icon: 'bi-speaker', match: '\\brock\\b|metal' },
-  { id: 'pop', label: 'Pop', icon: 'bi-stars', match: '\\bpop\\b' },
-  { id: 'monde', label: 'World Music', icon: 'bi-globe-europe-africa',
+  { id: 'classique', icon: 'bi-music-note-list', match: '^classique$|musique classique|orchestr|symphon|opera' },
+  { id: 'jazz', icon: 'bi-music-note', match: 'jazz' },
+  { id: 'rock', icon: 'bi-speaker', match: '\\brock\\b|metal' },
+  { id: 'pop', icon: 'bi-stars', match: '\\bpop\\b' },
+  { id: 'monde', icon: 'bi-globe-europe-africa',
     match: 'monde|world|tarab|arabo|andalou|oriental|flamenco|gnawa|reggae|latin|afro|celtique' },
-  { id: 'instru', label: 'Instrumental and Relaxation', icon: 'bi-feather',
+  { id: 'instru', icon: 'bi-feather',
     match: 'instrumental|relax|detente|chill|downtempo|lounge|sommeil|calme' }
 ];
   
   THEMES.forEach((t) => { t.re = new RegExp(t.match); });
   FAMILIES.forEach((f) => { f.re = new RegExp(f.match); });
-  const THEME_BY_ID = new Map(THEMES.map((t) => [t.id, t]));
-  const FAMILY_BY_ID = new Map(FAMILIES.map((f) => [f.id, f]));
   const INSTRUMENTAL_KEY = 'instrumental';
 
   /* ---------- Stockage local (tolérant aux navigateurs qui le bloquent) ---------- */
@@ -93,6 +92,13 @@ const FAMILIES = [
   const $ = (id) => document.getElementById(id);
   const normalize = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 
+  /* ---------- i18n : toute la chaîne affichée passe par I18N (assets/js/i18n.js + assets/js/locales/*.js) ---------- */
+  const tr = (key, params) => I18N.t(key, params);
+  const trn = (key, n, params) => I18N.tn(key, n, params);
+  const loc = () => I18N.getLanguage();                         // langue de l'INTERFACE (tri des listes)
+  const shown = (value) => (value === UNSPECIFIED ? tr('data.unspecified') : value);   // champ de catalogue absent
+  const langLabel = (key) => (key === INSTRUMENTAL_KEY ? tr('lang.instrumental') : (state.langLabels.get(key) || key));
+
   function isHttpUrl(value) {
     try {
       const u = new URL(value);
@@ -107,15 +113,15 @@ const FAMILIES = [
     const name = String(raw.name || '').trim();
     const streamUrl = String(raw.streamUrl || '').trim();
     if (!id || !name || !isHttpUrl(streamUrl)) {
-      console.warn('Station ignorée (id, name ou streamUrl http(s) invalide) :', raw);
+      console.warn('Station skipped (invalid id, name or http(s) streamUrl):', raw);
       return null;
     }
     const text = (v, d) => (String(v || '').trim() || d);
     return {
       id, name, streamUrl,
-      country: text(raw.country, 'Non précisé'),
-      language: text(raw.language, 'Non précisée'),
-      genre: text(raw.genre, 'Non précisé'),
+      country: text(raw.country, UNSPECIFIED),
+      language: text(raw.language, UNSPECIFIED),
+      genre: text(raw.genre, UNSPECIFIED),
       logoUrl: isHttpUrl(raw.logoUrl) ? String(raw.logoUrl).trim() : '',
       website: isHttpUrl(raw.website) ? String(raw.website).trim() : '',
       themes: Array.isArray(raw.themes) ? raw.themes.map(String) : null,
@@ -139,6 +145,8 @@ const FAMILIES = [
     current: null,
     wantPlay: false,     // l'utilisateur veut écouter (connexion, tampon ou lecture)
     status: 'idle',
+    statusKey: 'status.idle',   // clé + paramètres du texte affiché (pour le retraduire au changement de langue)
+    statusParams: null,
     volume: 80,
     muted: false
   };
@@ -161,6 +169,7 @@ const FAMILIES = [
     recents: $('recents-list'), picks: $('picks-list'), themes: $('themes-list'), genres: $('genres-list'),
     countries: $('countries-list'), languages: $('languages-list'),
     themeInputs: [...document.querySelectorAll('input[name="theme"]')], themeHint: $('theme-hint'),
+    langFieldset: $('language-settings'), langOptions: $('language-options'), langHint: $('language-hint'),
     player: $('player'), logo: $('player-logo'), name: $('player-name'),
     dot: $('status-dot'), statusText: $('status-text'), eq: $('player-eq'),
     play: $('btn-play'), retry: $('btn-retry'), mute: $('btn-mute'), volume: $('volume'), volumeValue: $('volume-value')
@@ -174,8 +183,8 @@ const FAMILIES = [
       const key = normalize(label);
       if (!label) return;
       if (key.startsWith('instrumental') || key.includes('sans paroles')) {
-        out.push({ key: INSTRUMENTAL_KEY, label: 'Instrumental (sans paroles)' });
-      } else if (/^(international|mixte|multilingue|divers|non precis)/.test(key)) {
+        out.push({ key: INSTRUMENTAL_KEY, label: '' });          // libellé affiché : tr('lang.instrumental')
+      } else if (/^(international|mixte|multilingue|divers|non precis|__unspecified)/.test(key)) {
         return;
       } else {
         out.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1) });
@@ -301,7 +310,7 @@ function countryFlag(name) {
     main.type = 'button';
     main.className = 'station-main';
     main.dataset.action = 'play';
-    main.setAttribute('aria-label', 'Écouter ' + st.name);
+    main.setAttribute('aria-label', tr('station.listen', { name: st.name }));
 
     const text = document.createElement('div');
     text.className = 'min-w-0 flex-grow-1';
@@ -310,12 +319,12 @@ function countryFlag(name) {
     name.textContent = st.name;
     const meta = document.createElement('div');
     meta.className = 'station-meta text-truncate';
-    meta.textContent = [st.country, st.language, st.genre].join(' · ');
+    meta.textContent = [st.country, st.language, st.genre].map(shown).join(' · ');
     if (st.insecure) {
       const b = document.createElement('span');
       b.className = 'badge-http';
       b.textContent = 'HTTP';
-      b.title = 'Flux non sécurisé : peut être bloqué sur un site HTTPS';
+      b.title = tr('station.http');
       meta.appendChild(b);
     }
     text.append(name, meta);
@@ -334,8 +343,8 @@ function countryFlag(name) {
       a.href = st.website;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
-      a.title = 'Site officiel';
-      a.setAttribute('aria-label', 'Site officiel de ' + st.name + ' (nouvel onglet)');
+      a.title = tr('station.website');
+      a.setAttribute('aria-label', tr('station.websiteAria', { name: st.name }));
       a.appendChild(icon('bi-box-arrow-up-right'));
       card.appendChild(a);
     }
@@ -353,8 +362,8 @@ function countryFlag(name) {
   function paintFavoriteButton(btn, st) {
     const on = state.favorites.has(st.id);
     btn.setAttribute('aria-pressed', String(on));
-    btn.setAttribute('aria-label', (on ? 'Retirer ' : 'Ajouter ') + st.name + (on ? ' des favoris' : ' aux favoris'));
-    btn.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+    btn.setAttribute('aria-label', tr(on ? 'station.fav.removeAria' : 'station.fav.addAria', { name: st.name }));
+    btn.title = tr(on ? 'station.fav.remove' : 'station.fav.add');
     btn.replaceChildren(icon(on ? 'bi-heart-fill' : 'bi-heart'));
   }
 
@@ -365,10 +374,10 @@ function countryFlag(name) {
     all.value = ALL;
     all.textContent = label;
     select.appendChild(all);
-    [...new Set(values)].sort((a, b) => a.localeCompare(b, 'fr')).forEach((v) => {
+    [...new Set(values)].sort((a, b) => a.localeCompare(b, loc())).forEach((v) => {
       const o = document.createElement('option');
       o.value = v;
-      o.textContent = v;
+      o.textContent = shown(v);
       select.appendChild(o);
     });
   }
@@ -377,14 +386,21 @@ function countryFlag(name) {
     el.language.replaceChildren();
     const all = document.createElement('option');
     all.value = ALL;
-    all.textContent = 'Toutes les langues';
+    all.textContent = tr('filters.allLanguages');
     el.language.appendChild(all);
-    [...state.langLabels.entries()].sort((a, b) => a[1].localeCompare(b[1], 'fr')).forEach(([key, label]) => {
-      const o = document.createElement('option');
-      o.value = key;
-      o.textContent = label;
-      el.language.appendChild(o);
-    });
+    [...state.langLabels.keys()].map((key) => [key, langLabel(key)])
+      .sort((a, b) => a[1].localeCompare(b[1], loc())).forEach(([key, label]) => {
+        const o = document.createElement('option');
+        o.value = key;
+        o.textContent = label;
+        el.language.appendChild(o);
+      });
+  }
+
+  function fillFilterSelects() {
+    fillSelect(el.country, tr('filters.allCountries'), state.stations.map((s) => s.country));
+    fillLanguageSelect();
+    fillSelect(el.genre, tr('filters.allGenres'), state.stations.map((s) => s.genre));
   }
 
   function filteredStations() {
@@ -398,7 +414,7 @@ function countryFlag(name) {
         (f.genre === ALL || s.genre === f.genre) &&
         (!f.theme || s.themeIds.includes(f.theme)) &&
         (!f.family || s.families.includes(f.family)))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      .sort((a, b) => a.name.localeCompare(b.name, loc()));
   }
 
   /* ---------- Favoris ----------
@@ -407,7 +423,7 @@ function countryFlag(name) {
   function favoriteStations(q) {
     return state.stations
       .filter((s) => state.favorites.has(s.id) && (!q || normalize(s.name).includes(q)))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      .sort((a, b) => a.name.localeCompare(b.name, loc()));
   }
 
   function paintAllFavButtons() {
@@ -448,30 +464,30 @@ function countryFlag(name) {
   }
 
   function viewTitleText() {
-    if (state.view === 'favorites') return 'Favoris';
+    if (state.view === 'favorites') return tr('view.favorites');
     const f = state.filters;
     const parts = [];
-    if (f.theme) parts.push(THEME_BY_ID.get(f.theme).title);
-    if (f.family) parts.push(FAMILY_BY_ID.get(f.family).label);
-    if (f.genre) parts.push(f.genre);
-    if (f.country) parts.push(f.country);
-    if (f.language) parts.push(state.langLabels.get(f.language) || f.language);
+    if (f.theme) parts.push(tr('theme.' + f.theme + '.title'));
+    if (f.family) parts.push(tr('family.' + f.family));
+    if (f.genre) parts.push(shown(f.genre));
+    if (f.country) parts.push(shown(f.country));
+    if (f.language) parts.push(langLabel(f.language));
     if (parts.length) return parts.join(' · ');
-    return f.query ? 'Résultats de la recherche' : 'Toutes les stations';
+    return f.query ? tr('view.search') : tr('view.all');
   }
 
   /** Pastilles pour les filtres qui n'ont pas de liste déroulante (activité, famille de genre). */
   function renderChips() {
     const f = state.filters;
     const chips = [];
-    if (f.theme) chips.push({ key: 'theme', label: THEME_BY_ID.get(f.theme).title });
-    if (f.family) chips.push({ key: 'family', label: FAMILY_BY_ID.get(f.family).label });
+    if (f.theme) chips.push({ key: 'theme', label: tr('theme.' + f.theme + '.title') });
+    if (f.family) chips.push({ key: 'family', label: tr('family.' + f.family) });
     el.chips.replaceChildren(...chips.map((c) => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'chip';
       b.dataset.clear = c.key;
-      b.setAttribute('aria-label', 'Retirer le filtre ' + c.label);
+      b.setAttribute('aria-label', tr('chip.remove', { name: c.label }));
       const t = document.createElement('span');
       t.textContent = c.label;
       b.append(t, icon('bi-x-lg'));
@@ -494,20 +510,20 @@ function countryFlag(name) {
 
     const total = state.stations.length;
     if (inFav) {
-      el.count.textContent = items.length + (items.length > 1 ? ' favoris' : ' favori');
+      el.count.textContent = trn('count.favorites', items.length);
     } else {
-      el.count.textContent = items.length + (items.length > 1 ? ' stations' : ' station') +
-        (items.length !== total ? ' sur ' + total : '');
+      el.count.textContent = trn('count.stations', items.length) +
+        (items.length !== total ? ' ' + tr('count.of', { total: total }) : '');
     }
 
     if (total === 0) {
       el.count.textContent = '';
-      showEmpty('bi-exclamation-triangle', 'Le catalogue de stations est vide ou indisponible. Vérifie le fichier assets/js/stations.js.', false);
+      showEmpty('bi-exclamation-triangle', tr('empty.catalog'), false);
     } else if (items.length === 0 && inFav) {
-      if (q && favoriteStations('').length > 0) showEmpty('bi-search', 'Aucun favori ne correspond à cette recherche.', false);
-      else showEmpty('bi-heart', 'Tu n’as pas encore de favori. Touche le cœur d’une station pour l’ajouter ici.', true);
+      if (q && favoriteStations('').length > 0) showEmpty('bi-search', tr('empty.noFavoritesMatch'), false);
+      else showEmpty('bi-heart', tr('empty.noFavorites'), true);
     } else if (items.length === 0) {
-      showEmpty('bi-search', 'Aucune station ne correspond à ces critères.', false);
+      showEmpty('bi-search', tr('empty.noMatch'), false);
     } else {
       el.empty.classList.add('d-none');
     }
@@ -515,8 +531,7 @@ function countryFlag(name) {
     const orphans = inFav && total > 0 ? orphanIds().length : 0;
     el.orphans.classList.toggle('d-none', orphans === 0);
     if (orphans > 0) {
-      el.orphansText.textContent = orphans + (orphans > 1 ? ' favoris ne correspondent' : ' favori ne correspond') +
-        ' plus à une station du catalogue.';
+      el.orphansText.textContent = trn('orphans.text', orphans);
     }
     el.viewTitle.textContent = viewTitleText();
     renderChips();
@@ -525,8 +540,6 @@ function countryFlag(name) {
   }
 
   /* ---------- Accueil : sections construites à partir du catalogue ---------- */
-  function plural(n, one, many) { return n + ' ' + (n > 1 ? many : one); }
-
   function makeCategoryCard(opts) {
     const col = document.createElement('div');
     col.className = 'col';
@@ -595,35 +608,36 @@ function countryFlag(name) {
 
   function renderCategories() {
     const st = state.stations;
+    const count = (n) => trn('count.stations', n);
     // Activités
     fillSection(el.themes, THEMES.map((t) => [t, st.filter((s) => s.themeIds.includes(t.id)).length]).filter(([, n]) => n > 0)
-      .map(([t, n]) => makeCategoryCard({ icon: t.icon, title: t.title, lines: [t.desc, plural(n, 'station', 'stations')], patch: { theme: t.id } })));
+      .map(([t, n]) => makeCategoryCard({ icon: t.icon, title: tr('theme.' + t.id + '.title'), lines: [tr('theme.' + t.id + '.desc'), count(n)], patch: { theme: t.id } })));
     // Genres : familles non vides, puis genres du catalogue qui n'entrent dans aucune famille
     const genreCards = FAMILIES.map((f) => [f, st.filter((s) => s.families.includes(f.id)).length]).filter(([, n]) => n > 0)
-      .map(([f, n]) => makeCategoryCard({ icon: f.icon, title: f.label, lines: [plural(n, 'station', 'stations')], patch: { family: f.id } }));
+      .map(([f, n]) => makeCategoryCard({ icon: f.icon, title: tr('family.' + f.id), lines: [count(n)], patch: { family: f.id } }));
     const loose = new Map();
     st.filter((s) => s.families.length === 0).forEach((s) => loose.set(s.genre, (loose.get(s.genre) || 0) + 1));
-    [...loose.entries()].sort((a, b) => a[0].localeCompare(b[0], 'fr')).forEach(([g, n]) =>
-      genreCards.push(makeCategoryCard({ icon: 'bi-vinyl', title: g, lines: [plural(n, 'station', 'stations')], patch: { genre: g } })));
+    [...loose.entries()].sort((a, b) => shown(a[0]).localeCompare(shown(b[0]), loc())).forEach(([g, n]) =>
+      genreCards.push(makeCategoryCard({ icon: 'bi-vinyl', title: shown(g), lines: [count(n)], patch: { genre: g } })));
     fillSection(el.genres, genreCards);
     // Pays
     const byCountry = new Map();
     st.forEach((s) => byCountry.set(s.country, (byCountry.get(s.country) || 0) + 1));
-    fillSection(el.countries, [...byCountry.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'fr'))
-      .map(([c, n]) => makeCategoryCard({ icon: 'bi-geo-alt-fill', flag: countryFlag(c), title: c, lines: [plural(n, 'station', 'stations')], patch: { country: c } })));
+    fillSection(el.countries, [...byCountry.entries()].sort((a, b) => b[1] - a[1] || shown(a[0]).localeCompare(shown(b[0]), loc()))
+      .map(([c, n]) => makeCategoryCard({ icon: 'bi-geo-alt-fill', flag: countryFlag(c), title: shown(c), lines: [count(n)], patch: { country: c } })));
     // Langues (parlées) + « Instrumental » à part
     const byLang = new Map();
     st.forEach((s) => s.langs.forEach((k) => byLang.set(k, (byLang.get(k) || 0) + 1)));
-    fillSection(el.languages, [...byLang.entries()].sort((a, b) => b[1] - a[1] || state.langLabels.get(a[0]).localeCompare(state.langLabels.get(b[0]), 'fr'))
+    fillSection(el.languages, [...byLang.entries()].sort((a, b) => b[1] - a[1] || langLabel(a[0]).localeCompare(langLabel(b[0]), loc()))
       .map(([k, n]) => makeCategoryCard({ icon: k === INSTRUMENTAL_KEY ? 'bi-music-note-beamed' : 'bi-translate',
-        title: state.langLabels.get(k), lines: [plural(n, 'station', 'stations')], patch: { language: k } })));
+        title: langLabel(k), lines: [count(n)], patch: { language: k } })));
   }
 
   function renderHome() {
     const empty = state.stations.length === 0;
     el.homeEmpty.classList.toggle('d-none', !empty);
     if (empty) {
-      el.homeEmpty.textContent = 'Le catalogue de stations est vide ou indisponible. Vérifie le fichier assets/js/stations.js.';
+      el.homeEmpty.textContent = tr('empty.catalog');
       [el.recents, el.picks, el.themes, el.genres, el.countries, el.languages].forEach((l) => fillSection(l, []));
       return;
     }
@@ -669,9 +683,9 @@ function countryFlag(name) {
     el.navFavorites.querySelector('i').className = 'bi ' + (inFav ? 'bi-heart-fill' : 'bi-heart');
     el.headerFav.querySelector('i').className = 'bi ' + (inFav ? 'bi-heart-fill' : 'bi-heart');
     const n = favoriteStations('').length;
-    el.favBadge.textContent = String(n);
+    el.favBadge.textContent = I18N.number(n);
     el.favBadge.classList.toggle('d-none', n === 0);
-    el.navFavorites.setAttribute('aria-label', 'Favoris' + (n ? ' (' + n + ')' : ''));
+    el.navFavorites.setAttribute('aria-label', n ? tr('nav.favoritesCount', { n: n }) : tr('nav.favorites'));
   }
 
   function applyView(view, scrollTop) {
@@ -726,14 +740,6 @@ function countryFlag(name) {
   }
 
   /* ---------- Statut et lecteur ---------- */
-  const STATUS_TEXT = {
-    idle: 'Choisis une station dans la liste',
-    ready: 'Prêt',
-    connecting: 'Connexion…',
-    buffering: 'Mise en mémoire tampon…',
-    playing: 'Lecture en cours'
-  };
-
   /* ---------- Media Session (notification Android, écran verrouillé, casque) ----------
    * Utile pour : nom de la station dans la notification et boutons Lecture/Pause traités comme des actions de
    * l'utilisateur (donc jamais confondus avec une interruption). Ne détecte PAS les appels ni les annonces d'autres applis. */
@@ -748,7 +754,7 @@ function countryFlag(name) {
         const artwork = st.logoUrl
           ? [{ src: st.logoUrl, sizes: '128x128' }]
           : [{ src: new URL('assets/icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }];
-        navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: 'Ma Radio', artwork });
+        navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: tr('app.name'), artwork });
         mediaSessionStation = st.id;
       } else if (!st) {
         navigator.mediaSession.metadata = null;
@@ -766,14 +772,17 @@ function countryFlag(name) {
     handle('stop', () => { if (state.current) stopPlayback(); });
   }
 
-  function setStatus(kind, message) {
+  /** kind : état visuel ; key/params : texte affiché (clé i18n, 'status.<kind>' par défaut). params.insecure ajoute l'avertissement HTTP. */
+  function setStatus(kind, key, params) {
     state.status = kind;
+    state.statusKey = key || ('status.' + kind);
+    state.statusParams = params || null;
     el.dot.className = 'status-dot status-' + kind;
-    el.statusText.textContent = message || STATUS_TEXT[kind] || '';
+    el.statusText.textContent = tr(state.statusKey) + (params && params.insecure ? ' ' + tr('error.insecure') : '');
     el.eq.classList.toggle('is-playing', kind === 'playing');
     const active = state.wantPlay;
     el.play.replaceChildren(icon(active ? 'bi-pause-fill' : 'bi-play-fill'));
-    el.play.setAttribute('aria-label', active ? 'Pause' : 'Lecture');
+    el.play.setAttribute('aria-label', active ? tr('player.pause') : tr('player.play'));
     el.play.disabled = !state.current;
     el.navCurrent.disabled = !state.current;
     el.retry.classList.toggle('d-none', !state.current || kind === 'idle' || kind === 'ready');
@@ -783,7 +792,7 @@ function countryFlag(name) {
 
   function paintPlayerStation() {
     const st = state.current;
-    el.name.textContent = st ? st.name : 'Aucune station sélectionnée';
+    el.name.textContent = st ? st.name : tr('player.none');
     const logo = makeLogo(st, true);
     el.logo.replaceChildren(...logo.childNodes);
   }
@@ -799,7 +808,7 @@ function countryFlag(name) {
       if (state.wantPlay && (state.status === 'connecting' || state.status === 'buffering')) {
         state.wantPlay = false;
         releaseAudio();
-        setStatus('error', 'Le flux ne répond pas. Appuie sur Relancer ou essaie une autre station.');
+        setStatus('error', 'error.timeout');
       }
     }, CONNECT_TIMEOUT_MS);
   }
@@ -814,17 +823,13 @@ function countryFlag(name) {
     audio.load();
   }
 
-  function errorMessage(code) {
-    const st = state.current;
-    let msg;
-    switch (code) {
-      case 2: msg = 'Erreur réseau : le flux est inaccessible ou la connexion a été interrompue.'; break;
-      case 3: msg = 'Le flux est illisible (erreur de décodage).'; break;
-      case 4: msg = 'Flux indisponible ou format non pris en charge par ce navigateur.'; break;
-      default: msg = 'Impossible de lire ce flux.';
-    }
-    if (st && st.insecure) msg += ' Ce flux est en HTTP : il est peut-être bloqué sur une page HTTPS.';
-    return msg;
+  function errorKey(code) {
+    return code === 2 ? 'error.network' : code === 3 ? 'error.decode' : code === 4 ? 'error.unsupported' : 'error.generic';
+  }
+
+  /** Flux HTTP sur page HTTPS : le message d'erreur ajoute l'avertissement de contenu mixte. */
+  function insecureParams() {
+    return state.current && state.current.insecure ? { insecure: true } : null;
   }
 
   function startPlayback() {
@@ -843,11 +848,11 @@ function countryFlag(name) {
         state.wantPlay = false;
         clearConnectTimer();
         if (err && err.name === 'NotAllowedError') {
-          setStatus('error', 'Lecture bloquée par le navigateur. Appuie sur Lecture.');
+          setStatus('error', 'error.blocked');
         } else if (err && err.name === 'NotSupportedError') {
-          setStatus('error', errorMessage(4));
+          setStatus('error', errorKey(4), insecureParams());
         } else {
-          setStatus('error', errorMessage(0));
+          setStatus('error', errorKey(0), insecureParams());
         }
       });
     }
@@ -902,12 +907,12 @@ function countryFlag(name) {
     if (!audio.getAttribute('src')) return;   // erreur due à la libération volontaire du flux
     state.wantPlay = false;
     clearConnectTimer();
-    setStatus('error', errorMessage(audio.error && audio.error.code));
+    setStatus('error', errorKey(audio.error && audio.error.code), insecureParams());
   });
   audio.addEventListener('ended', () => {
     if (!state.wantPlay) return;
     state.wantPlay = false;
-    setStatus('error', 'Le flux s’est arrêté. Appuie sur Relancer.');
+    setStatus('error', 'error.ended');
   });
   audio.addEventListener('pause', () => {
     // Nos boutons retirent la source avant que cet événement n'arrive : ils ne passent jamais ici.
@@ -918,14 +923,14 @@ function countryFlag(name) {
     state.wantPlay = false;
     state.interrupted = true;
     state.interruptedAt = Date.now();
-    setStatus('interrupted', 'Interrompu (appel ou autre application)');
+    setStatus('interrupted');
   });
   window.addEventListener('offline', () => {
-    if (state.wantPlay) setStatus('error', 'Connexion Internet perdue.');
+    if (state.wantPlay) setStatus('error', 'error.offline');
   });
   window.addEventListener('online', () => {
     if (state.current && state.status === 'error') {
-      setStatus('error', 'Connexion rétablie. Appuie sur Relancer.');
+      setStatus('error', 'error.online');
     }
   });
 
@@ -943,7 +948,7 @@ function countryFlag(name) {
     if (meta) meta.setAttribute('content', THEME_COLOR[resolved]);
     el.themeInputs.forEach((input) => { input.checked = input.value === state.theme; });
     el.themeHint.textContent = state.theme === 'auto'
-      ? 'Suit le thème du système (actuellement ' + (resolved === 'dark' ? 'sombre' : 'clair') + ').' : '';
+      ? tr('settings.theme.hintAuto', { mode: tr(resolved === 'dark' ? 'settings.theme.modeDark' : 'settings.theme.modeLight') }) : '';
   }
 
   function setTheme(pref) {
@@ -951,6 +956,62 @@ function countryFlag(name) {
     state.theme = pref;
     if (!store.set(KEYS.theme, pref)) showStorageWarning();
     applyTheme();
+  }
+
+  /* ---------- Langue de l'interface ----------
+   * Le sélecteur (Paramètres) est construit depuis I18N.languages() ; il reste masqué tant qu'une seule langue est enregistrée.
+   * Changer de langue : textes statiques retraduits (data-i18n), puis rendu des vues/états dynamiques. Ni la lecture audio,
+   * ni les favoris, l'historique, les filtres ou la vue courante ne sont touchés. */
+  let languageControlsBuilt = false;
+
+  function nativeName(code) {
+    const found = I18N.languages().find((l) => l.code === code);
+    return found ? found.nativeName : code;
+  }
+
+  function changeLanguage(choice) {
+    if (!I18N.setLanguage(choice).saved) showStorageWarning();
+  }
+
+  function updateLanguageControls() {
+    const list = I18N.languages();
+    el.langFieldset.classList.toggle('d-none', list.length < 2);
+    if (list.length < 2) return;
+    if (!languageControlsBuilt) {
+      languageControlsBuilt = true;
+      [{ value: I18N.AUTO }].concat(list.map((l) => ({ value: l.code, name: l.nativeName }))).forEach((o) => {
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.className = 'btn-check';
+        input.name = 'ui-language';
+        input.id = 'ui-language-' + o.value;
+        input.value = o.value;
+        input.autocomplete = 'off';
+        const label = document.createElement('label');
+        label.className = 'btn btn-outline-secondary btn-touch text-start';
+        label.htmlFor = input.id;
+        if (o.name) { label.textContent = o.name; label.setAttribute('lang', o.value); }      // native name, never translated
+        else label.setAttribute('data-i18n', 'settings.language.auto');
+        input.addEventListener('change', () => { if (input.checked) changeLanguage(o.value); });
+        el.langOptions.append(input, label);
+      });
+      I18N.applyTo(el.langOptions);
+    }
+    el.langOptions.querySelectorAll('input').forEach((i) => { i.checked = i.value === I18N.getPreference(); });
+    el.langHint.textContent = I18N.getPreference() === I18N.AUTO
+      ? tr('settings.language.hintAuto', { lang: nativeName(I18N.getLanguage()) }) : '';
+  }
+
+  function refreshLanguage() {
+    I18N.applyTo(document);
+    fillFilterSelects();
+    syncFilterControls();
+    applyTheme();
+    applyVolume();
+    paintPlayerStation();
+    setStatus(state.status, state.statusKey, state.statusParams);
+    applyView(state.view, false);
+    updateLanguageControls();
   }
 
   /* ---------- Volume ---------- */
@@ -961,7 +1022,7 @@ function countryFlag(name) {
     const name = silent ? 'bi-volume-mute-fill' : state.volume < 50 ? 'bi-volume-down-fill' : 'bi-volume-up-fill';
     el.mute.replaceChildren(icon(name));
     el.mute.setAttribute('aria-pressed', String(state.muted));
-    el.mute.setAttribute('aria-label', state.muted ? 'Réactiver le son' : 'Couper le son');
+    el.mute.setAttribute('aria-label', state.muted ? tr('player.unmute') : tr('player.mute'));
     el.volume.value = String(state.volume);
     el.volumeValue.textContent = state.muted ? '0' : String(state.volume);
   }
@@ -1022,6 +1083,8 @@ function countryFlag(name) {
     else if (systemDark.addListener) systemDark.addListener(onSystemChange);
   }
 
+  window.addEventListener('languagechange', () => I18N.refresh());     // suit la langue de l'appareil si le choix est « Automatique »
+
   el.play.addEventListener('click', togglePlay);
   el.retry.addEventListener('click', startPlayback);
   el.mute.addEventListener('click', () => {
@@ -1038,6 +1101,9 @@ function countryFlag(name) {
 
   /* ---------- Initialisation ---------- */
   function init() {
+    I18N.init();                      // langue : choix enregistré > langue de l'appareil > anglais
+    I18N.applyTo(document);
+    I18N.onChange(refreshLanguage);
     const savedTheme = store.get(KEYS.theme, 'auto');
     state.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'auto';
     applyTheme();
@@ -1047,15 +1113,13 @@ function countryFlag(name) {
     raw.forEach((r) => {
       const st = normalizeStation(r);
       if (!st) return;
-      if (state.byId.has(st.id)) { console.warn('Identifiant de station en double ignoré :', st.id); return; }
+      if (state.byId.has(st.id)) { console.warn('Duplicate station id ignored:', st.id); return; }
       state.byId.set(st.id, st);
       state.stations.push(st);
       annotate(st);
     });
 
-    fillSelect(el.country, 'Tous les pays', state.stations.map((s) => s.country));
-    fillLanguageSelect();
-    fillSelect(el.genre, 'Tous les genres', state.stations.map((s) => s.genre));
+    fillFilterSelects();
 
     const favs = store.get(KEYS.favorites, []);
     // Set => pas de doublons ; on garde aussi les identifiants absents du catalogue (voir « Favoris » plus haut)
@@ -1070,6 +1134,7 @@ function countryFlag(name) {
 
     applyView(viewFromHash(), false);
     setStatus('idle');
+    updateLanguageControls();
 
     // Restaure la dernière station SANS lancer la lecture
     const last = store.get(KEYS.last, null);

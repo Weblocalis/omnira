@@ -3,8 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Omnira - Your World of Radio.</title>
-  <meta name="description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
+  <title data-i18n="meta.title">Omnira - Your World of Radio.</title>
+  <meta name="description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
+  <!-- Open Graph / Twitter Card : og:url et og:image demandent l'adresse publique du site (à ajouter à la publication) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Omnira">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" data-i18n-content="meta.title" content="Omnira - Your World of Radio.">
+  <meta property="og:description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" data-i18n-content="meta.title" content="Omnira - Your World of Radio.">
+  <meta name="twitter:description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
   <meta name="theme-color" content="#0f1216">
   <script>
     /* Applique le thème AVANT le premier affichage (évite le flash du mauvais thème). Même logique que app.js. */
@@ -67,20 +76,20 @@
   <header class="app-header sticky-top">
     <div class="container py-2">
       <div class="d-flex flex-wrap align-items-center gap-2">
-        <a href="#accueil" class="d-flex align-items-center gap-2 text-decoration-none text-reset me-md-3" aria-label="Ma Radio, retour à l'accueil">
+        <a href="#accueil" class="d-flex align-items-center gap-2 text-decoration-none text-reset me-md-3" aria-label="Omnira, back to home" data-i18n-aria-label="header.home">
           <i class="bi bi-broadcast fs-3 text-accent" aria-hidden="true"></i>
           <h1 class="h5 mb-0">Omnira</h1>
         </a>
         <div class="input-group search-group order-3 order-md-2">
           <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
-          <input type="search" id="search" class="form-control" placeholder="Rechercher une station"
-                 aria-label="Rechercher une station par son nom" autocomplete="off">
+          <input type="search" id="search" class="form-control" placeholder="Search for a station" data-i18n-placeholder="search.placeholder"
+                 aria-label="Search for a station by name" data-i18n-aria-label="search.aria" autocomplete="off">
         </div>
         <a id="header-fav" href="#favoris" class="btn btn-outline-secondary btn-icon order-2 order-md-3 ms-auto ms-md-0"
-           aria-label="Mes favoris" title="Mes favoris"><i class="bi bi-heart" aria-hidden="true"></i></a>
+           aria-label="My favorites" title="My favorites" data-i18n-aria-label="header.favorites" data-i18n-title="header.favorites"><i class="bi bi-heart" aria-hidden="true"></i></a>
         <button id="btn-settings" type="button" class="btn btn-outline-secondary btn-icon order-2 order-md-4"
                 data-bs-toggle="offcanvas" data-bs-target="#settings-panel" aria-controls="settings-panel"
-                aria-label="Paramètres" title="Paramètres"><i class="bi bi-gear" aria-hidden="true"></i></button>
+                aria-label="Settings" title="Settings" data-i18n-aria-label="header.settings" data-i18n-title="header.settings"><i class="bi bi-gear" aria-hidden="true"></i></button>
       </div>
     </div>
   </header>
@@ -93,8 +102,8 @@
 </noscript>
 
 <div id="storage-warning" class="alert alert-warning alert-dismissible d-none" role="alert">
-  Your browser's local storage is unavailable: favorites, listening history, and settings will not be saved after you close the browser.
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <span data-i18n="warning.storage">Your browser's local storage is unavailable: favorites, listening history, and settings will not be saved after you close the browser.</span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" data-i18n-aria-label="common.close"></button>
 </div>
 
 
@@ -105,36 +114,36 @@
 
 <section id="home-recents" class="home-section d-none" aria-labelledby="h-recents">
   <div class="d-flex align-items-center justify-content-between mb-2">
-    <h2 id="h-recents" class="section-title">Recently Played</h2>
-    <button type="button" id="btn-clear-history" class="btn btn-sm btn-link text-muted-ui">Clear</button>
+    <h2 id="h-recents" class="section-title" data-i18n="home.recents.title">Recently Played</h2>
+    <button type="button" id="btn-clear-history" class="btn btn-sm btn-link text-muted-ui" data-i18n="home.recents.clear">Clear</button>
   </div>
   <div id="recents-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
 </section>
 
 
 <section id="home-picks" class="home-section d-none" aria-labelledby="h-picks">
-  <h2 id="h-picks" class="section-title">Discover</h2>
-  <p class="small text-muted-ui mb-2">Today's picks from your catalog (no listening statistics used).</p>
+  <h2 id="h-picks" class="section-title" data-i18n="home.picks.title">Discover</h2>
+  <p class="small text-muted-ui mb-2" data-i18n="home.picks.note">Today's picks from your catalog (no listening statistics used).</p>
   <div id="picks-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
 </section>
 
 <section id="home-themes" class="home-section d-none" aria-labelledby="h-themes">
-  <h2 id="h-themes" class="section-title">Listen by Activity</h2>
+  <h2 id="h-themes" class="section-title" data-i18n="home.themes.title">Listen by Activity</h2>
   <div id="themes-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-genres" class="home-section d-none" aria-labelledby="h-genres">
-  <h2 id="h-genres" class="section-title">Explore by Genre</h2>
+  <h2 id="h-genres" class="section-title" data-i18n="home.genres.title">Explore by Genre</h2>
   <div id="genres-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-countries" class="home-section d-none" aria-labelledby="h-countries">
-  <h2 id="h-countries" class="section-title">Explore by Country</h2>
+  <h2 id="h-countries" class="section-title" data-i18n="home.countries.title">Explore by Country</h2>
   <div id="countries-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-languages" class="home-section d-none" aria-labelledby="h-languages">
-  <h2 id="h-languages" class="section-title">Listen by Language</h2>
+  <h2 id="h-languages" class="section-title" data-i18n="home.languages.title">Listen by Language</h2>
   <div id="languages-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
@@ -146,39 +155,39 @@
 
 <div class="d-flex align-items-center gap-2 mb-3">
   <a id="btn-back-home" href="#accueil" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-1">
-    <i class="bi bi-arrow-left" aria-hidden="true"></i><span>Home</span>
+    <i class="bi bi-arrow-left" aria-hidden="true"></i><span data-i18n="nav.home">Home</span>
   </a>
   <h2 id="view-title" class="h5 mb-0 text-truncate">All Stations</h2>
 </div>      
 
       <div id="active-chips" class="d-flex flex-wrap gap-2 mb-2 d-none"></div>
 
-      <section id="filters-section" aria-label="Filtres">
+      <section id="filters-section" aria-label="Filters" data-i18n-aria-label="filters.title">
         <!-- Sur mobile, les filtres sont repliables ; sur ordinateur ils sont toujours visibles -->
         <button class="btn btn-outline-secondary d-md-none w-100 mb-2 btn-touch" type="button"
                 data-bs-toggle="collapse" data-bs-target="#filters" aria-expanded="false" aria-controls="filters">
-          <i class="bi bi-sliders" aria-hidden="true"></i> Filters
+          <i class="bi bi-sliders" aria-hidden="true"></i> <span data-i18n="filters.title">Filters</span>
         </button>
 
         <div class="collapse d-md-block" id="filters">
 
 <div class="row g-2">
   <div class="col-12 col-md-4">
-    <label for="filter-country" class="visually-hidden">Country</label>
+    <label for="filter-country" class="visually-hidden" data-i18n="filters.country">Country</label>
     <select id="filter-country" class="form-select btn-touch"></select>
   </div>
   <div class="col-12 col-md-4">
-    <label for="filter-language" class="visually-hidden">Language</label>
+    <label for="filter-language" class="visually-hidden" data-i18n="filters.language">Language</label>
     <select id="filter-language" class="form-select btn-touch"></select>
   </div>
   <div class="col-12 col-md-4">
-    <label for="filter-genre" class="visually-hidden">Genre</label>
+    <label for="filter-genre" class="visually-hidden" data-i18n="filters.genre">Genre</label>
     <select id="filter-genre" class="form-select btn-touch"></select>
   </div>
 </div>
 <div class="d-flex flex-wrap gap-2 mt-2">
   <button type="button" id="btn-reset" class="btn btn-outline-secondary btn-touch">
-    <i class="bi bi-x-circle" aria-hidden="true"></i> Reset
+    <i class="bi bi-x-circle" aria-hidden="true"></i> <span data-i18n="filters.reset">Reset</span>
   </button>
 </div>
           
@@ -191,15 +200,15 @@
 
 <div id="orphans-notice" class="alert alert-warning d-flex flex-wrap align-items-center gap-2 d-none" role="status">
   <span id="orphans-text" class="flex-grow-1"></span>
-  <button type="button" id="btn-forget-orphans" class="btn btn-sm btn-outline-warning">Forget</button>
+  <button type="button" id="btn-forget-orphans" class="btn btn-sm btn-outline-warning" data-i18n="orphans.forget">Forget</button>
 </div>
 
-<section aria-label="Station list">
+<section aria-label="Station list" data-i18n-aria-label="list.aria">
   <div id="station-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
   <div id="empty-state" class="text-center text-muted-ui py-5 d-none">
     <i id="empty-icon" class="bi bi-heart fs-1 d-block mb-2" aria-hidden="true"></i>
     <p id="empty-text" class="mb-3"></p>
-    <a id="empty-action" href="#radios" class="btn btn-accent btn-touch d-none">Browse Stations</a>
+    <a id="empty-action" href="#radios" class="btn btn-accent btn-touch d-none" data-i18n="empty.browse">Browse Stations</a>
   </div>
 </section>
       
@@ -207,7 +216,7 @@
   </main>
 
   <!-- Barre de lecture, toujours accessible en bas de l'écran -->
-  <section id="player" class="player fixed-bottom" aria-label="Lecteur">
+  <section id="player" class="player fixed-bottom" aria-label="Player" data-i18n-aria-label="player.aria">
     <div class="container">
       <div class="d-flex align-items-center gap-3">
         <div id="player-logo" class="logo logo-lg" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
@@ -222,36 +231,36 @@
           
         </div>
         <button id="btn-retry" type="button" class="btn btn-outline-secondary btn-icon d-none"
-                title="Relancer le flux" aria-label="Relancer le flux">
+                title="Restart stream" aria-label="Restart stream" data-i18n-title="player.retry" data-i18n-aria-label="player.retry">
           <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </button>
-        <button id="btn-play" type="button" class="btn btn-accent btn-play" disabled aria-label="Lecture">
+        <button id="btn-play" type="button" class="btn btn-accent btn-play" disabled aria-label="Play" data-i18n-aria-label="player.play">
           <i class="bi bi-play-fill" aria-hidden="true"></i>
         </button>
       </div>
       <div class="d-flex align-items-center gap-2 mt-2">
-        <button id="btn-mute" type="button" class="btn btn-icon text-body" aria-label="Couper le son" aria-pressed="false">
+        <button id="btn-mute" type="button" class="btn btn-icon text-body" aria-label="Mute" data-i18n-aria-label="player.mute" aria-pressed="false">
           <i class="bi bi-volume-up-fill" aria-hidden="true"></i>
         </button>
-        <input id="volume" type="range" class="form-range" min="0" max="100" step="1" value="80" aria-label="Volume">
+        <input id="volume" type="range" class="form-range" min="0" max="100" step="1" value="80" aria-label="Volume" data-i18n-aria-label="player.volume">
         <output id="volume-value" for="volume" class="small text-muted-ui volume-value">80</output>
       </div>
 
       <!-- Navigation entre les vues : le lecteur ci-dessus reste en place, la lecture n'est jamais interrompue -->
 
-<nav class="bottom-nav" aria-label="Main navigation">
+<nav class="bottom-nav" aria-label="Main navigation" data-i18n-aria-label="nav.aria">
   <a id="nav-home" href="#accueil" class="nav-item-btn" aria-current="page">
-    <i class="bi bi-house-door" aria-hidden="true"></i><span>Home</span>
+    <i class="bi bi-house-door" aria-hidden="true"></i><span data-i18n="nav.home">Home</span>
   </a>
   <a id="nav-radios" href="#radios" class="nav-item-btn">
-    <i class="bi bi-broadcast" aria-hidden="true"></i><span>Stations</span>
+    <i class="bi bi-broadcast" aria-hidden="true"></i><span data-i18n="nav.radios">Stations</span>
   </a>
   <a id="nav-favorites" href="#favoris" class="nav-item-btn">
-    <i class="bi bi-heart" aria-hidden="true"></i><span>Favorites</span>
+    <i class="bi bi-heart" aria-hidden="true"></i><span data-i18n="nav.favorites">Favorites</span>
     <span id="fav-badge" class="nav-badge d-none" aria-hidden="true">0</span>
   </a>
   <button id="nav-current" type="button" class="nav-item-btn" disabled>
-    <i class="bi bi-music-note-beamed" aria-hidden="true"></i><span>Now Playing</span>
+    <i class="bi bi-music-note-beamed" aria-hidden="true"></i><span data-i18n="nav.current">Now Playing</span>
   </button>
 </nav>
       
@@ -262,22 +271,30 @@
   <div class="offcanvas offcanvas-bottom settings-panel" tabindex="-1" id="settings-panel" aria-labelledby="settings-title">
 
 <div class="offcanvas-header">
-  <h2 class="offcanvas-title h5" id="settings-title">Settings</h2>
-  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  <h2 class="offcanvas-title h5" id="settings-title" data-i18n="settings.title">Settings</h2>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-i18n-aria-label="common.close"></button>
 </div>
     
     <div class="offcanvas-body">
       <fieldset>
-        <legend class="h6">Thème</legend>
-        <div class="btn-group w-100" role="group" aria-label="Thème de l'interface">
+        <legend class="h6" data-i18n="settings.theme.title">Theme</legend>
+        <div class="btn-group w-100" role="group" aria-label="Interface theme" data-i18n-aria-label="settings.theme.aria">
           <input type="radio" class="btn-check" name="theme" id="theme-light" value="light" autocomplete="off">
-          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-light"><i class="bi bi-sun" aria-hidden="true"></i> Clair</label>
+          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-light"><i class="bi bi-sun" aria-hidden="true"></i> <span data-i18n="settings.theme.light">Light</span></label>
           <input type="radio" class="btn-check" name="theme" id="theme-dark" value="dark" autocomplete="off">
-          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-dark"><i class="bi bi-moon-stars" aria-hidden="true"></i> Sombre</label>
+          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-dark"><i class="bi bi-moon-stars" aria-hidden="true"></i> <span data-i18n="settings.theme.dark">Dark</span></label>
           <input type="radio" class="btn-check" name="theme" id="theme-auto" value="auto" autocomplete="off">
-          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-auto"><i class="bi bi-circle-half" aria-hidden="true"></i> Auto</label>
+          <label class="btn btn-outline-secondary btn-touch d-flex align-items-center justify-content-center gap-1" for="theme-auto"><i class="bi bi-circle-half" aria-hidden="true"></i> <span data-i18n="settings.theme.auto">Auto</span></label>
         </div>
         <p id="theme-hint" class="small text-muted-ui mt-2 mb-0" aria-live="polite"></p>
+      </fieldset>
+
+      <!-- Language: options are built from the registered dictionaries; hidden while only English exists -->
+      <fieldset id="language-settings" class="mt-4 d-none">
+        <legend class="h6" data-i18n="settings.language.title">Interface language</legend>
+        <div id="language-options" class="d-grid gap-2" role="group" aria-label="Interface language" data-i18n-aria-label="settings.language.aria"></div>
+        <p id="language-hint" class="small text-muted-ui mt-2 mb-0" aria-live="polite"></p>
+        <p class="small text-muted-ui mb-0" data-i18n="settings.language.note">This does not change the language of the stations: names and catalog details stay as they are.</p>
       </fieldset>
     </div>
   </div>
@@ -285,6 +302,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
           crossorigin="anonymous"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/locales/en.js"></script>
   <script src="assets/js/stations.js"></script>
   <script src="assets/js/app.js"></script>
 </body>

@@ -104,3 +104,34 @@ Ce qu'une page web peut faire, et ce qu'elle ne peut pas faire :
 - Les logos sont chargés depuis l'adresse indiquée ; un logo HTTP ou introuvable est remplacé par une icône.
 - Les favoris et préférences sont propres à chaque navigateur/appareil (pas de synchronisation) ; vider les données du site les efface.
 - Retirer un favori depuis la vue Favoris le fait disparaître immédiatement, sans annulation possible.
+
+## Internationalisation (i18n)
+
+L'interface est en **anglais par défaut** ; tous les textes affichés passent par un moteur centralisé.
+
+| Fichier | Rôle |
+|---|---|
+| `assets/js/i18n.js` | Moteur : `I18N.t()`, `I18N.tn()` (pluriels), `I18N.number()`, `I18N.applyTo()`, `I18N.setLanguage()`, détection, persistance |
+| `assets/js/locales/en.js` | Dictionnaire de référence et langue de repli (clés stables : `nav.home`, `player.none`, `error.network`…) |
+| `assets/js/locales/<code>.js` | Un dictionnaire par langue ajoutée |
+
+- **HTML statique** : `data-i18n="clé"` (texte) et `data-i18n-aria-label`, `-title`, `-placeholder`, `-content` (attributs). Le texte anglais écrit dans le HTML sert de contenu initial.
+- **Texte dynamique (JavaScript)** : `tr('clé', { paramètre })` et `trn('clé', n)` dans `app.js`. Le statut du lecteur mémorise sa clé : il est retraduit au changement de langue sans toucher à l'audio.
+- Les traductions sont insérées avec `textContent` / `setAttribute`, jamais `innerHTML`. Une clé absente de la langue choisie est lue en anglais ; absente de l'anglais, elle n'affiche rien (avertissement dans la console).
+- **Choix de la langue** : choix enregistré par l'utilisateur (`localStorage`, clé `radio.lang`, valeur `"auto"` ou un code) > langue du navigateur/de l'appareil si elle est disponible > anglais. Un choix manuel n'est jamais remplacé par la détection.
+- **Langue de l'interface ≠ langue des stations.** Noms, pays, langues et genres du catalogue (`stations.js`) s'affichent tels quels. Seuls les libellés générés par l'application (activités, familles de genres, « Instrumental (no lyrics) », « Not specified »…) sont traduits.
+- Les mots-clés de classement (`THEMES`, `FAMILIES` dans `app.js`) lisent les données du catalogue : ce sont des données de référence, pas des textes d'interface ; ils ne se traduisent pas.
+
+### Ajouter une langue (exemple : français)
+
+1. Copier `assets/js/locales/en.js` en `assets/js/locales/fr.js`.
+2. Dans le nouveau fichier, remplacer `I18N.register('en', { nativeName: 'English' }, {` par `I18N.register('fr', { nativeName: 'Français' }, {`, puis traduire **les valeurs** (garder les clés et les `{paramètres}` ; les clés `.one` / `.other` servent aux pluriels).
+3. Dans `index.html`, ajouter `<script src="assets/js/locales/fr.js"></script>` juste après celle de `en.js` (avant `stations.js`).
+4. Dans `service-worker.js`, ajouter `'./assets/js/locales/fr.js'` à `APP_FILES` et incrémenter `CACHE_VERSION`.
+5. C'est tout : la langue apparaît automatiquement dans **Paramètres > Interface language** (le sélecteur est masqué tant qu'une seule langue existe), avec son nom natif, et la détection automatique la prend en compte. Pour une langue qui s'écrit de droite à gauche, il faudra en plus gérer l'attribut `dir`.
+
+Une traduction incomplète est possible : les clés manquantes s'affichent en anglais.
+
+### Tests
+
+`tests/i18n.test.js` (livré à part, non déployé) : DOM simulé avec jsdom, **pas un vrai navigateur**. `cd tests && npm i jsdom && node i18n.test.js <dossier du projet>`.
