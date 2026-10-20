@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dev.pages.omnira_88c.twa",
+        "sha256_cert_fingerprints": ["B9:11:95:3A:F4:F6:10:38:F0:65:F9:EA:54:B0:91:CE:7F:A2:94:9C:0B:A0:24:66:F4:31:A4:D0:B5:B3:3B:A5"]
+      }
+    }]
