@@ -4,12 +4,16 @@
  * le navigateur les traite normalement. Aucune écoute hors ligne n'est possible.
  * Incrémente CACHE_VERSION si tu ajoutes ou renomme des fichiers de la liste ci-dessous.
  */
-const CACHE_VERSION = 'v22';
+const CACHE_VERSION = 'v23';
 const CACHE_NAME = 'ma-radio-' + CACHE_VERSION;
 const APP_FILES = [
   './',
   './index.html',
   './assets/css/style.css',
+  './assets/css/legal.css',
+  './privacy-policy.html',
+  './legal-notice.html',
+  './terms-of-use.html',
   './assets/js/i18n.js',
   './assets/js/locales/en.js',
   './assets/js/stations.js',
@@ -18,8 +22,7 @@ const APP_FILES = [
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/apple-touch-icon.png',
-  './manifest.webmanifest',
-  './assets/js/locales/fr.js'
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {

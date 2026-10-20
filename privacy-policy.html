@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy - Omnira</title>
+  <meta name="description" content="How Omnira, a player for third-party internet radio stations, handles information: what stays on your device, which third parties are contacted, and your choices.">
+  <meta name="theme-color" content="#0f1216">
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/legal.css">
+  <script>
+    /* Same theme as the app (light / dark / auto, saved by the app). Pages stay readable without JavaScript (dark by default). */
+    (function () {
+      var pref = 'auto';
+      try { var v = JSON.parse(localStorage.getItem('radio.theme')); if (v === 'light' || v === 'dark') pref = v; } catch (e) { /* storage blocked */ }
+      var dark = pref === 'dark' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.setAttribute('content', dark ? '#0f1216' : '#f4f6f9');
+    })();
+  </script>
+</head>
+<!--
+BEFORE PUBLISHING: replace every highlighted [PLACEHOLDER] (editor name, address, contact email, website URL), update the "Last updated" date,
+and keep this policy in sync with the app (see README, "Legal pages"). Have it validated by a legal professional if needed.
+-->
+<body class="legal-page">
+  <header class="legal-header">
+    <div class="container d-flex align-items-center justify-content-between gap-2 py-2">
+      <a class="brand" href="index.html">Omnira</a>
+      <a class="btn btn-outline-secondary" href="index.html">Back to Omnira</a>
+    </div>
+  </header>
+
+  <main class="container legal-content">
+    <h1>Privacy Policy</h1>
+    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-20">October 20, 2026</time></p>
+
+    <nav class="legal-toc" aria-label="Contents">
+      <strong>Contents</strong>
+      <ol>
+        <li><a href="#h-about">About Omnira and this policy</a></li>
+        <li><a href="#h-summary">The short version</a></li>
+        <li><a href="#h-device">Information stored on your device</a></li>
+        <li><a href="#h-third-parties">Information exchanged with third parties</a></li>
+        <li><a href="#h-not-do">What Omnira does not do</a></li>
+        <li><a href="#h-purposes">Purposes, legal bases and retention</a></li>
+        <li><a href="#h-security">Security</a></li>
+        <li><a href="#h-rights">Your rights and choices</a></li>
+        <li><a href="#h-children">Children</a></li>
+        <li><a href="#h-transfers">International transfers</a></li>
+        <li><a href="#h-changes">Changes to this policy</a></li>
+        <li><a href="#h-contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <section aria-labelledby="h-about">
+      <h2 id="h-about">1. About Omnira and this policy</h2>
+      <p>Omnira - Your World of Radio. (&ldquo;Omnira&rdquo;, &ldquo;the app&rdquo;, &ldquo;we&rdquo;) is a player that lets you search, filter and listen to internet radio stations operated by third parties. Omnira is not a radio station and does not broadcast its own programming. The stations, their audio streams and their logos belong to their respective operators.</p>
+      <p>This policy applies to the Omnira web app at <mark class="legal-placeholder">[WEBSITE URL]</mark> and, where it is offered, to the Omnira Android app, which displays the same web app. It explains what stays on your device, what is exchanged with third parties when you use Omnira, and the choices you have.</p>
+      <p>Publisher and privacy contact: <mark class="legal-placeholder">[EDITOR NAME]</mark>, <mark class="legal-placeholder">[BUSINESS ADDRESS]</mark>, <mark class="legal-placeholder">[CONTACT EMAIL]</mark>. See also the <a href="legal-notice.html">Legal Notice</a>.</p>
+    </section>
+    <section aria-labelledby="h-summary">
+      <h2 id="h-summary">2. The short version</h2>
+      <div class="legal-summary">
+        <ul>
+          <li>No account, no sign-up, no payment and no contact form.</li>
+          <li>No advertising, and no analytics or tracking tools in Omnira&rsquo;s own code.</li>
+          <li>Omnira has no server of its own that receives your information: the app&rsquo;s code does not send your favorites, listening history or settings to us or to anyone else.</li>
+          <li>Your favorites, history and preferences are saved on your device only, and you can delete them at any time.</li>
+          <li>As with any web page or app, using Omnira makes your device connect to third-party servers (radio streams, a content delivery network, an icon service and our hosting provider). They can see technical information such as your IP address. See section 4.</li>
+        </ul>
+      </div>
+    </section>
+    <section aria-labelledby="h-device">
+      <h2 id="h-device">3. Information stored on your device</h2>
+      <p>Omnira saves the following items in your browser&rsquo;s local storage or cache so that the features you use keep working. They are not sent to us, and they contain no name, email address or account identifier.</p>
+      <div class="table-scroll">
+        <table class="legal-table">
+          <thead><tr><th scope="col">Item</th><th scope="col">What it contains</th><th scope="col">Why</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Favorites</th><td>The identifiers of the stations you marked with the heart.</td><td>To show your favorites.</td></tr>
+            <tr><th scope="row">Listening history</th><td>The identifiers of up to the 12 stations you played most recently (the home page shows the latest three).</td><td>To show &ldquo;Recently Played&rdquo;. The <em>Clear</em> button deletes it.</td></tr>
+            <tr><th scope="row">Last station</th><td>The identifier of the last station you selected.</td><td>To reopen the app on that station. Playback never starts by itself.</td></tr>
+            <tr><th scope="row">Volume and mute</th><td>The volume level and whether sound is muted.</td><td>To restore your audio settings.</td></tr>
+            <tr><th scope="row">Theme</th><td>Light, dark or automatic.</td><td>To restore the appearance you chose.</td></tr>
+            <tr><th scope="row">Interface language</th><td>Automatic, or the language code you chose.</td><td>To restore your language.</td></tr>
+            <tr><th scope="row">Storage test</th><td>A short-lived test entry, removed immediately.</td><td>To detect whether your browser allows local storage.</td></tr>
+            <tr><th scope="row">Offline copy of the app</th><td>The app&rsquo;s own files (pages, scripts, styles, icons) kept by the app&rsquo;s service worker. Live audio streams are never stored.</td><td>To load the app faster and show its interface when you are offline.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>These items stay on your device until you delete them: use the <em>Clear</em> button for the history, tap the heart again to remove a favorite, or clear the site data (or uninstall the app) in your browser or device settings. Anyone who uses the same browser profile on the same device can see these items.</p>
+      <p>If your browser blocks local storage, Omnira keeps working but cannot remember your choices after you close it.</p>
+    </section>
+    <section aria-labelledby="h-third-parties">
+      <h2 id="h-third-parties">4. Information exchanged with third parties</h2>
+      <p>Omnira itself has no server and receives none of the information below. However, to work, your device connects directly to the following third parties. Each of them can receive the technical information that any internet connection involves: your IP address, the type of browser or device, the time and the address requested. Their own privacy policies apply.</p>
+      <div class="table-scroll">
+        <table class="legal-table">
+          <thead><tr><th scope="col">Who</th><th scope="col">When</th><th scope="col">What they may receive</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Radio stations and their streaming providers (the catalog currently refers to about thirty different streaming hosts)</th><td>When you play a station, and when a stream reconnects.</td><td>Your IP address, browser or device type, the stream requested and the web address of Omnira (referrer). They can tell that your device is listening to their station. Omnira does not relay or record the audio. Some stations may stream over unencrypted HTTP.</td></tr>
+            <tr><th scope="row">Google (favicon service, <code>www.google.com/s2/favicons</code>)</th><td>When station logos are displayed or used in your device&rsquo;s media controls.</td><td>Your IP address, browser or device type and the domain name of the station whose icon is requested. Omnira asks the browser not to send the web address of the app with these image requests. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</td></tr>
+            <tr><th scope="row">jsDelivr (<code>cdn.jsdelivr.net</code>)</th><td>When the app loads the Bootstrap and Bootstrap Icons files that style it (unless your browser already has them).</td><td>Your IP address, browser or device type and the web address of Omnira (referrer). The files are checked with integrity hashes. <a href="https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net" target="_blank" rel="noopener noreferrer">jsDelivr Privacy Policy</a>.</td></tr>
+            <tr><th scope="row">Cloudflare, Inc. (hosting)</th><td>Each time the app or its pages are loaded.</td><td>Technical request data (such as IP address, page requested, time, browser or device type) used to deliver and protect the service, kept according to Cloudflare&rsquo;s own practices. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</td></tr>
+            <tr><th scope="row">Websites of the stations</th><td>Only if you open a station&rsquo;s &ldquo;Official website&rdquo; link (it opens in a new tab, without sending a referrer).</td><td>Whatever that website collects. Read its own policy.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Media controls on your device.</strong> While a station plays, Omnira gives your browser or Android the station name, the app name and the station logo so they can appear in the notification and on the lock screen. This is handled by your device and is not sent to us.</p>
+      <p>We do not control these third parties and cannot describe their cookies or retention periods. Third-party servers may set their own cookies when your device contacts them.</p>
+    </section>
+    <section aria-labelledby="h-not-do">
+      <h2 id="h-not-do">5. What Omnira does not do</h2>
+      <ul>
+        <li>It does not ask you to create an account or collect your name, email address or payment details.</li>
+        <li>It does not show advertising and does not include advertising identifiers, analytics or tracking software.</li>
+        <li>It does not ask for access to your location, microphone, camera, contacts, photos or notifications.</li>
+        <li>It does not set cookies itself.</li>
+        <li>It does not sell your personal information or use it for profiling.</li>
+      </ul>
+      <p>If this changes (for example if analytics or advertising were added), this policy will be updated before the change takes effect.</p>
+    </section>
+    <section aria-labelledby="h-purposes">
+      <h2 id="h-purposes">6. Purposes, legal bases and retention</h2>
+      <p>Because Omnira has no server that receives your favorites, history or settings, we do not hold this information. It is saved on your device only to provide the features you ask for, and it is kept until you delete it.</p>
+      <p>Where data protection law such as the EU General Data Protection Regulation (GDPR) applies to the limited technical data handled when the app is delivered by our hosting provider, the purpose is to deliver and secure the service (legitimate interests, Article 6(1)(f) GDPR). Retention of that data is governed by the provider&rsquo;s own practices. The third parties in section 4 process data under their own responsibility and policies.</p>
+    </section>
+    <section aria-labelledby="h-security">
+      <h2 id="h-security">7. Security</h2>
+      <p>Omnira is delivered over HTTPS and the third-party style and script files it loads are verified with integrity hashes. Most stations stream over HTTPS, but a few may use unencrypted HTTP, which your browser may block on a secure page. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
+    </section>
+    <section aria-labelledby="h-rights">
+      <h2 id="h-rights">8. Your rights and choices</h2>
+      <p><strong>Choices.</strong> You can delete everything Omnira saves on your device (section 3), choose not to play a station, or stop using the app at any time.</p>
+      <p><strong>Rights.</strong> Depending on where you live, you may have the right to access, correct or delete personal data about you, to restrict or object to its processing, to data portability, and to complain to a data protection authority (in France, the <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">CNIL</a>). Because Omnira does not hold your listening data, we may have nothing to provide, correct or delete, but you can write to us at <mark class="legal-placeholder">[CONTACT EMAIL]</mark> with any question about your privacy. To exercise rights regarding data held by the third parties in section 4, contact them directly.</p>
+    </section>
+    <section aria-labelledby="h-children">
+      <h2 id="h-children">9. Children</h2>
+      <p>Omnira is a general-audience app and is not directed at children. We do not knowingly collect personal information from children. The content of radio stations is controlled by their operators and may not be suitable for children; parents and guardians should supervise how children use the app.</p>
+    </section>
+    <section aria-labelledby="h-transfers">
+      <h2 id="h-transfers">10. International transfers</h2>
+      <p>The third-party servers in section 4 may be located in other countries than yours, including outside the European Economic Area. Their transfer safeguards are described in their own policies.</p>
+    </section>
+    <section aria-labelledby="h-changes">
+      <h2 id="h-changes">11. Changes to this policy</h2>
+      <p>We may update this policy, for example when Omnira changes. The new version will be posted on this page with a new &ldquo;Last updated&rdquo; date.</p>
+    </section>
+    <section aria-labelledby="h-contact">
+      <h2 id="h-contact">12. Contact</h2>
+      <p>Privacy questions: <mark class="legal-placeholder">[EDITOR NAME]</mark>, <mark class="legal-placeholder">[BUSINESS ADDRESS]</mark>, <mark class="legal-placeholder">[CONTACT EMAIL]</mark>.</p>
+    </section>
+
+    <nav class="legal-footer-nav" aria-label="Legal pages">
+      <a href="index.html">Back to Omnira</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="legal-notice.html">Legal Notice</a>
+      <a href="terms-of-use.html">Terms of Use</a>
+    </nav>
+  </main>
+</body>
+</html>

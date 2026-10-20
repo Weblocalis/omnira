@@ -126,5 +126,12 @@ I18N.register('en', { nativeName: 'English' }, {
   'settings.language.aria': 'Interface language',
   'settings.language.auto': 'Automatic',
   'settings.language.hintAuto': 'Following the device language (currently: {lang}).',
-  'settings.language.note': 'This does not change the language of the stations: names and catalog details stay as they are.'
+  'settings.language.note': 'This does not change the language of the stations: names and catalog details stay as they are.',
+
+  'legal.title': 'Legal',
+  'legal.tagline': 'Omnira - Your World of Radio.',
+  'legal.privacy': 'Privacy Policy',
+  'legal.notice': 'Legal Notice',
+  'legal.terms': 'Terms of Use',
+  'legal.newTab': ' (opens in a new tab)'
 });

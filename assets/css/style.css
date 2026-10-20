@@ -137,3 +137,7 @@ body { padding-bottom: calc(var(--player-h) + env(safe-area-inset-bottom, 0px));
 /* Volet Paramètres */
 .settings-panel { height: auto; max-height: 80vh; background: var(--surface); color: var(--text);
   padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Legal links (footer of the app) */
+.legal-links a { color: var(--muted); min-height: 44px; display: inline-flex; align-items: center; }
+.legal-links a:hover { color: var(--text); }

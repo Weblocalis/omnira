@@ -135,3 +135,18 @@ Une traduction incomplète est possible : les clés manquantes s'affichent en an
 ### Tests
 
 `tests/i18n.test.js` (livré à part, non déployé) : DOM simulé avec jsdom, **pas un vrai navigateur**. `cd tests && npm i jsdom && node i18n.test.js <dossier du projet>`.
+
+## Pages légales (Google Play)
+
+| Fichier | Contenu |
+|---|---|
+| `privacy-policy.html` | Politique de confidentialité (ce que l'app stocke sur l'appareil, services tiers contactés, droits) |
+| `legal-notice.html` | Mentions légales (éditeur, hébergeur, propriété intellectuelle, contact) |
+| `terms-of-use.html` | Conditions d'utilisation |
+| `assets/css/legal.css` | Mise en page des trois pages (variables de couleur de `style.css`, thèmes clair/sombre) |
+
+- Pages **HTML statiques en anglais**, sans dépendance au lecteur : elles s'affichent sans JavaScript ni `localStorage` (le petit script d'en-tête ne sert qu'à appliquer le thème enregistré). Les liens de l'app (pied de page et Paramètres) passent par l'i18n (clés `legal.*`) ; les textes longs ne sont volontairement pas dans les dictionnaires : pour une autre langue, créer une page par langue (ex. `privacy-policy.fr.html`) et la relier.
+- Les liens s'ouvrent dans un **nouvel onglet** (`target="_blank" rel="noopener"`) : quitter l'application dans le même onglet couperait la lecture audio.
+- **À compléter avant publication** (marqueurs surlignés `[...]`) : `[EDITOR NAME]`, `[LEGAL FORM]`, `[BUSINESS ADDRESS]`, `[CONTACT EMAIL]`, `[PHONE NUMBER]`, `[REGISTRATION NUMBER]`, `[VAT NUMBER]`, `[PUBLICATION DIRECTOR]`, `[WEBSITE URL]`, `[CONFIRM GOVERNING LAW AND COMPETENT COURTS]`. Mettre aussi à jour la date « Last updated ». Rechercher `legal-placeholder` dans les trois fichiers pour n'en oublier aucun.
+- **Garder la politique en phase avec le code.** Elle décrit : les clés `localStorage` (`radio.*`), le cache du service worker, et les tiers contactés (flux des stations, Google favicon, jsDelivr, Cloudflare). Si l'on ajoute des publicités, des statistiques, un formulaire, un compte, un nouveau CDN ou une autre source de logos, mettre à jour `privacy-policy.html` (et la déclaration « Sécurité des données » de la Play Console) avant la mise en ligne.
+- URL à renseigner dans la Play Console (modèles) : `https://<votre-domaine>/privacy-policy.html` (champ Politique de confidentialité), et les deux autres pages pour la fiche et l'app.

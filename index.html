@@ -215,6 +215,16 @@
     </div>
   </main>
 
+  <!-- Legal pages: static HTML files that open in a new tab so that playback is never interrupted -->
+  <footer class="legal-links container pb-3" aria-label="Legal" data-i18n-aria-label="legal.title">
+    <p class="small text-muted-ui mb-1" data-i18n="legal.tagline">Omnira - Your World of Radio.</p>
+    <ul class="list-inline mb-0 small">
+      <li class="list-inline-item"><a href="privacy-policy.html" target="_blank" rel="noopener"><span data-i18n="legal.privacy">Privacy Policy</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+      <li class="list-inline-item"><a href="legal-notice.html" target="_blank" rel="noopener"><span data-i18n="legal.notice">Legal Notice</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+      <li class="list-inline-item"><a href="terms-of-use.html" target="_blank" rel="noopener"><span data-i18n="legal.terms">Terms of Use</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+    </ul>
+  </footer>
+
   <!-- Barre de lecture, toujours accessible en bas de l'écran -->
   <section id="player" class="player fixed-bottom" aria-label="Player" data-i18n-aria-label="player.aria">
     <div class="container">
@@ -296,6 +306,15 @@
         <p id="language-hint" class="small text-muted-ui mt-2 mb-0" aria-live="polite"></p>
         <p class="small text-muted-ui mb-0" data-i18n="settings.language.note">This does not change the language of the stations: names and catalog details stay as they are.</p>
       </fieldset>
+
+      <fieldset class="mt-4">
+        <legend class="h6" data-i18n="legal.title">Legal</legend>
+        <ul class="list-unstyled d-grid gap-2 mb-0">
+          <li><a class="btn btn-outline-secondary btn-touch w-100 text-start" href="privacy-policy.html" target="_blank" rel="noopener"><span data-i18n="legal.privacy">Privacy Policy</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+          <li><a class="btn btn-outline-secondary btn-touch w-100 text-start" href="legal-notice.html" target="_blank" rel="noopener"><span data-i18n="legal.notice">Legal Notice</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+          <li><a class="btn btn-outline-secondary btn-touch w-100 text-start" href="terms-of-use.html" target="_blank" rel="noopener"><span data-i18n="legal.terms">Terms of Use</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
+        </ul>
+      </fieldset>
     </div>
   </div>
 
@@ -304,7 +323,6 @@
           crossorigin="anonymous"></script>
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/locales/en.js"></script>
-  <script src="assets/js/locales/fr.js"></script>
   <script src="assets/js/stations.js"></script>
   <script src="assets/js/app.js"></script>
 </body>

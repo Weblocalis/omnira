@@ -1,0 +1,24 @@
+/* Legal pages (privacy-policy.html, legal-notice.html, terms-of-use.html): readable on mobile, no JavaScript needed.
+   Colors come from the variables defined in style.css (light and dark themes). */
+body.legal-page { padding-bottom: 0; }
+.legal-header { background: var(--header-bg); border-bottom: 1px solid var(--border); }
+.legal-header .brand { color: var(--text); text-decoration: none; font-weight: 700; }
+.legal-content { max-width: 46rem; padding-top: 1.5rem; padding-bottom: 3rem; line-height: 1.65; overflow-wrap: anywhere; }
+.legal-content h1 { font-size: 1.75rem; margin-bottom: .25rem; }
+.legal-content h2 { font-size: 1.2rem; margin: 2rem 0 .75rem; padding-top: .5rem; scroll-margin-top: 1rem; }
+.legal-content h3 { font-size: 1rem; margin: 1.25rem 0 .5rem; }
+.legal-content a { color: var(--accent); }
+.legal-content a:hover { text-decoration: none; }
+.legal-meta { color: var(--muted); font-size: .9rem; margin-bottom: 1.25rem; }
+.legal-toc { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; padding: .75rem 1rem; margin-bottom: 1.5rem; }
+.legal-toc ol { margin: 0; padding-left: 1.25rem; }
+.legal-summary { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: .5rem; padding: .75rem 1rem; }
+.legal-summary ul { margin-bottom: 0; }
+.legal-table { width: 100%; font-size: .92rem; border-collapse: collapse; }
+.legal-table th, .legal-table td { border: 1px solid var(--border); padding: .5rem .6rem; vertical-align: top; text-align: left; }
+.legal-table th { background: var(--surface-2); }
+.table-scroll { overflow-x: auto; margin-bottom: 1rem; }
+.legal-placeholder { background: var(--warn); color: var(--warn-ink); padding: 0 .25rem; border-radius: .25rem; font-weight: 600; }
+.legal-footer-nav { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+.legal-footer-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.legal-links a { min-height: 44px; display: inline-flex; align-items: center; }
