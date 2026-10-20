@@ -1,8 +1,11 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.weblocalis.omnira",
-        "sha256_cert_fingerprints": ["A3:F8:B3:64:C1:56:1B:41:73:1F:BF:FA:53:56:05:B1:18:8A:FC:9E:FB:7E:78:6D:54:57:C3:FC:87:4F:E4:AD"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.weblocalis.omnira",
+      "sha256_cert_fingerprints":
+        ["36:FE:3B:3B:FA:0F:63:18:42:42:9E:51:4D:00:B1:91:80:38:7E:F3:C8:BD:0F:99:16:42:9C:44:18:95:10:08"]
+    }
+  }
+]
