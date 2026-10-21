@@ -457,4 +457,46 @@ window.STATIONS = [
   logoUrl: "https://www.google.com/s2/favicons?domain=www.rtva.ad&sz=128",
   website: "https://www.rtva.ad/"
 },
+
+{
+  id: "radio-aurora-am",
+  name: "Radio Aurora",
+  country: "Armenia",
+  language: "Armenian",
+  genre: "Pop, Top 40 & International Hits",
+  streamUrl: "https://de.auroramedia.am/aurora.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=radioaurora.am&sz=128",
+  website: "https://www.radioaurora.am/"
+},
+
+{
+  id: "oe3-at",
+  name: "Hitradio Ö3",
+  country: "Austria",
+  language: "German",
+  genre: "Pop, Top 40 & Mainstream Hits",
+  streamUrl: "https://orf-live.ors-shoutcast.at/oe3-q1a",
+  logoUrl: "https://www.google.com/s2/favicons?domain=oe3.orf.at&sz=128",
+  website: "https://oe3.orf.at/"
+},
+{
+  id: "oe1-at",
+  name: "Ö1",
+  country: "Austria",
+  language: "German",
+  genre: "News, Culture, Classical Music & Documentaries",
+  streamUrl: "https://orf-live.ors-shoutcast.at/oe1-q1a",
+  logoUrl: "https://www.google.com/s2/favicons?domain=oe1.orf.at&sz=128",
+  website: "https://oe1.orf.at/"
+},
+{
+  id: "fm4-at",
+  name: "FM4",
+  country: "Austria",
+  language: "German and English",
+  genre: "Alternative, Indie, Electronic & Youth Culture",
+  streamUrl: "https://orf-live.ors-shoutcast.at/fm4-q1a",
+  logoUrl: "https://www.google.com/s2/favicons?domain=fm4.orf.at&sz=128",
+  website: "https://fm4.orf.at/"
+},
 ];
