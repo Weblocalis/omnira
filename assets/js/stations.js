@@ -530,4 +530,66 @@ window.STATIONS = [
   logoUrl: "https://www.google.com/s2/favicons?domain=asanradio.az&sz=128",
   website: "https://asanradio.az/"
 },
+
+{
+  id: "europa-plus-ru",
+  name: "Europa Plus",
+  country: "Russia",
+  language: "Russian",
+  genre: "Pop, Top 40 & International Hits",
+  streamUrl: "https://ep256.hostingradio.ru:8052/europaplus256.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=europaplus.ru&sz=128",
+  website: "https://europaplus.ru/"
+},
+{
+  id: "russkoe-radio-ru",
+  name: "Russkoe Radio",
+  country: "Russia",
+  language: "Russian",
+  genre: "Russian Pop & Contemporary Music",
+  streamUrl: "https://rusradio.hostingradio.ru/rusradio96.aacp",
+  logoUrl: "https://www.google.com/s2/favicons?domain=rusradio.ru&sz=128",
+  website: "https://rusradio.ru/"
+},
+{
+  id: "radio-record-ru",
+  name: "Radio Record",
+  country: "Russia",
+  language: "Russian",
+  genre: "Electronic, Dance & Club Music",
+  streamUrl: "https://radiorecord.hostingradio.ru/rr_main96.aacp",
+  logoUrl: "https://www.google.com/s2/favicons?domain=radiorecord.ru&sz=128",
+  website: "https://radiorecord.ru/"
+},
+
+{
+  id: "cadena-ser-es",
+  name: "Cadena SER",
+  country: "Spain",
+  language: "Spanish",
+  genre: "News, Talk Shows & Sports",
+  streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=cadenaser.com&sz=128",
+  website: "https://cadenaser.com/"
+},
+{
+  id: "los40-es",
+  name: "LOS40",
+  country: "Spain",
+  language: "Spanish",
+  genre: "Pop, Top 40 & International Hits",
+  streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=los40.com&sz=128",
+  website: "https://los40.com/"
+},
+{
+  id: "cope-es",
+  name: "COPE",
+  country: "Spain",
+  language: "Spanish",
+  genre: "News, Talk Shows & Sports",
+  streamUrl: "https://madrid-cope-rrcast.flumotion.com/cope/madrid.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=cope.es&sz=128",
+  website: "https://www.cope.es/"
+},
 ];
