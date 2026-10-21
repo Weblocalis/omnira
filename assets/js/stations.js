@@ -499,4 +499,35 @@ window.STATIONS = [
   logoUrl: "https://www.google.com/s2/favicons?domain=fm4.orf.at&sz=128",
   website: "https://fm4.orf.at/"
 },
+
+{
+  id: "araz-fm-az",
+  name: "Araz FM 103.3",
+  country: "Azerbaijan",
+  language: "Azerbaijani",
+  genre: "Pop, Local Music & Entertainment",
+  streamUrl: "http://s39.myradiostream.com/5458/listen.mp3",
+  logoUrl: "https://www.google.com/s2/favicons?domain=arazfm.az&sz=128",
+  website: "https://arazfm.az/"
+},
+{
+  id: "yurd-fm-az",
+  name: "Yurd FM",
+  country: "Azerbaijan",
+  language: "Azerbaijani",
+  genre: "Azerbaijani Folk & Traditional Music",
+  streamUrl: "https://icecast.livetv.az/yurdfm",
+  logoUrl: "https://www.google.com/s2/favicons?domain=yurdfm.az&sz=128",
+  website: "https://www.yurdfm.az/"
+},
+{
+  id: "asan-radio-az",
+  name: "ASAN Radio",
+  country: "Azerbaijan",
+  language: "Azerbaijani",
+  genre: "News, Talk & Music",
+  streamUrl: "http://94.20.74.206:4448/stream1",
+  logoUrl: "https://www.google.com/s2/favicons?domain=asanradio.az&sz=128",
+  website: "https://asanradio.az/"
+},
 ];
