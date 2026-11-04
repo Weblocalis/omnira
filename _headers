@@ -23,6 +23,6 @@
   Content-Type: application/json
   Access-Control-Allow-Origin: *
 
-# Keep the preview address out of search engines once the custom domain is live (avoids duplicate content)
-https://:project.pages.dev/*
-  X-Robots-Tag: noindex
+# Note: omnira-88c.pages.dev is the address used by the Android app (TWA, see .well-known/assetlinks.json).
+# It must keep serving the app (no redirect to another domain) as long as the published app points to it.
+# Preview deployments (<hash>.omnira-88c.pages.dev) already get "X-Robots-Tag: noindex" from Cloudflare.

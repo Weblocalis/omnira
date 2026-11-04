@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://YOUR-DOMAIN/sitemap.xml
+Sitemap: https://omnira-88c.pages.dev/sitemap.xml

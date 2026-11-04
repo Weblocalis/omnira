@@ -47,6 +47,7 @@ ok(await page.locator('#countries-list .cat-card').count() > 10, 'home: country 
 ok(await page.locator('#picks-list .station-card').count() === 4, 'home: 4 daily picks');
 ok((await page.title()).includes(JSON.parse(fs.readFileSync(path.join(ROOT, 'site.config.json'))).name), 'title contains the app name');
 ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bi-gear'), '::before').fontFamily.includes('bootstrap-icons')), 'icon font applied');
+ok(await page.locator('.play-link').isVisible(), 'Google Play link visible in a browser tab');
 
 await page.click('#nav-radios');
 const total = await page.locator('#station-list .station-card').count();

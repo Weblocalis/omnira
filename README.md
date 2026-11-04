@@ -69,16 +69,33 @@ node tools/make-og-image.mjs      # régénère l'image de partage avec le nouve
 node tests/smoke.mjs              # vérifie que tout fonctionne
 ```
 
-Tant que le domaine n'est pas défini, les adresses absolues contiennent `YOUR-DOMAIN` (canonical, og:url, sitemap…).
+Le domaine actuel est `omnira-88c.pages.dev` (adresse de l'application Android).
 `--dry-run` liste les fichiers concernés sans rien modifier. Le package Android (`--android-package`) ne doit être changé
 qu'avant la première publication sur le Play Store.
+
+## Application Android (Google Play)
+
+L'application [com.weblocalis.omnira](https://play.google.com/store/apps/details?id=com.weblocalis.omnira) est une
+TWA (Trusted Web Activity) qui affiche **https://omnira-88c.pages.dev**. Conséquences :
+
+- `.well-known/assetlinks.json` doit rester servi sur cette adresse, avec l'empreinte SHA-256 de la clé de **signature
+  d'application Play** (Play Console > Intégrité de l'application). Sinon, une barre d'adresse apparaît dans l'app.
+- **Ne jamais rediriger `omnira-88c.pages.dev` vers un autre domaine** tant que l'app publiée pointe dessus : une redirection
+  vers une autre origine casse la vérification de la TWA. Après l'achat d'un domaine, ajouter le domaine dans Cloudflare
+  Pages (les deux adresses servent alors le même site), lancer `tools/rebrand.mjs --domain …` (les balises `canonical`
+  évitent le contenu dupliqué), puis publier une mise à jour de l'app pointant vers le nouveau domaine, avec le même
+  `assetlinks.json` servi sur les deux.
+- Le package `com.weblocalis.omnira` est définitif. Le nom affiché de l'app peut changer (fiche Play + `rebrand.mjs`).
+- Toute modification du site est immédiatement visible dans l'app, sans nouvelle version sur le Play Store.
+- Le lien « Google Play » du pied de page n'apparaît que dans un navigateur, jamais dans l'app installée.
+- La fiche Play renvoie à `/privacy-policy` : compléter les marqueurs `[…]` des pages légales.
 
 ## Déploiement (Cloudflare Pages)
 
 1. Workers & Pages > Create > Pages > Connect to Git, choisir ce dépôt.
 2. Framework preset **None**, Build command **vide**, Build output directory **`/`**.
 3. Après l'achat du domaine : Pages > Custom domains > ajouter le domaine, puis `node tools/rebrand.mjs --domain …`, commit.
-4. L'adresse `*.pages.dev` reçoit `X-Robots-Tag: noindex` (fichier `_headers`) pour éviter le contenu dupliqué.
+4. Ne pas rediriger `omnira-88c.pages.dev` vers le nouveau domaine (voir « Application Android »).
 5. Déclarer le site dans Google Search Console et y soumettre `https://<domaine>/sitemap.xml`.
 
 Cloudflare Pages sert les pages sans extension (`/privacy-policy.html` → `/privacy-policy`) : le service worker le gère.

@@ -134,6 +134,7 @@ I18N.register('en', { nativeName: 'English' }, {
   'settings.language.hintAuto': 'Following the device language (currently: {lang}).',
   'settings.language.note': 'This does not change the language of the stations: names and catalog details stay as they are.',
 
+  'app.getAndroid': 'Get the Android app on Google Play',
   'legal.title': 'Legal',
   'legal.tagline': 'Omnira - Your World of Radio.',
   'legal.privacy': 'Privacy Policy',
