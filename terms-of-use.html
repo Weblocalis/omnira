@@ -5,26 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Terms of Use - Omnira</title>
   <meta name="description" content="Terms of use for Omnira, a player for third-party internet radio stations: service, availability of streams, third-party content, intellectual property and responsibility.">
+  <link rel="canonical" href="https://YOUR-DOMAIN/terms-of-use">
   <meta name="theme-color" content="#0f1216">
   <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-5.3.3/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/legal.css">
-  <script>
-    /* Same theme as the app (light / dark / auto, saved by the app). Pages stay readable without JavaScript (dark by default). */
-    (function () {
-      var pref = 'auto';
-      try { var v = JSON.parse(localStorage.getItem('radio.theme')); if (v === 'light' || v === 'dark') pref = v; } catch (e) { /* storage blocked */ }
-      var dark = pref === 'dark' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
-      var m = document.querySelector('meta[name="theme-color"]');
-      if (m) m.setAttribute('content', dark ? '#0f1216' : '#f4f6f9');
-    })();
-  </script>
+  <script src="assets/js/theme-init.js"></script>
 </head>
 <!--
 BEFORE PUBLISHING: replace every highlighted [PLACEHOLDER], confirm the governing law and courts clause, update the "Last updated" date,
@@ -33,14 +21,14 @@ and have these Terms validated by a legal professional if needed.
 <body class="legal-page">
   <header class="legal-header">
     <div class="container d-flex align-items-center justify-content-between gap-2 py-2">
-      <a class="brand" href="index.html">Omnira</a>
-      <a class="btn btn-outline-secondary" href="index.html">Back to Omnira</a>
+      <a class="brand" href="./">Omnira</a>
+      <a class="btn btn-outline-secondary" href="./">Back to Omnira</a>
     </div>
   </header>
 
   <main class="container legal-content">
     <h1>Terms of Use</h1>
-    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-20">October 20, 2026</time></p>
+    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-31">October 31, 2026</time></p>
 
     <nav class="legal-toc" aria-label="Contents">
       <strong>Contents</strong>
@@ -88,7 +76,7 @@ and have these Terms validated by a legal professional if needed.
     </section>
     <section aria-labelledby="h-ip">
       <h2 id="h-ip">5. Intellectual property</h2>
-      <p>The name Omnira, its logo, its design and its source code belong to <mark class="legal-placeholder">[EDITOR NAME]</mark>, except for third-party components such as the open-source libraries Bootstrap and Bootstrap Icons (MIT License). These Terms do not give you any right in them other than to use the app as described here. Station names, logos and streams belong to their owners.</p>
+      <p>The name Omnira, its logo, its design and its source code belong to <mark class="legal-placeholder">[EDITOR NAME]</mark>, except for third-party components such as the open-source libraries Bootstrap and Bootstrap Icons (MIT License) and hls.js (Apache License 2.0). These Terms do not give you any right in them other than to use the app as described here. Station names, logos and streams belong to their owners.</p>
     </section>
     <section aria-labelledby="h-links">
       <h2 id="h-links">6. Links to external sites and services</h2>
@@ -121,7 +109,7 @@ and have these Terms validated by a legal professional if needed.
     </section>
 
     <nav class="legal-footer-nav" aria-label="Legal pages">
-      <a href="index.html">Back to Omnira</a>
+      <a href="./">Back to Omnira</a>
       <a href="privacy-policy.html">Privacy Policy</a>
       <a href="legal-notice.html">Legal Notice</a>
       <a href="terms-of-use.html">Terms of Use</a>

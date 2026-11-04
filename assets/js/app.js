@@ -22,46 +22,49 @@
   const LIVE_REFRESH_MS = 20000;
   const THEME_COLOR = { dark: '#0f1216', light: '#f4f6f9' };    // couleur de la barre du navigateur
 
-  /* ---------- Thèmes d'écoute et familles de genres (page d'accueil) ----------
-   * Rien n'est recopié depuis le catalogue : les stations de stations.js sont classées d'après leur genre et leur nom
-   * (mots-clés ci-dessous, comparés sans accents ni majuscules). Une catégorie sans station n'est pas affichée.
-   * Une station peut aussi imposer ses thèmes avec un champ facultatif dans stations.js : themes: ["focus", "work"]. */
+  /* ---------- Activities (themes) and genre families ----------
+   * Nothing is duplicated from the catalog: stations are classified from their genre (and name) with the keywords below.
+   * A category without any station is never displayed. */
+  /* Keywords are compared on the normalized genre (and name for themes): lowercase, no accents. English first,
+   * French kept for older catalogs. A station can force its activities with themes: ["focus", ...] in stations.js. */
+  const THEMES = [
+    { id: 'focus', icon: 'bi-code-slash',
+      match: 'ambient|concentration|lo-?fi|chillhop|chillsynth|synthwave|spacesynth|idm|glitch|programm|coding|informatique|drone' },
+    { id: 'work', icon: 'bi-briefcase',
+      match: 'classical|classique|orchestr|film score|jazz|instrumental|lo-?fi|chill|downtempo|ambient' },
+    { id: 'sport', icon: 'bi-lightning-charge-fill',
+      match: 'fitness|workout|energetic|energique|\\bdance\\b|club|running|house|techno' },
+    { id: 'relax', icon: 'bi-cup-hot',
+      match: 'relax|detente|chill|downtempo|lounge|tarab|andalou|classical|classique|orchestr|jazz|ambient' },
+    { id: 'sleep', icon: 'bi-moon-stars',
+      match: 'sleep|sommeil|calm|ambient|drone|deep space' },
+    { id: 'drive', icon: 'bi-car-front-fill',
+      match: '\\bpop\\b|\\brock\\b|hits|top 40|road|route|voyage|conduite|synthwave|outrun|retrowave|\\bdance\\b|eclectic|eclectique|variety|variete' },
+    { id: 'discover', icon: 'bi-compass',
+      match: 'eclectic|eclectique|discovery|decouverte|world|monde|tarab|andalou|oriental|vaporwave|idm|indie|alternative|folk|traditional' },
+    { id: 'news', icon: 'bi-newspaper',
+      match: 'news|information|actualit|current affairs|journal|general interest|generaliste|culture|science|philosoph|ideas|idees|debat|talk|analysis|documentar' }
+  ];
 
-const THEMES = [
-  { id: 'focus', icon: 'bi-code-slash',
-    match: 'ambient|concentration|lo-?fi|chillhop|chillsynth|synthwave|idm|glitch|programmation|informatique|hacking|drone' },
-  { id: 'work', icon: 'bi-briefcase',
-    match: 'musique classique|^classique \\||orchestr|jazz|instrumental|lo-?fi|chill|downtempo|ambient' },
-  { id: 'sport', icon: 'bi-lightning-charge-fill',
-    match: 'sport|fitness|workout|energique|dance|running' },
-  { id: 'relax', icon: 'bi-cup-hot',
-    match: 'relax|detente|chill|downtempo|lounge|tarab|andalou|musique classique|^classique \\||orchestr|jazz|ambient' },
-  { id: 'sleep', icon: 'bi-moon-stars',
-    match: 'sommeil|sleep|calme|ambient|drone|deep space' },
-  { id: 'drive', icon: 'bi-car-front-fill',
-    match: '\\bpop\\b|\\brock\\b|route|voyage|conduite|synthwave|outrun|retrowave|dance|eclectique|variete|electro' },
-  { id: 'discover', icon: 'bi-compass',
-    match: 'eclectique|decouverte|monde|world|tarab|andalou|oriental|vaporwave|idm|space disco' },
-  { id: 'news', icon: 'bi-newspaper',
-    match: 'information|actualit|news|journal|generaliste|culture|sciences|philosophie|idees|debat' }
-];
-  
-
-const FAMILIES = [
-  { id: 'ambient', icon: 'bi-cloud-haze2', match: 'ambient|drone' },
-  { id: 'lofi', icon: 'bi-headphones', match: 'lo-?fi|chillhop|hip-?hop' },
-  { id: 'electro', icon: 'bi-soundwave',
-    match: 'electro|synthwave|idm|vaporwave|chillsynth|techno|house|edm|glitch|space disco|cyberpunk' },
-  { id: 'classique', icon: 'bi-music-note-list', match: '^classique$|musique classique|orchestr|symphon|opera' },
-  { id: 'jazz', icon: 'bi-music-note', match: 'jazz' },
-  { id: 'rock', icon: 'bi-speaker', match: '\\brock\\b|metal' },
-  { id: 'pop', icon: 'bi-stars', match: '\\bpop\\b' },
-  { id: 'monde', icon: 'bi-globe-europe-africa',
-    match: 'monde|world|tarab|arabo|andalou|oriental|flamenco|gnawa|reggae|latin|afro|celtique' },
-  { id: 'instru', icon: 'bi-feather',
-    match: 'instrumental|relax|detente|chill|downtempo|lounge|sommeil|calme' }
-];
-  
+  /* Genre families: used by the home page cards AND the Genre filter. A station can belong to several families.
+   * Genres that match no family get their own entry (first genre of the list). */
+  const FAMILIES = [
+    { id: 'pop', icon: 'bi-stars', match: '\\bpop\\b|hits|top 40|variety|variete|popular' },
+    { id: 'rock', icon: 'bi-speaker', match: '\\brock\\b|metal|indie|alternative' },
+    { id: 'electro', icon: 'bi-soundwave',
+      match: 'electro|synthwave|spacesynth|chillsynth|idm|vaporwave|techno|house|edm|glitch|space disco|cyberpunk|\\bdance\\b|club' },
+    { id: 'lofi', icon: 'bi-headphones', match: 'lo-?fi|chillhop|hip-?hop' },
+    { id: 'ambient', icon: 'bi-cloud-haze2', match: 'ambient|drone' },
+    { id: 'classique', icon: 'bi-music-note-list', match: 'classical|classique|orchestr|symphon|opera|film score' },
+    { id: 'jazz', icon: 'bi-music-note', match: 'jazz' },
+    { id: 'monde', icon: 'bi-globe-europe-africa',
+      match: 'world|monde|tarab|arab|andalou|oriental|flamenco|gnawa|reggae|latin|afro|celtic|celtique|folk|traditional' },
+    { id: 'eclectic', icon: 'bi-shuffle', match: 'eclectic|eclectique|music discovery' },
+    { id: 'instru', icon: 'bi-feather', match: 'instrumental|relax|detente|downtempo|lounge|sleep|sommeil|calm' },
+    { id: 'news', icon: 'bi-newspaper', match: 'news|information|actualit|current affairs|debat|talk|analysis|general interest|generaliste' },
+    { id: 'culture', icon: 'bi-book-half', match: 'culture|arts\\b|science|philosoph|ideas|idees|documentar' },
+    { id: 'spiritual', icon: 'bi-moon', match: 'quran|coran|religio|gospel|spiritual|prayer|sacred' }
+  ];
   THEMES.forEach((t) => { t.re = new RegExp(t.match); });
   FAMILIES.forEach((f) => { f.re = new RegExp(f.match); });
   const INSTRUMENTAL_KEY = 'instrumental';
@@ -106,6 +109,17 @@ const FAMILIES = [
     } catch (e) { return false; }
   }
 
+  /** Absolute http(s) URL, relative paths resolved against the page (local logos in assets/logos/), or ''. */
+  function resolveUrl(value) {
+    if (!value) return '';
+    try {
+      const u = new URL(String(value).trim(), location.href);
+      return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : '';
+    } catch (e) { return ''; }
+  }
+
+  const isHls = (url) => /\.m3u8(\?|#|$)/i.test(url);
+
   /** Valide une entrée du catalogue ; renvoie null si elle est inutilisable. */
   function normalizeStation(raw) {
     if (!raw || typeof raw !== 'object') return null;
@@ -122,9 +136,10 @@ const FAMILIES = [
       country: text(raw.country, UNSPECIFIED),
       language: text(raw.language, UNSPECIFIED),
       genre: text(raw.genre, UNSPECIFIED),
-      logoUrl: isHttpUrl(raw.logoUrl) ? String(raw.logoUrl).trim() : '',
+      logoUrl: resolveUrl(raw.logoUrl),
       website: isHttpUrl(raw.website) ? String(raw.website).trim() : '',
       themes: Array.isArray(raw.themes) ? raw.themes.map(String) : null,
+      hls: isHls(streamUrl),
       // flux HTTP sur page HTTPS : probablement bloqué par le navigateur (contenu mixte)
       insecure: location.protocol === 'https:' && /^http:/i.test(streamUrl)
     };
@@ -155,6 +170,9 @@ const FAMILIES = [
   audio.preload = 'none';
   let playToken = 0;
   let connectTimer = null;
+  let hls = null;                      // hls.js instance for .m3u8 streams (only when the browser cannot play HLS natively)
+  let hlsLoader = null;
+  const HLS_SCRIPT = 'assets/vendor/hls.js-1.7.3/hls.light.min.js';
 
   const el = {
     list: $('station-list'), empty: $('empty-state'), count: $('result-count'),
@@ -178,13 +196,13 @@ const FAMILIES = [
   /** Langues parlées d'une station. « Instrumental » = sans paroles (jamais une langue) ; « Mixte », « International »… ignorés. */
   function parseLanguages(value) {
     const out = [];
-    String(value).replace(/\([^)]*\)/g, ' ').split(/[\/,;&]|\bet\b/i).forEach((part) => {
+    String(value).replace(/\([^)]*\)/g, ' ').split(/[\/,;&]|\bet\b|\band\b/i).forEach((part) => {
       const label = part.trim();
       const key = normalize(label);
       if (!label) return;
       if (key.startsWith('instrumental') || key.includes('sans paroles')) {
         out.push({ key: INSTRUMENTAL_KEY, label: '' });          // libellé affiché : tr('lang.instrumental')
-      } else if (/^(international|mixte|multilingue|divers|non precis|__unspecified)/.test(key)) {
+      } else if (/^(international|mixte|mixed|multilingu|divers|various|non precis|not specified|__unspecified)/.test(key)) {
         return;
       } else {
         out.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1) });
@@ -200,6 +218,8 @@ const FAMILIES = [
       ? THEMES.filter((t) => st.themes.includes(t.id)).map((t) => t.id)
       : THEMES.filter((t) => t.re.test(full)).map((t) => t.id);
     st.families = FAMILIES.filter((f) => f.re.test(genre)).map((f) => f.id);
+    // Genre that fits no family: listed on its own (first genre of a comma-separated list)
+    st.looseGenre = st.families.length ? '' : (st.genre === UNSPECIFIED ? UNSPECIFIED : st.genre.split(/[,&/]/)[0].trim());
     const langs = parseLanguages(st.language);
     st.langs = [...new Set(langs.map((l) => l.key))];
     langs.forEach((l) => { if (!state.langLabels.has(l.key)) state.langLabels.set(l.key, l.label); });
@@ -397,10 +417,20 @@ function countryFlag(name) {
       });
   }
 
+  /** Genre filter = the same families as the home page ("f:<id>"), then the genres that fit no family ("g:<genre>"). */
+  function fillGenreSelect() {
+    const option = (value, label) => { const o = document.createElement('option'); o.value = value; o.textContent = label; return o; };
+    const families = FAMILIES.filter((f) => state.stations.some((s) => s.families.includes(f.id)))
+      .map((f) => ['f:' + f.id, tr('family.' + f.id)]);
+    const loose = [...new Set(state.stations.map((s) => s.looseGenre).filter(Boolean))].map((g) => ['g:' + g, shown(g)]);
+    el.genre.replaceChildren(option(ALL, tr('filters.allGenres')),
+      ...families.concat(loose).sort((a, b) => a[1].localeCompare(b[1], loc())).map(([v, l]) => option(v, l)));
+  }
+
   function fillFilterSelects() {
     fillSelect(el.country, tr('filters.allCountries'), state.stations.map((s) => s.country));
     fillLanguageSelect();
-    fillSelect(el.genre, tr('filters.allGenres'), state.stations.map((s) => s.genre));
+    fillGenreSelect();
   }
 
   function filteredStations() {
@@ -411,7 +441,7 @@ function countryFlag(name) {
         (!q || normalize(s.name).includes(q)) &&
         (f.country === ALL || s.country === f.country) &&
         (f.language === ALL || s.langs.includes(f.language)) &&
-        (f.genre === ALL || s.genre === f.genre) &&
+        (f.genre === ALL || s.looseGenre === f.genre) &&
         (!f.theme || s.themeIds.includes(f.theme)) &&
         (!f.family || s.families.includes(f.family)))
       .sort((a, b) => a.name.localeCompare(b.name, loc()));
@@ -476,12 +506,11 @@ function countryFlag(name) {
     return f.query ? tr('view.search') : tr('view.all');
   }
 
-  /** Pastilles pour les filtres qui n'ont pas de liste déroulante (activité, famille de genre). */
+  /** Chip for the filter that has no drop-down list (activity). */
   function renderChips() {
     const f = state.filters;
     const chips = [];
     if (f.theme) chips.push({ key: 'theme', label: tr('theme.' + f.theme + '.title') });
-    if (f.family) chips.push({ key: 'family', label: tr('family.' + f.family) });
     el.chips.replaceChildren(...chips.map((c) => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -616,7 +645,7 @@ function countryFlag(name) {
     const genreCards = FAMILIES.map((f) => [f, st.filter((s) => s.families.includes(f.id)).length]).filter(([, n]) => n > 0)
       .map(([f, n]) => makeCategoryCard({ icon: f.icon, title: tr('family.' + f.id), lines: [count(n)], patch: { family: f.id } }));
     const loose = new Map();
-    st.filter((s) => s.families.length === 0).forEach((s) => loose.set(s.genre, (loose.get(s.genre) || 0) + 1));
+    st.filter((s) => s.looseGenre).forEach((s) => loose.set(s.looseGenre, (loose.get(s.looseGenre) || 0) + 1));
     [...loose.entries()].sort((a, b) => shown(a[0]).localeCompare(shown(b[0]), loc())).forEach(([g, n]) =>
       genreCards.push(makeCategoryCard({ icon: 'bi-vinyl', title: shown(g), lines: [count(n)], patch: { genre: g } })));
     fillSection(el.genres, genreCards);
@@ -709,7 +738,7 @@ function countryFlag(name) {
     el.search.value = f.query;
     el.country.value = f.country;
     el.language.value = f.language;
-    el.genre.value = f.genre;
+    el.genre.value = f.family ? 'f:' + f.family : (f.genre ? 'g:' + f.genre : ALL);
   }
 
   function resetFilters() {
@@ -752,7 +781,7 @@ function countryFlag(name) {
       const st = state.current;
       if (st && mediaSessionStation !== st.id) {
         const artwork = st.logoUrl
-          ? [{ src: st.logoUrl, sizes: '128x128' }]
+          ? [{ src: st.logoUrl }]
           : [{ src: new URL('assets/icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }];
         navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: tr('app.name'), artwork });
         mediaSessionStation = st.id;
@@ -818,6 +847,7 @@ function countryFlag(name) {
     clearConnectTimer();
     state.interrupted = false;      // plus de source : aucune reprise automatique possible après un arrêt voulu
     playToken++;
+    if (hls) { try { hls.destroy(); } catch (e) { /* already detached */ } hls = null; }
     audio.pause();
     audio.removeAttribute('src');
     audio.load();
@@ -832,15 +862,58 @@ function countryFlag(name) {
     return state.current && state.current.insecure ? { insecure: true } : null;
   }
 
+  /** Loads hls.js once, on demand (it is only needed for .m3u8 streams on browsers without native HLS). */
+  function loadHls() {
+    if (window.Hls) return Promise.resolve(window.Hls);
+    if (!hlsLoader) {
+      hlsLoader = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = HLS_SCRIPT;
+        script.async = true;
+        script.onload = () => (window.Hls ? resolve(window.Hls) : reject(new Error('hls.js missing')));
+        script.onerror = () => { hlsLoader = null; script.remove(); reject(new Error('hls.js not loaded')); };
+        document.head.appendChild(script);
+      });
+    }
+    return hlsLoader;
+  }
+
+  function playbackFailed(token, key) {
+    if (token !== playToken) return;
+    state.wantPlay = false;
+    releaseAudio();
+    setStatus('error', key, insecureParams());
+  }
+
   function startPlayback() {
     const st = state.current;
     if (!st) return;
     releaseAudio();                     // arrête tout flux précédent (un seul flux actif)
     const token = ++playToken;
     state.wantPlay = true;
-    audio.src = st.streamUrl;
     setStatus('connecting');
     armConnectTimer();
+    if (st.hls && !audio.canPlayType('application/vnd.apple.mpegurl')) {
+      // HLS without native support (Chrome desktop, Firefox...): hls.js feeds the same, unique audio element.
+      // hls.js is fetched on first use only; the user's tap stays valid for autoplay rules while it loads.
+      loadHls().then((Hls) => {
+        if (token !== playToken) return;
+        if (!Hls.isSupported()) { playbackFailed(token, errorKey(4)); return; }
+        hls = new Hls({ enableWorker: true, lowLatencyMode: false, backBufferLength: 30 });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data && data.fatal) playbackFailed(token, data.type === Hls.ErrorTypes.NETWORK_ERROR ? 'error.network' : 'error.generic');
+        });
+        hls.attachMedia(audio);
+        hls.loadSource(st.streamUrl);
+        playPromise(token);
+      }, () => playbackFailed(token, 'error.network'));
+      return;
+    }
+    audio.src = st.streamUrl;
+    playPromise(token);
+  }
+
+  function playPromise(token) {
     const p = audio.play();
     if (p && typeof p.catch === 'function') {
       p.catch((err) => {
@@ -1063,7 +1136,12 @@ function countryFlag(name) {
   });
   el.country.addEventListener('change', () => { state.filters.country = el.country.value; renderList(); });
   el.language.addEventListener('change', () => { state.filters.language = el.language.value; renderList(); });
-  el.genre.addEventListener('change', () => { state.filters.genre = el.genre.value; renderList(); });
+  el.genre.addEventListener('change', () => {
+    const v = el.genre.value;
+    state.filters.family = v.startsWith('f:') ? v.slice(2) : '';
+    state.filters.genre = v.startsWith('g:') ? v.slice(2) : ALL;
+    renderList();
+  });
   el.reset.addEventListener('click', () => { resetFilters(); renderList(); });
   el.forgetOrphans.addEventListener('click', () => {
     orphanIds().forEach((id) => state.favorites.delete(id));

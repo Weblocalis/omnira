@@ -5,26 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Privacy Policy - Omnira</title>
   <meta name="description" content="How Omnira, a player for third-party internet radio stations, handles information: what stays on your device, which third parties are contacted, and your choices.">
+  <link rel="canonical" href="https://YOUR-DOMAIN/privacy-policy">
   <meta name="theme-color" content="#0f1216">
   <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-5.3.3/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/legal.css">
-  <script>
-    /* Same theme as the app (light / dark / auto, saved by the app). Pages stay readable without JavaScript (dark by default). */
-    (function () {
-      var pref = 'auto';
-      try { var v = JSON.parse(localStorage.getItem('radio.theme')); if (v === 'light' || v === 'dark') pref = v; } catch (e) { /* storage blocked */ }
-      var dark = pref === 'dark' || (pref === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
-      var m = document.querySelector('meta[name="theme-color"]');
-      if (m) m.setAttribute('content', dark ? '#0f1216' : '#f4f6f9');
-    })();
-  </script>
+  <script src="assets/js/theme-init.js"></script>
 </head>
 <!--
 BEFORE PUBLISHING: replace every highlighted [PLACEHOLDER] (editor name, address, contact email, website URL), update the "Last updated" date,
@@ -33,14 +21,14 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
 <body class="legal-page">
   <header class="legal-header">
     <div class="container d-flex align-items-center justify-content-between gap-2 py-2">
-      <a class="brand" href="index.html">Omnira</a>
-      <a class="btn btn-outline-secondary" href="index.html">Back to Omnira</a>
+      <a class="brand" href="./">Omnira</a>
+      <a class="btn btn-outline-secondary" href="./">Back to Omnira</a>
     </div>
   </header>
 
   <main class="container legal-content">
     <h1>Privacy Policy</h1>
-    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-20">October 20, 2026</time></p>
+    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-31">October 31, 2026</time></p>
 
     <nav class="legal-toc" aria-label="Contents">
       <strong>Contents</strong>
@@ -74,7 +62,7 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
           <li>No advertising, and no analytics or tracking tools in Omnira&rsquo;s own code.</li>
           <li>Omnira has no server of its own that receives your information: the app&rsquo;s code does not send your favorites, listening history or settings to us or to anyone else.</li>
           <li>Your favorites, history and preferences are saved on your device only, and you can delete them at any time.</li>
-          <li>As with any web page or app, using Omnira makes your device connect to third-party servers (radio streams, a content delivery network, an icon service and our hosting provider). They can see technical information such as your IP address. See section 4.</li>
+          <li>As with any web page or app, using Omnira makes your device connect to third-party servers (the radio streams you play and our hosting provider). They can see technical information such as your IP address. See section 4.</li>
         </ul>
       </div>
     </section>
@@ -107,8 +95,6 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
           <thead><tr><th scope="col">Who</th><th scope="col">When</th><th scope="col">What they may receive</th></tr></thead>
           <tbody>
             <tr><th scope="row">Radio stations and their streaming providers (the catalog currently refers to about thirty different streaming hosts)</th><td>When you play a station, and when a stream reconnects.</td><td>Your IP address, browser or device type, the stream requested and the web address of Omnira (referrer). They can tell that your device is listening to their station. Omnira does not relay or record the audio. Some stations may stream over unencrypted HTTP.</td></tr>
-            <tr><th scope="row">Google (favicon service, <code>www.google.com/s2/favicons</code>)</th><td>When station logos are displayed or used in your device&rsquo;s media controls.</td><td>Your IP address, browser or device type and the domain name of the station whose icon is requested. Omnira asks the browser not to send the web address of the app with these image requests. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</td></tr>
-            <tr><th scope="row">jsDelivr (<code>cdn.jsdelivr.net</code>)</th><td>When the app loads the Bootstrap and Bootstrap Icons files that style it (unless your browser already has them).</td><td>Your IP address, browser or device type and the web address of Omnira (referrer). The files are checked with integrity hashes. <a href="https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net" target="_blank" rel="noopener noreferrer">jsDelivr Privacy Policy</a>.</td></tr>
             <tr><th scope="row">Cloudflare, Inc. (hosting)</th><td>Each time the app or its pages are loaded.</td><td>Technical request data (such as IP address, page requested, time, browser or device type) used to deliver and protect the service, kept according to Cloudflare&rsquo;s own practices. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</td></tr>
             <tr><th scope="row">Websites of the stations</th><td>Only if you open a station&rsquo;s &ldquo;Official website&rdquo; link (it opens in a new tab, without sending a referrer).</td><td>Whatever that website collects. Read its own policy.</td></tr>
           </tbody>
@@ -135,7 +121,7 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
     </section>
     <section aria-labelledby="h-security">
       <h2 id="h-security">7. Security</h2>
-      <p>Omnira is delivered over HTTPS and the third-party style and script files it loads are verified with integrity hashes. Most stations stream over HTTPS, but a few may use unencrypted HTTP, which your browser may block on a secure page. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
+      <p>Omnira is delivered over HTTPS. All of its files, including the open-source libraries it uses and the station logos, are served from its own website: no third-party script, style sheet or font is loaded. Most stations stream over HTTPS, but a few may use unencrypted HTTP, which your browser may block on a secure page. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
     </section>
     <section aria-labelledby="h-rights">
       <h2 id="h-rights">8. Your rights and choices</h2>
@@ -160,7 +146,7 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
     </section>
 
     <nav class="legal-footer-nav" aria-label="Legal pages">
-      <a href="index.html">Back to Omnira</a>
+      <a href="./">Back to Omnira</a>
       <a href="privacy-policy.html">Privacy Policy</a>
       <a href="legal-notice.html">Legal Notice</a>
       <a href="terms-of-use.html">Terms of Use</a>
