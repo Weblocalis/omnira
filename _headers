@@ -1,0 +1,28 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; font-src 'self'; media-src 'self' https: http: blob:; connect-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Versioned third-party files: the folder name changes with the version, they can be cached for a year
+/assets/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/logos/*
+  Cache-Control: public, max-age=604800
+
+/service-worker.js
+  Cache-Control: no-cache
+
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+
+# Keep the preview address out of search engines once the custom domain is live (avoids duplicate content)
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
