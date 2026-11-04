@@ -50,7 +50,7 @@ ok(await page.evaluate(() => getComputedStyle(document.querySelector('.bi-gear')
 
 await page.click('#nav-radios');
 const total = await page.locator('#station-list .station-card').count();
-ok(total >= 40, `catalog: ${total} stations`);
+ok(total >= 90, `catalog: ${total} stations`);
 const genreOptions = await page.locator('#filter-genre option').count();
 ok(genreOptions > 5 && genreOptions < 25, `genre filter: ${genreOptions} options (families, not raw strings)`);
 await page.click('[data-bs-target="#filters"]');
@@ -59,8 +59,8 @@ await page.selectOption('#filter-genre', 'f:news');
 const news = await page.locator('#station-list .station-card').count();
 ok(news > 0 && news < total, `genre filter "news": ${news} stations`);
 await page.click('#btn-reset');
-await page.fill('#search', 'fip');
-ok(await page.locator('#station-list .station-card').count() === 1, 'search "fip"');
+await page.fill('#search', 'tsf jazz');
+ok(await page.locator('#station-list .station-card').count() === 1, 'search "tsf jazz"');
 await page.fill('#search', '');
 
 await page.locator('#station-list .btn-fav').first().click();

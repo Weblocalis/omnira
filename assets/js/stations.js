@@ -30,6 +30,7 @@ window.STATIONS = [
     language: "Arabic",
     genre: "Classic Arabic Tarab",
     streamUrl: "https://stream.zeno.fm/fy8achbq97zuv",
+    logoUrl: "assets/logos/quran-shuraim.jpg",
     website: "https://www.tarabradio.ma/"
   },
   {
@@ -419,6 +420,7 @@ window.STATIONS = [
     language: "Armenian",
     genre: "Pop, Top 40 & International Hits",
     streamUrl: "https://de.auroramedia.am/aurora.mp3",
+    logoUrl: "assets/logos/medina-fm-andalou.jpg",
     website: "https://www.radioaurora.am/"
   },
   {
@@ -468,6 +470,7 @@ window.STATIONS = [
     language: "Russian",
     genre: "Pop, Top 40 & International Hits",
     streamUrl: "https://ep256.hostingradio.ru:8052/europaplus256.mp3",
+    logoUrl: "assets/logos/oe3-at.png",
     website: "https://europaplus.ru/"
   },
   {
@@ -488,6 +491,475 @@ window.STATIONS = [
     streamUrl: "https://radiorecord.hostingradio.ru/rr_main96.aacp",
     logoUrl: "assets/logos/radio-record-ru.png",
     website: "https://radiorecord.ru/"
+  },
+  {
+    id: "somafm-groovesalad",
+    name: "Groove Salad (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Ambient, Downtempo, Chill",
+    streamUrl: "https://ice2.somafm.com/groovesalad-128-mp3",
+    logoUrl: "assets/logos/radio-record-ru.png",
+    website: "https://somafm.com/groovesalad/"
+  },
+  {
+    id: "somafm-dronezone",
+    name: "Drone Zone (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Ambient, Drone",
+    streamUrl: "https://ice2.somafm.com/dronezone-128-mp3",
+    logoUrl: "assets/logos/somafm-dronezone.jpg",
+    website: "https://somafm.com/dronezone/"
+  },
+  {
+    id: "somafm-deepspaceone",
+    name: "Deep Space One (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Ambient, Deep Space",
+    streamUrl: "https://ice2.somafm.com/deepspaceone-128-mp3",
+    logoUrl: "assets/logos/somafm-deepspaceone.png",
+    website: "https://somafm.com/deepspaceone/"
+  },
+  {
+    id: "somafm-spacestation",
+    name: "Space Station Soma (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Electronic, Space Ambient",
+    streamUrl: "https://ice2.somafm.com/spacestation-128-mp3",
+    logoUrl: "assets/logos/somafm-spacestation.jpg",
+    website: "https://somafm.com/spacestation/"
+  },
+  {
+    id: "somafm-secretagent",
+    name: "Secret Agent (SomaFM)",
+    country: "United States",
+    language: "Mixed",
+    genre: "Lounge, Downtempo, Soundtrack",
+    streamUrl: "https://ice2.somafm.com/secretagent-128-mp3",
+    logoUrl: "assets/logos/somafm-secretagent.jpg",
+    website: "https://somafm.com/secretagent/"
+  },
+  {
+    id: "somafm-lush",
+    name: "Lush (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Downtempo, Chill, Female Vocals",
+    streamUrl: "https://ice2.somafm.com/lush-128-mp3",
+    logoUrl: "assets/logos/somafm-lush.jpg",
+    website: "https://somafm.com/lush/"
+  },
+  {
+    id: "somafm-indiepop",
+    name: "Indie Pop Rocks! (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Indie Pop, Indie Rock",
+    streamUrl: "https://ice2.somafm.com/indiepop-128-mp3",
+    logoUrl: "assets/logos/somafm-indiepop.jpg",
+    website: "https://somafm.com/indiepop/"
+  },
+  {
+    id: "somafm-u80s",
+    name: "Underground 80s (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "New Wave, Synthpop, Rock",
+    streamUrl: "https://ice2.somafm.com/u80s-128-mp3",
+    logoUrl: "assets/logos/somafm-u80s.png",
+    website: "https://somafm.com/u80s/"
+  },
+  {
+    id: "somafm-sonicuniverse",
+    name: "Sonic Universe (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Jazz, Avant-garde",
+    streamUrl: "https://ice2.somafm.com/sonicuniverse-128-mp3",
+    logoUrl: "assets/logos/somafm-sonicuniverse.jpg",
+    website: "https://somafm.com/sonicuniverse/"
+  },
+  {
+    id: "somafm-fluid",
+    name: "Fluid (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Instrumental Hip-hop, Lo-fi",
+    streamUrl: "https://ice2.somafm.com/fluid-128-mp3",
+    logoUrl: "assets/logos/somafm-fluid.jpg",
+    website: "https://somafm.com/fluid/"
+  },
+  {
+    id: "somafm-beatblender",
+    name: "Beat Blender (SomaFM)",
+    country: "United States",
+    language: "Mixed",
+    genre: "Deep House, Downtempo, Electronic",
+    streamUrl: "https://ice2.somafm.com/beatblender-128-mp3",
+    logoUrl: "assets/logos/somafm-beatblender.png",
+    website: "https://somafm.com/beatblender/"
+  },
+  {
+    id: "somafm-thistle",
+    name: "ThistleRadio (SomaFM)",
+    country: "United States",
+    language: "Mixed",
+    genre: "Celtic, Folk, Traditional",
+    streamUrl: "https://ice2.somafm.com/thistle-128-mp3",
+    logoUrl: "assets/logos/somafm-thistle.png",
+    website: "https://somafm.com/thistle/"
+  },
+  {
+    id: "somafm-suburbsofgoa",
+    name: "Suburbs of Goa (SomaFM)",
+    country: "United States",
+    language: "Mixed",
+    genre: "World Music, Asian Electronica",
+    streamUrl: "https://ice2.somafm.com/suburbsofgoa-128-mp3",
+    logoUrl: "assets/logos/somafm-suburbsofgoa.jpg",
+    website: "https://somafm.com/suburbsofgoa/"
+  },
+  {
+    id: "somafm-reggae",
+    name: "Heavyweight Reggae (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Reggae, Dub",
+    streamUrl: "https://ice2.somafm.com/reggae-128-mp3",
+    logoUrl: "assets/logos/somafm-reggae.png",
+    website: "https://somafm.com/reggae/"
+  },
+  {
+    id: "somafm-bootliquor",
+    name: "Boot Liquor (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Americana, Folk, Rock",
+    streamUrl: "https://ice2.somafm.com/bootliquor-128-mp3",
+    logoUrl: "assets/logos/somafm-bootliquor.jpg",
+    website: "https://somafm.com/bootliquor/"
+  },
+  {
+    id: "somafm-7soul",
+    name: "Seven Inch Soul (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Soul, Funk, Vintage",
+    streamUrl: "https://ice2.somafm.com/7soul-128-mp3",
+    logoUrl: "assets/logos/somafm-7soul.png",
+    website: "https://somafm.com/7soul/"
+  },
+  {
+    id: "somafm-defcon",
+    name: "DEF CON Radio (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Electronic, Coding, Hacking",
+    streamUrl: "https://ice2.somafm.com/defcon-128-mp3",
+    logoUrl: "assets/logos/somafm-defcon.png",
+    website: "https://somafm.com/defcon/"
+  },
+  {
+    id: "somafm-synphaera",
+    name: "Synphaera (SomaFM)",
+    country: "United States",
+    language: "Instrumental",
+    genre: "Ambient, Electronic, Space",
+    streamUrl: "https://ice2.somafm.com/synphaera-128-mp3",
+    logoUrl: "assets/logos/somafm-synphaera.jpg",
+    website: "https://somafm.com/synphaera/"
+  },
+  {
+    id: "somafm-metal",
+    name: "Metal Detector (SomaFM)",
+    country: "United States",
+    language: "English",
+    genre: "Metal, Rock",
+    streamUrl: "https://ice2.somafm.com/metal-128-mp3",
+    logoUrl: "assets/logos/somafm-metal.png",
+    website: "https://somafm.com/metal/"
+  },
+  {
+    id: "fip-jazz",
+    name: "FIP Jazz",
+    country: "France",
+    language: "Mixed",
+    genre: "Jazz",
+    streamUrl: "https://icecast.radiofrance.fr/fipjazz-midfi.mp3",
+    logoUrl: "assets/logos/fip-jazz.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-groove",
+    name: "FIP Groove",
+    country: "France",
+    language: "Mixed",
+    genre: "Soul, Funk, Hip-hop",
+    streamUrl: "https://icecast.radiofrance.fr/fipgroove-midfi.mp3",
+    logoUrl: "assets/logos/fip-groove.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-electro",
+    name: "FIP Electro",
+    country: "France",
+    language: "Mixed",
+    genre: "Electronic",
+    streamUrl: "https://icecast.radiofrance.fr/fipelectro-midfi.mp3",
+    logoUrl: "assets/logos/fip-electro.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-reggae",
+    name: "FIP Reggae",
+    country: "France",
+    language: "Mixed",
+    genre: "Reggae",
+    streamUrl: "https://icecast.radiofrance.fr/fipreggae-midfi.mp3",
+    logoUrl: "assets/logos/fip-reggae.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-world",
+    name: "FIP Monde",
+    country: "France",
+    language: "Mixed",
+    genre: "World Music",
+    streamUrl: "https://icecast.radiofrance.fr/fipworld-midfi.mp3",
+    logoUrl: "assets/logos/fip-world.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-rock",
+    name: "FIP Rock",
+    country: "France",
+    language: "Mixed",
+    genre: "Rock",
+    streamUrl: "https://icecast.radiofrance.fr/fiprock-midfi.mp3",
+    logoUrl: "assets/logos/fip-rock.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-nouveautes",
+    name: "FIP Nouveautés",
+    country: "France",
+    language: "Mixed",
+    genre: "Eclectic, New Releases",
+    streamUrl: "https://icecast.radiofrance.fr/fipnouveautes-midfi.mp3",
+    logoUrl: "assets/logos/fip-nouveautes.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-pop",
+    name: "FIP Pop",
+    country: "France",
+    language: "Mixed",
+    genre: "Pop",
+    streamUrl: "https://icecast.radiofrance.fr/fippop-midfi.mp3",
+    logoUrl: "assets/logos/fip-pop.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "fip-metal",
+    name: "FIP Metal",
+    country: "France",
+    language: "Mixed",
+    genre: "Metal",
+    streamUrl: "https://icecast.radiofrance.fr/fipmetal-midfi.mp3",
+    logoUrl: "assets/logos/fip-metal.png",
+    website: "https://www.radiofrance.fr/fip"
+  },
+  {
+    id: "radio-paradise-mellow",
+    name: "Radio Paradise Mellow",
+    country: "United States",
+    language: "Mixed",
+    genre: "Mellow Rock, Acoustic, Relaxation",
+    streamUrl: "https://stream.radioparadise.com/mellow-128",
+    logoUrl: "assets/logos/radio-paradise-mellow.png",
+    website: "https://radioparadise.com/"
+  },
+  {
+    id: "radio-paradise-rock",
+    name: "Radio Paradise Rock",
+    country: "United States",
+    language: "Mixed",
+    genre: "Rock, Classic Rock",
+    streamUrl: "https://stream.radioparadise.com/rock-128",
+    logoUrl: "assets/logos/radio-paradise-rock.png",
+    website: "https://radioparadise.com/"
+  },
+  {
+    id: "radio-paradise-global",
+    name: "Radio Paradise Global",
+    country: "United States",
+    language: "Mixed",
+    genre: "World Music, Eclectic",
+    streamUrl: "https://stream.radioparadise.com/global-128",
+    logoUrl: "assets/logos/radio-paradise-global.png",
+    website: "https://radioparadise.com/"
+  },
+  {
+    id: "france-musique",
+    name: "France Musique",
+    country: "France",
+    language: "French",
+    genre: "Classical, Jazz, Culture",
+    streamUrl: "https://icecast.radiofrance.fr/francemusique-midfi.mp3",
+    logoUrl: "assets/logos/france-musique.png",
+    website: "https://www.radiofrance.fr/francemusique"
+  },
+  {
+    id: "france-musique-baroque",
+    name: "France Musique Baroque",
+    country: "France",
+    language: "Instrumental",
+    genre: "Classical, Baroque",
+    streamUrl: "https://icecast.radiofrance.fr/francemusiquebaroque-midfi.mp3",
+    logoUrl: "assets/logos/france-musique-baroque.png",
+    website: "https://www.radiofrance.fr/francemusique"
+  },
+  {
+    id: "france-musique-jazz",
+    name: "France Musique La Jazz",
+    country: "France",
+    language: "Instrumental",
+    genre: "Jazz",
+    streamUrl: "https://icecast.radiofrance.fr/francemusiquelajazz-midfi.mp3",
+    logoUrl: "assets/logos/france-musique-jazz.png",
+    website: "https://www.radiofrance.fr/francemusique"
+  },
+  {
+    id: "mouv",
+    name: "Mouv'",
+    country: "France",
+    language: "French",
+    genre: "Hip-hop, Rap, R&B",
+    streamUrl: "https://icecast.radiofrance.fr/mouv-midfi.mp3",
+    logoUrl: "assets/logos/mouv.png",
+    website: "https://www.radiofrance.fr/mouv"
+  },
+  {
+    id: "radio-nova",
+    name: "Radio Nova",
+    country: "France",
+    language: "French",
+    genre: "Eclectic, Soul, Hip-hop, World Music",
+    streamUrl: "https://novazz.ice.infomaniak.ch/novazz-128.mp3",
+    logoUrl: "assets/logos/radio-nova.png",
+    website: "https://www.nova.fr/"
+  },
+  {
+    id: "tsf-jazz",
+    name: "TSF Jazz",
+    country: "France",
+    language: "French",
+    genre: "Jazz",
+    streamUrl: "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3",
+    logoUrl: "assets/logos/tsf-jazz.png",
+    website: "https://www.tsfjazz.com/"
+  },
+  {
+    id: "radio-classique",
+    name: "Radio Classique",
+    country: "France",
+    language: "French",
+    genre: "Classical",
+    streamUrl: "https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3",
+    logoUrl: "assets/logos/radio-classique.png",
+    website: "https://www.radioclassique.fr/"
+  },
+  {
+    id: "radio-swiss-jazz",
+    name: "Radio Swiss Jazz",
+    country: "Switzerland",
+    language: "Instrumental",
+    genre: "Jazz, Blues, Soul",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/rsj/mp3/128",
+    logoUrl: "assets/logos/radio-swiss-jazz.png",
+    website: "https://www.radioswissjazz.ch/"
+  },
+  {
+    id: "radio-swiss-pop",
+    name: "Radio Swiss Pop",
+    country: "Switzerland",
+    language: "Mixed",
+    genre: "Pop, Soft Rock",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/rsp/mp3/128",
+    logoUrl: "assets/logos/radio-swiss-pop.png",
+    website: "https://www.radioswisspop.ch/"
+  },
+  {
+    id: "wqxr",
+    name: "WQXR",
+    country: "United States",
+    language: "English",
+    genre: "Classical",
+    streamUrl: "https://stream.wqxr.org/wqxr",
+    website: "https://www.wqxr.org/"
+  },
+  {
+    id: "ambient-sleeping-pill",
+    name: "Ambient Sleeping Pill",
+    country: "International",
+    language: "Instrumental",
+    genre: "Ambient, Sleep",
+    streamUrl: "https://radio.stereoscenic.com/asp-h",
+    logoUrl: "assets/logos/ambient-sleeping-pill.png",
+    website: "https://ambientsleepingpill.com/"
+  },
+  {
+    id: "venice-classic-radio",
+    name: "Venice Classic Radio",
+    country: "Italy",
+    language: "Instrumental",
+    genre: "Classical",
+    streamUrl: "https://uk2.streamingpulse.com/ssl/vcr1",
+    logoUrl: "assets/logos/venice-classic-radio.png",
+    website: "https://www.veniceclassicradio.eu/"
+  },
+  {
+    id: "hit-radio-ma",
+    name: "Hit Radio",
+    country: "Morocco",
+    language: "Arabic / French",
+    genre: "Pop, Hits, Rap",
+    streamUrl: "https://hitradio-maroc.ice.infomaniak.ch/hitradio-maroc-128.mp3",
+    logoUrl: "assets/logos/hit-radio-ma.png",
+    website: "https://www.hitradio.ma/"
+  },
+  {
+    id: "monte-carlo-doualiya",
+    name: "Monte Carlo Doualiya",
+    country: "France",
+    language: "Arabic",
+    genre: "News, Culture, Arabic Music",
+    streamUrl: "https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3",
+    logoUrl: "assets/logos/monte-carlo-doualiya.png",
+    website: "https://www.mc-doualiya.com/"
+  },
+  {
+    id: "rfi-monde",
+    name: "RFI Monde",
+    country: "France",
+    language: "French",
+    genre: "International News, Current Affairs",
+    streamUrl: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3",
+    logoUrl: "assets/logos/rfi-monde.png",
+    website: "https://www.rfi.fr/"
+  },
+  {
+    id: "radio-eins",
+    name: "radioeins",
+    country: "Germany",
+    language: "German",
+    genre: "Alternative, Pop, Rock",
+    streamUrl: "https://dispatcher.rndfnk.com/rbb/radioeins/live/mp3/mid",
+    logoUrl: "assets/logos/radio-eins.png",
+    website: "https://www.radioeins.de/"
   }
 ];
 

@@ -73,6 +73,8 @@ I18N.register('fr', { nativeName: 'Français' }, {
   'family.pop': 'Pop et tubes',
   'family.rock': 'Rock et alternatif',
   'family.electro': 'Électro et dance',
+  'family.hiphop': 'Hip-hop et R&B',
+  'family.soul': 'Soul, funk et blues',
   'family.lofi': 'Lo-fi et chillhop',
   'family.ambient': 'Ambient',
   'family.classique': 'Classique et orchestral',
