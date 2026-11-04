@@ -18,11 +18,13 @@
 .bi-gear::before{content:"\f3e5"}
 .bi-geo-alt-fill::before{content:"\f3e7"}
 .bi-globe-europe-africa::before{content:"\f885"}
+.bi-google-play::before{content:"\f7f7"}
 .bi-headphones::before{content:"\f413"}
 .bi-heart::before{content:"\f417"}
 .bi-heart-fill::before{content:"\f415"}
 .bi-house-door::before{content:"\f423"}
 .bi-lightning-charge-fill::before{content:"\f46c"}
+.bi-mic::before{content:"\f490"}
 .bi-moon::before{content:"\f497"}
 .bi-moon-stars::before{content:"\f496"}
 .bi-music-note::before{content:"\f4a0"}

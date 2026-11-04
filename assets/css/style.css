@@ -141,3 +141,7 @@ body { padding-bottom: calc(var(--player-h) + env(safe-area-inset-bottom, 0px));
 /* Legal links (footer of the app) */
 .legal-links a { color: var(--muted); min-height: 44px; display: inline-flex; align-items: center; }
 .legal-links a:hover { color: var(--text); }
+
+/* Google Play link: only in a browser tab, never inside the Android app or the installed PWA */
+.legal-links .play-link { color: var(--accent); min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; }
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) { .web-only { display: none !important; } }

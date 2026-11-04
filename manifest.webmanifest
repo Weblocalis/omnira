@@ -17,6 +17,9 @@
     "entertainment"
   ],
   "prefer_related_applications": false,
+  "related_applications": [
+    { "platform": "play", "url": "https://play.google.com/store/apps/details?id=com.weblocalis.omnira", "id": "com.weblocalis.omnira" }
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

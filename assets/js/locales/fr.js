@@ -132,6 +132,7 @@ I18N.register('fr', { nativeName: 'Français' }, {
   'settings.language.hintAuto': 'Suit la langue de l\'appareil (actuellement : {lang}).',
   'settings.language.note': 'Cela ne change pas la langue des stations : leurs noms et informations restent tels quels.',
 
+  'app.getAndroid': 'Télécharger l\'application Android sur Google Play',
   'legal.title': 'Informations légales',
   'legal.tagline': 'Omnira - Your World of Radio.',
   'legal.privacy': 'Politique de confidentialité (en anglais)',

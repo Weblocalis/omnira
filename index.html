@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title data-i18n="meta.title">Omnira - Your World of Radio.</title>
   <meta name="description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
-  <link rel="canonical" href="https://YOUR-DOMAIN/">
+  <link rel="canonical" href="https://omnira-88c.pages.dev/">
   <meta name="robots" content="index, follow">
   <!-- Open Graph / Twitter Card (the domain is set with tools/rebrand.mjs) -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://YOUR-DOMAIN/">
-  <meta property="og:image" content="https://YOUR-DOMAIN/assets/images/og-image.jpg">
+  <meta property="og:url" content="https://omnira-88c.pages.dev/">
+  <meta property="og:image" content="https://omnira-88c.pages.dev/assets/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Omnira - Your World of Radio.">
@@ -19,7 +19,7 @@
   <meta property="og:title" data-i18n-content="meta.title" content="Omnira - Your World of Radio.">
   <meta property="og:description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://YOUR-DOMAIN/assets/images/og-image.jpg">
+  <meta name="twitter:image" content="https://omnira-88c.pages.dev/assets/images/og-image.jpg">
   <meta name="twitter:title" data-i18n-content="meta.title" content="Omnira - Your World of Radio.">
   <meta name="twitter:description" data-i18n-content="meta.description" content="Discover Omnira, your international radio player. Listen to radio stations from around the world, explore music genres and languages, and enjoy your favorite stations in one place.">
   <meta name="theme-color" content="#0f1216">
@@ -41,23 +41,25 @@
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://YOUR-DOMAIN/#website",
-      "url": "https://YOUR-DOMAIN/",
+      "@id": "https://omnira-88c.pages.dev/#website",
+      "url": "https://omnira-88c.pages.dev/",
       "name": "Omnira",
       "description": "Your World of Radio.",
       "inLanguage": "en"
     },
     {
       "@type": "WebApplication",
-      "@id": "https://YOUR-DOMAIN/#app",
+      "@id": "https://omnira-88c.pages.dev/#app",
       "name": "Omnira",
-      "url": "https://YOUR-DOMAIN/",
+      "url": "https://omnira-88c.pages.dev/",
       "description": "Omnira is your international radio player. Discover radio stations worldwide, explore music genres and languages, and listen to your favorites in one place.",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires a modern web browser with JavaScript and audio playback support",
       "inLanguage": "en",
-      "isAccessibleForFree": true
+      "isAccessibleForFree": true,
+      "installUrl": "https://play.google.com/store/apps/details?id=com.weblocalis.omnira",
+      "sameAs": ["https://play.google.com/store/apps/details?id=com.weblocalis.omnira"]
     }
   ]
 }
@@ -210,6 +212,8 @@
   <!-- Legal pages: static HTML files that open in a new tab so that playback is never interrupted -->
   <footer class="legal-links container pb-3" aria-label="Legal" data-i18n-aria-label="legal.title">
     <p class="small text-muted-ui mb-1" data-i18n="legal.tagline">Omnira - Your World of Radio.</p>
+    <!-- Hidden inside the Android app and the installed PWA (display-mode: standalone) -->
+    <p class="web-only mb-1"><a class="play-link" href="https://play.google.com/store/apps/details?id=com.weblocalis.omnira" target="_blank" rel="noopener"><i class="bi bi-google-play" aria-hidden="true"></i> <span data-i18n="app.getAndroid">Get the Android app on Google Play</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></p>
     <ul class="list-inline mb-0 small">
       <li class="list-inline-item"><a href="privacy-policy.html" target="_blank" rel="noopener"><span data-i18n="legal.privacy">Privacy Policy</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
       <li class="list-inline-item"><a href="legal-notice.html" target="_blank" rel="noopener"><span data-i18n="legal.notice">Legal Notice</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
