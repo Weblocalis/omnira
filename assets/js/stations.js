@@ -960,6 +960,226 @@ window.STATIONS = [
     streamUrl: "https://dispatcher.rndfnk.com/rbb/radioeins/live/mp3/mid",
     logoUrl: "assets/logos/radio-eins.png",
     website: "https://www.radioeins.de/"
+  },
+  {
+    id: "rtbf-classic-21",
+    name: "Classic 21",
+    country: "Belgium",
+    language: "French",
+    genre: "Rock, Pop & Classic Rock",
+    streamUrl: "https://radios.rtbf.be/classic21-128.mp3",
+    logoUrl: "assets/logos/rtbf-classic-21.png",
+    website: "https://www.rtbf.be/classic21"
+  },
+  {
+    id: "rtbf-la-premiere",
+    name: "La Première",
+    country: "Belgium",
+    language: "French",
+    genre: "News, Culture & Debates",
+    streamUrl: "https://radios.rtbf.be/laprem1ere-128.mp3",
+    logoUrl: "assets/logos/rtbf-la-premiere.png",
+    website: "https://www.rtbf.be/lapremiere"
+  },
+  {
+    id: "rtbf-musiq3",
+    name: "Musiq3",
+    country: "Belgium",
+    language: "French",
+    genre: "Classical & Jazz",
+    streamUrl: "https://radios.rtbf.be/musiq3-128.mp3",
+    logoUrl: "assets/logos/rtbf-musiq3.png",
+    website: "https://www.rtbf.be/musiq3"
+  },
+  {
+    id: "rtbf-tarmac",
+    name: "Tarmac",
+    country: "Belgium",
+    language: "French",
+    genre: "Hip-hop, Rap & Urban",
+    streamUrl: "https://radios.rtbf.be/tarmac-128.mp3",
+    logoUrl: "assets/logos/rtbf-tarmac.png",
+    website: "https://www.rtbf.be/tarmac"
+  },
+  {
+    id: "rts-couleur-3",
+    name: "Couleur 3",
+    country: "Switzerland",
+    language: "French",
+    genre: "Alternative, Indie, Rock & Electronic",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/couleur3/mp3/128",
+    logoUrl: "assets/logos/rts-couleur-3.png",
+    website: "https://www.rts.ch/couleur3/"
+  },
+  {
+    id: "rts-la-1ere",
+    name: "RTS La 1ère",
+    country: "Switzerland",
+    language: "French",
+    genre: "News, Culture & Debates",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/la-1ere/mp3/128",
+    logoUrl: "assets/logos/rts-la-1ere.png",
+    website: "https://www.rts.ch/la-1ere/"
+  },
+  {
+    id: "rts-espace-2",
+    name: "Espace 2",
+    country: "Switzerland",
+    language: "French",
+    genre: "Classical & Culture",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/espace-2/mp3/128",
+    logoUrl: "assets/logos/rts-espace-2.png",
+    website: "https://www.rts.ch/espace-2/"
+  },
+  {
+    id: "rts-option-musique",
+    name: "Option Musique",
+    country: "Switzerland",
+    language: "French",
+    genre: "French Variety, Pop & Chanson",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/option-musique/mp3/128",
+    logoUrl: "assets/logos/rts-option-musique.png",
+    website: "https://www.rts.ch/option-musique/"
+  },
+  {
+    id: "rte-radio-1",
+    name: "RTÉ Radio 1",
+    country: "Ireland",
+    language: "English",
+    genre: "News, Talk & Culture",
+    streamUrl: "https://icecast2.rte.ie/radio1",
+    logoUrl: "assets/logos/rte-radio-1.png",
+    website: "https://www.rte.ie/radio1/"
+  },
+  {
+    id: "rte-lyric-fm",
+    name: "RTÉ Lyric FM",
+    country: "Ireland",
+    language: "English",
+    genre: "Classical, Orchestral & Jazz",
+    streamUrl: "https://icecast2.rte.ie/lyric",
+    logoUrl: "assets/logos/rte-lyric-fm.png",
+    website: "https://www.rte.ie/lyricfm/"
+  },
+  {
+    id: "rte-2fm",
+    name: "RTÉ 2FM",
+    country: "Ireland",
+    language: "English",
+    genre: "Pop, Hits & Dance",
+    streamUrl: "https://icecast2.rte.ie/2fm",
+    logoUrl: "assets/logos/rte-2fm.png",
+    website: "https://www.rte.ie/2fm/"
+  },
+  {
+    id: "cosmo-de",
+    name: "COSMO",
+    country: "Germany",
+    language: "German",
+    genre: "World Music, Global Pop & Urban",
+    streamUrl: "https://wdr-cosmo-live.icecast.wdr.de/wdr/cosmo/live/mp3/128/stream.mp3",
+    logoUrl: "assets/logos/cosmo-de.png",
+    website: "https://www.wdr.de/kultur/radios/cosmo/"
+  },
+  {
+    id: "swr3-de",
+    name: "SWR3",
+    country: "Germany",
+    language: "German",
+    genre: "Pop, Contemporary Hits & Rock",
+    streamUrl: "https://liveradio.swr.de/sw282p3/swr3/mp3/128/stream.mp3",
+    logoUrl: "assets/logos/swr3-de.png",
+    website: "https://www.swr3.de/"
+  },
+  {
+    id: "br-klassik-de",
+    name: "BR-Klassik",
+    country: "Germany",
+    language: "German",
+    genre: "Classical, Opera & Orchestral",
+    streamUrl: "https://dispatcher.rndfnk.com/br/brklassik/live/mp3/mid",
+    logoUrl: "assets/logos/br-klassik-de.png",
+    website: "https://www.br-klassik.de/"
+  },
+  {
+    id: "wnyc-fm",
+    name: "WNYC-FM",
+    country: "United States",
+    language: "English",
+    genre: "News, Culture & Debates",
+    streamUrl: "https://fm939.wnyc.org/wnycfm",
+    logoUrl: "assets/logos/wnyc-fm.png",
+    website: "https://www.wnyc.org/"
+  },
+  {
+    id: "dublab",
+    name: "dublab",
+    country: "United States",
+    language: "English",
+    genre: "Electronic, Ambient, Experimental & Eclectic",
+    streamUrl: "https://dublab.out.airtime.pro/dublab_a",
+    logoUrl: "assets/logos/dublab.png",
+    website: "https://www.dublab.com/"
+  },
+  {
+    id: "ici-musique-quebec",
+    name: "ICI Musique",
+    country: "Canada",
+    language: "French",
+    genre: "Eclectic, Jazz, Classical & Francophone",
+    streamUrl: "https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QMT0_MTL/master.m3u8",
+    logoUrl: "assets/logos/ici-musique-quebec.png",
+    website: "https://ici.radio-canada.ca/ohdio/musique"
+  },
+  {
+    id: "ici-premiere-montreal",
+    name: "ICI Première",
+    country: "Canada",
+    language: "French",
+    genre: "News, Culture, Society & Debates",
+    streamUrl: "https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QPR0_MTL/master.m3u8",
+    logoUrl: "assets/logos/ici-premiere-montreal.png",
+    website: "https://ici.radio-canada.ca/premiere"
+  },
+  {
+    id: "ouifm",
+    name: "OÜI FM",
+    country: "France",
+    language: "French",
+    genre: "Rock, Alternative & Indie",
+    streamUrl: "https://ouifm.ice.infomaniak.ch/ouifm-high.mp3",
+    logoUrl: "assets/logos/ouifm.png",
+    website: "https://www.ouifm.fr/"
+  },
+  {
+    id: "rfi-english",
+    name: "RFI English",
+    country: "France",
+    language: "English",
+    genre: "International News & Current Affairs",
+    streamUrl: "https://rfienanglais64k.ice.infomaniak.ch/rfienanglais-64.mp3",
+    logoUrl: "assets/logos/rfi-english.png",
+    website: "https://www.rfi.fr/en/"
+  },
+  {
+    id: "npo-klassiek",
+    name: "NPO Klassiek",
+    country: "Netherlands",
+    language: "Dutch",
+    genre: "Classical & Orchestral",
+    streamUrl: "https://icecast.omroep.nl/radio4-bb-mp3",
+    logoUrl: "assets/logos/npo-klassiek.png",
+    website: "https://www.npoklassiek.nl/"
+  },
+  {
+    id: "npo-3fm",
+    name: "NPO 3FM",
+    country: "Netherlands",
+    language: "Dutch",
+    genre: "Alternative, Pop & Rock",
+    streamUrl: "https://icecast.omroep.nl/3fm-bb-mp3",
+    logoUrl: "assets/logos/npo-3fm.png",
+    website: "https://www.npo3fm.nl/"
   }
 ];
 
