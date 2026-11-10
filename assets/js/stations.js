@@ -30,7 +30,6 @@ window.STATIONS = [
     language: "Arabic",
     genre: "Classic Arabic Tarab",
     streamUrl: "https://stream.zeno.fm/fy8achbq97zuv",
-    logoUrl: "assets/logos/quran-shuraim.jpg",
     website: "https://www.tarabradio.ma/"
   },
   {
@@ -319,7 +318,7 @@ window.STATIONS = [
     country: "Italy",
     language: "Italian",
     genre: "Popular Music & Entertainment",
-    streamUrl: "https://streamcdnm4-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiodeejay/radiodeejay/play1.m3u8",
+    streamUrl: "https://4c4b867c89244861ac216426883d1ad0.msvdn.net/radiodeejay/radiodeejay/play1.m3u8",
     logoUrl: "assets/logos/radio-deejay-it.png",
     website: "https://www.deejay.it/"
   },
@@ -420,7 +419,6 @@ window.STATIONS = [
     language: "Armenian",
     genre: "Pop, Top 40 & International Hits",
     streamUrl: "https://de.auroramedia.am/aurora.mp3",
-    logoUrl: "assets/logos/medina-fm-andalou.jpg",
     website: "https://www.radioaurora.am/"
   },
   {
@@ -470,7 +468,6 @@ window.STATIONS = [
     language: "Russian",
     genre: "Pop, Top 40 & International Hits",
     streamUrl: "https://ep256.hostingradio.ru:8052/europaplus256.mp3",
-    logoUrl: "assets/logos/oe3-at.png",
     website: "https://europaplus.ru/"
   },
   {
@@ -499,7 +496,7 @@ window.STATIONS = [
     language: "Instrumental",
     genre: "Ambient, Downtempo, Chill",
     streamUrl: "https://ice2.somafm.com/groovesalad-128-mp3",
-    logoUrl: "assets/logos/radio-record-ru.png",
+    logoUrl: "assets/logos/somafm-groovesalad.png",
     website: "https://somafm.com/groovesalad/"
   },
   {
@@ -1180,6 +1177,357 @@ window.STATIONS = [
     streamUrl: "https://icecast.omroep.nl/3fm-bb-mp3",
     logoUrl: "assets/logos/npo-3fm.png",
     website: "https://www.npo3fm.nl/"
+  },
+  {
+    id: "rmc-fr",
+    name: "RMC",
+    country: "France",
+    language: "French",
+    genre: "News, Talk & Sports",
+    streamUrl: "https://audio.bfmtv.com/rmcradio_128.mp3",
+    website: "https://rmc.bfmtv.com/"
+  },
+  {
+    id: "europe-1-fr",
+    name: "Europe 1",
+    country: "France",
+    language: "French",
+    genre: "News, Talk & Current Affairs",
+    streamUrl: "https://europe1.lmn.fm/europe1.mp3",
+    website: "https://www.europe1.fr/"
+  },
+  {
+    id: "cherie-fm-fr",
+    name: "Chérie FM",
+    country: "France",
+    language: "French",
+    genre: "Pop, Romantic Hits & Variety",
+    streamUrl: "https://streaming.nrjaudio.fm/ou2n2epw5hs7",
+    website: "https://www.cheriefm.fr/"
+  },
+  {
+    id: "skyrock-fr",
+    name: "Skyrock",
+    country: "France",
+    language: "French",
+    genre: "Rap, Hip-hop & R&B",
+    streamUrl: "https://icecast.skyrock.net/s/natio_mp3_128k",
+    website: "https://skyrock.fm/"
+  },
+  {
+    id: "rtl2-fr",
+    name: "RTL2",
+    country: "France",
+    language: "French",
+    genre: "Pop-Rock",
+    streamUrl: "https://icecast.rtl2.fr/rtl2-1-44-128",
+    website: "https://www.rtl2.fr/"
+  },
+  {
+    id: "radio-meuh-fr",
+    name: "Radio Meuh",
+    country: "France",
+    language: "Mixed",
+    genre: "Eclectic, Groove, Funk & Electronic",
+    streamUrl: "https://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3",
+    website: "https://www.radiomeuh.com/"
+  },
+  {
+    id: "medi1-radio-ma",
+    name: "Medi 1 Radio",
+    country: "Morocco",
+    language: "Arabic / French",
+    genre: "News, Culture & Maghreb Hits",
+    streamUrl: "https://cdn.live.easybroadcast.io/live/83_medi1radio-maghreb_8s9i4bn/playlist.m3u8",
+    website: "https://www.medi1.com/"
+  },
+  {
+    id: "radio-mars-ma",
+    name: "Radio Mars",
+    country: "Morocco",
+    language: "Arabic / French",
+    genre: "Sports, News & Moroccan Music",
+    streamUrl: "https://radiomars.ice.infomaniak.ch/radiomars-128.mp3",
+    website: "https://www.radiomars.ma/"
+  },
+  {
+    id: "aswat-ma",
+    name: "Radio Aswat",
+    country: "Morocco",
+    language: "Arabic",
+    genre: "News, Talk & Moroccan Hits",
+    streamUrl: "https://aswat.ice.infomaniak.ch/aswat-high.mp3",
+    website: "https://www.radioaswat.ma/"
+  },
+  {
+    id: "atlantic-radio-ma",
+    name: "Atlantic Radio",
+    country: "Morocco",
+    language: "French / Arabic",
+    genre: "News, Economy & Culture",
+    streamUrl: "https://atlantic-sonic.nindohost.net:9300/stream",
+    website: "https://www.atlanticradio.ma/"
+  },
+  {
+    id: "capital-fm-uk",
+    name: "Capital FM",
+    country: "United Kingdom",
+    language: "English",
+    genre: "Pop, Top 40 & Hits",
+    streamUrl: "https://media-ssl.musicradio.com/CapitalUK",
+    website: "https://www.capitalfm.com/"
+  },
+  {
+    id: "heart-uk",
+    name: "Heart",
+    country: "United Kingdom",
+    language: "English",
+    genre: "Pop, Variety & Feel Good Hits",
+    streamUrl: "https://media-ssl.musicradio.com/HeartUK",
+    website: "https://www.heart.co.uk/"
+  },
+  {
+    id: "lbc-uk",
+    name: "LBC",
+    country: "United Kingdom",
+    language: "English",
+    genre: "News, Debate & Talk",
+    streamUrl: "https://media-ssl.musicradio.com/LBCUK",
+    website: "https://www.lbc.co.uk/"
+  },
+  {
+    id: "smooth-radio-uk",
+    name: "Smooth Radio",
+    country: "United Kingdom",
+    language: "English",
+    genre: "Relaxing, Soul, Pop & Classics",
+    streamUrl: "https://media-ssl.musicradio.com/SmoothUK",
+    website: "https://www.smoothradio.com/"
+  },
+  {
+    id: "radio-x-uk",
+    name: "Radio X",
+    country: "United Kingdom",
+    language: "English",
+    genre: "Rock, Indie & Alternative",
+    streamUrl: "https://media-ssl.musicradio.com/RadioXUK",
+    website: "https://www.radiox.co.uk/"
+  },
+  {
+    id: "gold-radio-uk",
+    name: "Gold",
+    country: "United Kingdom",
+    language: "English",
+    genre: "Classic Hits, 60s, 70s & 80s",
+    streamUrl: "https://media-ssl.musicradio.com/Gold",
+    website: "https://www.mygoldmusic.co.uk/"
+  },
+  {
+    id: "radio-105-it",
+    name: "Radio 105",
+    country: "Italy",
+    language: "Italian",
+    genre: "Pop, Dance & Entertainment",
+    streamUrl: "https://icecast.unitedradio.it/Radio105.mp3",
+    website: "https://www.105.net/"
+  },
+  {
+    id: "virgin-radio-it",
+    name: "Virgin Radio Italy",
+    country: "Italy",
+    language: "Italian",
+    genre: "Rock, Classic Rock & Hard Rock",
+    streamUrl: "https://icecast.unitedradio.it/Virgin.mp3",
+    website: "https://www.virginradio.it/"
+  },
+  {
+    id: "radio-monte-carlo-it",
+    name: "Radio Monte Carlo",
+    country: "Italy",
+    language: "Italian",
+    genre: "Lounge, Pop & Soul",
+    streamUrl: "https://icecast.unitedradio.it/RMC.mp3",
+    website: "https://www.radiomontecarlo.net/"
+  },
+  {
+    id: "1live-de",
+    name: "1LIVE",
+    country: "Germany",
+    language: "German",
+    genre: "Pop, Hits & Youth",
+    streamUrl: "https://wdr-1live-live.icecast.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+    website: "https://www1.wdr.de/radio/1live/"
+  },
+  {
+    id: "bayern-3-de",
+    name: "Bayern 3",
+    country: "Germany",
+    language: "German",
+    genre: "Pop & Contemporary Hits",
+    streamUrl: "https://dispatcher.rndfnk.com/br/br3/live/mp3/mid",
+    website: "https://www.bayern3.de/"
+  },
+  {
+    id: "swr1-bw-de",
+    name: "SWR1 Baden-Württemberg",
+    country: "Germany",
+    language: "German",
+    genre: "Pop, Rock & Classics",
+    streamUrl: "https://liveradio.swr.de/sw282p3/swr1bw/mp3/128/stream.mp3",
+    website: "https://www.swr.de/swr1/bw/"
+  },
+  {
+    id: "wdr5-de",
+    name: "WDR 5",
+    country: "Germany",
+    language: "German",
+    genre: "News, Culture & Debates",
+    streamUrl: "https://wdr-wdr5-live.icecast.wdr.de/wdr/wdr5/live/mp3/128/stream.mp3",
+    website: "https://www1.wdr.de/radio/wdr5/"
+  },
+  {
+    id: "srf-1-ch",
+    name: "Radio SRF 1",
+    country: "Switzerland",
+    language: "German",
+    genre: "General Interest, News & Culture",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/srf1/mp3/128",
+    website: "https://www.srf.ch/radio-srf-1"
+  },
+  {
+    id: "srf-3-ch",
+    name: "Radio SRF 3",
+    country: "Switzerland",
+    language: "German",
+    genre: "Pop, Rock & Contemporary Hits",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/srf3/mp3/128",
+    website: "https://www.srf.ch/radio-srf-3"
+  },
+  {
+    id: "srf-4-news-ch",
+    name: "Radio SRF 4 News",
+    country: "Switzerland",
+    language: "German",
+    genre: "News & Information",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/srf4news/mp3/128",
+    website: "https://www.srf.ch/radio-srf-4-news"
+  },
+  {
+    id: "srf-virus-ch",
+    name: "Radio SRF Virus",
+    country: "Switzerland",
+    language: "German",
+    genre: "Alternative, Indie & Urban",
+    streamUrl: "https://stream.srg-ssr.ch/srgssr/srfvirus/mp3/128",
+    website: "https://www.srf.ch/radio-srf-virus"
+  },
+  {
+    id: "cadena-dial-es",
+    name: "Cadena Dial",
+    country: "Spain",
+    language: "Spanish",
+    genre: "Pop, Spanish Music & Variety",
+    streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL.mp3",
+    website: "https://www.cadenadial.com/"
+  },
+  {
+    id: "radiola-es",
+    name: "Radiolé",
+    country: "Spain",
+    language: "Spanish",
+    genre: "Spanish Music, Flamenco & Pop",
+    streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOLE.mp3",
+    website: "https://www.radiole.com/"
+  },
+  {
+    id: "sveriges-radio-p1",
+    name: "Sveriges Radio P1",
+    country: "Sweden",
+    language: "Swedish",
+    genre: "News, Talk, Culture & Documentaries",
+    streamUrl: "https://sverigesradio.se/topsy/direkt/srapi/132.mp3",
+    website: "https://sverigesradio.se/p1"
+  },
+  {
+    id: "sveriges-radio-p2",
+    name: "Sveriges Radio P2",
+    country: "Sweden",
+    language: "Swedish",
+    genre: "Classical, Jazz & Folk",
+    streamUrl: "https://sverigesradio.se/topsy/direkt/srapi/163.mp3",
+    website: "https://sverigesradio.se/p2"
+  },
+  {
+    id: "sveriges-radio-p3",
+    name: "Sveriges Radio P3",
+    country: "Sweden",
+    language: "Swedish",
+    genre: "Pop, Alternative & Youth Culture",
+    streamUrl: "https://sverigesradio.se/topsy/direkt/srapi/164.mp3",
+    website: "https://sverigesradio.se/p3"
+  },
+  {
+    id: "sveriges-radio-p4",
+    name: "Sveriges Radio P4 Stockholm",
+    country: "Sweden",
+    language: "Swedish",
+    genre: "News, Talk & Popular Music",
+    streamUrl: "https://sverigesradio.se/topsy/direkt/srapi/701.mp3",
+    website: "https://sverigesradio.se/p4stockholm"
+  },
+  {
+    id: "nrk-p2",
+    name: "NRK P2",
+    country: "Norway",
+    language: "Norwegian",
+    genre: "Culture, News & Society",
+    streamUrl: "https://nrk-live-radio-world.akamaized.net/p2/muxed.m3u8",
+    website: "https://radio.nrk.no/direkte/p2"
+  },
+  {
+    id: "nrk-p3",
+    name: "NRK P3",
+    country: "Norway",
+    language: "Norwegian",
+    genre: "Pop, Youth & Contemporary Hits",
+    streamUrl: "https://nrk-live-radio-world.akamaized.net/p3/muxed.m3u8",
+    website: "https://radio.nrk.no/direkte/p3"
+  },
+  {
+    id: "nrk-klassisk",
+    name: "NRK Klassisk",
+    country: "Norway",
+    language: "Norwegian",
+    genre: "Classical & Orchestral",
+    streamUrl: "https://nrk-live-radio-world.akamaized.net/klassisk/muxed.m3u8",
+    website: "https://radio.nrk.no/direkte/klassisk"
+  },
+  {
+    id: "nrk-alltid-nyheter",
+    name: "NRK Alltid Nyheter",
+    country: "Norway",
+    language: "Norwegian",
+    genre: "News & Continuous Information",
+    streamUrl: "https://nrk-live-radio-world.akamaized.net/nyheter/muxed.m3u8",
+    website: "https://radio.nrk.no/direkte/alltid_nyheter"
+  },
+  {
+    id: "antena-1-pt",
+    name: "Antena 1",
+    country: "Portugal",
+    language: "Portuguese",
+    genre: "News, Talk & Culture",
+    streamUrl: "https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8",
+    website: "https://www.rtp.pt/antena1/"
+  },
+  {
+    id: "antena-3-pt",
+    name: "Antena 3",
+    country: "Portugal",
+    language: "Portuguese",
+    genre: "Alternative, Indie & Portuguese Music",
+    streamUrl: "https://streaming-live.rtp.pt/liveradio/antena380a/playlist.m3u8",
+    website: "https://www.rtp.pt/antena3/"
   }
 ];
 
