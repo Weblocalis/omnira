@@ -1528,6 +1528,114 @@ window.STATIONS = [
     genre: "Alternative, Indie & Portuguese Music",
     streamUrl: "https://streaming-live.rtp.pt/liveradio/antena380a/playlist.m3u8",
     website: "https://www.rtp.pt/antena3/"
+  },
+  {
+    id: "quran-sudais",
+    name: "Quran — Abdulrahman Alsudais",
+    country: "Saudi Arabia",
+    language: "Arabic",
+    genre: "Quran Recitation",
+    streamUrl: "https://radio.mp3islam.com/listen/sudais/radio.mp3",
+    website: "https://mp3islam.com/"
+  },
+  {
+    id: "power-turk-tr",
+    name: "Power Türk",
+    country: "Turkey",
+    language: "Turkish",
+    genre: "Pop & Turkish Hits",
+    streamUrl: "https://listen.powerapp.com.tr/powerturk/mpeg/icecast.audio",
+    website: "https://www.powerapp.com.tr/powerturk/"
+  },
+  {
+    id: "power-fm-tr",
+    name: "Power FM",
+    country: "Turkey",
+    language: "Turkish",
+    genre: "Pop, Top 40 & Dance",
+    streamUrl: "https://listen.powerapp.com.tr/powerfm/mpeg/icecast.audio",
+    website: "https://www.powerapp.com.tr/powerfm/"
+  },
+  {
+    id: "nhk-world-jp",
+    name: "NHK World Radio",
+    country: "Japan",
+    language: "Japanese / English",
+    genre: "International News & Culture",
+    streamUrl: "https://nhkworld-radio.nhkworld.jp/hls/live/nhkworld-radio-media2/index.m3u8",
+    website: "https://www3.nhk.or.jp/nhkworld/"
+  },
+  {
+    id: "band-fm-br",
+    name: "Band FM",
+    country: "Brazil",
+    language: "Portuguese",
+    genre: "Pop, Pagode & Brazilian Hits",
+    streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDFM_SPAAC.m3u8",
+    website: "https://www.band.uol.com.br/band-fm"
+  },
+  {
+    id: "super-radio-tupi-br",
+    name: "Super Rádio Tupi",
+    country: "Brazil",
+    language: "Portuguese",
+    genre: "News, Talk & Sports",
+    streamUrl: "https://8923.brasilstream.com.br/stream",
+    website: "https://www.tupi.fm/"
+  },
+  {
+    id: "rmf-fm-pl",
+    name: "RMF FM",
+    country: "Poland",
+    language: "Polish",
+    genre: "Pop, Hits & Information",
+    streamUrl: "https://rs101-krk.rmfstream.pl/RMFFM48",
+    website: "https://www.rmf.fm/"
+  },
+  {
+    id: "real-fm-gr",
+    name: "Real FM 97.8",
+    country: "Greece",
+    language: "Greek",
+    genre: "News, Talk & Current Affairs",
+    streamUrl: "https://realfm.live24.gr/realfm",
+    website: "https://www.real.gr/"
+  },
+  {
+    id: "cjad-800-ca",
+    name: "CJAD 800",
+    country: "Canada",
+    language: "English",
+    genre: "News, Talk & Information",
+    streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CJADAM.mp3",
+    website: "https://www.iheartradio.ca/cjad-800"
+  },
+  {
+    id: "kiss-fm-am",
+    name: "Kiss FM Armenia",
+    country: "Armenia",
+    language: "Armenian",
+    genre: "Dance, Pop & Electronic",
+    streamUrl: "https://am.radioaurora.am/kiss",
+    website: "https://kissfm.am/"
+  },
+  {
+    id: "jazz-fm-yerevan-am",
+    name: "Jazz FM 106.9 Yerevan",
+    country: "Armenia",
+    language: "Instrumental",
+    genre: "Jazz & Blues",
+    streamUrl: "https://de.auroramedia.am/jazz.mp3",
+    website: "https://auroramedia.am/"
+  },
+  {
+    id: "anti-radio-az",
+    name: "Anti Radio",
+    country: "Azerbaijan",
+    language: "Azerbaijani",
+    genre: "Rock, Alternative & Indie",
+    streamUrl: "https://stream.antiradio.net/radio/8000/mp3",
+    website: "https://antiradio.net/"
   }
 ];
 
