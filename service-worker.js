@@ -4,7 +4,7 @@
  * and handled by the browser as usual. Listening offline is not possible.
  * Bump CACHE_VERSION whenever a file of APP_FILES is added, renamed or changed.
  */
-const CACHE_VERSION = 'v28';
+const CACHE_VERSION = 'v29';
 const CACHE_PREFIX = 'radio-app-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 const APP_FILES = [
