@@ -36,7 +36,8 @@
 }
 
 html, body { background: var(--bg); color: var(--text); }
-body { padding-bottom: calc(var(--player-h) + env(safe-area-inset-bottom, 0px)); }
+/* --player-h includes the safe-area padding measured by ResizeObserver. */
+body { padding-bottom: var(--player-h); }
 
 .min-w-0 { min-width: 0; }
 .text-accent { color: var(--accent); }
@@ -107,10 +108,24 @@ body { padding-bottom: calc(var(--player-h) + env(safe-area-inset-bottom, 0px));
   font-size: .75rem; text-decoration: none; }
 .nav-item-btn i { font-size: 1.3rem; line-height: 1; }
 .nav-item-btn:hover { color: var(--text); }
-.nav-item-btn[aria-current="page"] { color: var(--accent); }
+.nav-item-btn[aria-current="page"] { color: var(--accent); font-weight: 600; background: var(--surface-2); }
 .nav-item-btn:disabled { opacity: .45; }
 .nav-badge { position: absolute; top: 2px; left: calc(50% + .45rem); min-width: 1.15rem; padding: 0 .3rem; border-radius: 1rem;
   background: var(--warn); color: var(--warn-ink); font-size: .7rem; font-weight: 600; line-height: 1.15rem; text-align: center; }
+
+/* Mobile: reduce the dock's footprint without shrinking its touch targets. */
+@media (max-width: 575.98px) {
+  .player { padding-top: .5rem; }
+  .player > .container > .d-flex.align-items-center.gap-3 { gap: .625rem !important; }
+  .player .logo-lg { width: 48px; height: 48px; font-size: 1.5rem; }
+  .player .btn-play { width: 50px; height: 50px; }
+  .player > .container > .d-flex.align-items-center.gap-2.mt-2 {
+    gap: .5rem !important;
+    margin-top: .35rem !important;
+  }
+  .bottom-nav { margin-top: .35rem; padding-top: .2rem; }
+  .nav-item-btn { min-height: 48px; }
+}
 
 /* Défilement vers la station en cours (hors de la barre de lecture fixe) */
 .station-card { scroll-margin-top: 4.5rem; scroll-margin-bottom: calc(var(--player-h) + 1rem); transition: background-color .3s; }
