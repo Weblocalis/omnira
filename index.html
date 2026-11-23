@@ -67,6 +67,12 @@
   
 </head>
 <body>
+  <div id="gmp-quota-banner" class="gmp-quota-banner d-none" role="status">
+    <span>Google Maps Platform quota reached. If you are the app owner, visit
+      <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors"
+         target="_blank" rel="noopener noreferrer">maps developer site</a>
+      for instructions to update your account.</span>
+  </div>
   <header class="app-header sticky-top">
     <div class="container py-2">
       <div class="d-flex flex-wrap align-items-center gap-2">
@@ -109,60 +115,154 @@
     <div id="home-view">
       <p id="home-empty" class="text-center text-muted-ui py-5 d-none"></p>
 
-      <section id="home-hero" class="home-hero d-none" aria-labelledby="h-hero">
-        <div class="home-hero-copy">
-          <h2 id="h-hero" class="home-hero-title" data-i18n="home.hero.title">Live Radio Worldwide</h2>
-          <p id="hero-summary" class="home-hero-sub mb-0"></p>
+      <section id="home-weather" class="home-weather" aria-labelledby="h-weather">
+        <div class="weather-main">
+          <div id="weather-icon" class="weather-icon" aria-hidden="true">
+            <i class="bi bi-sun"></i>
+          </div>
+          <div class="min-w-0 flex-grow-1">
+            <div class="weather-top-line">
+              <span id="weather-temp" class="weather-temp">--°</span>
+              <h2 id="h-weather" class="weather-place text-truncate" data-i18n="weather.title">Local Weather</h2>
+            </div>
+            <div id="weather-condition" class="weather-condition text-truncate" data-i18n="weather.loading">Loading weather…</div>
+            <div id="weather-details" class="weather-details text-truncate d-none"></div>
+          </div>
         </div>
-        <div class="home-hero-actions">
-          <button id="btn-random-home" type="button" class="btn btn-accent btn-touch d-inline-flex align-items-center gap-2">
-            <i class="bi bi-shuffle" aria-hidden="true"></i>
-            <span data-i18n="home.hero.surprise">Surprise Me</span>
-          </button>
-          <button id="btn-resume-home" type="button" class="btn btn-outline-secondary btn-touch d-none d-inline-flex align-items-center gap-2">
-            <i class="bi bi-play-fill" aria-hidden="true"></i>
-            <span id="btn-resume-label" class="text-truncate"></span>
-          </button>
-          <button id="btn-custom-home" type="button" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-2"
-                  data-bs-toggle="modal" data-bs-target="#custom-station-modal">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2z"/></svg>
-            <span data-i18n="home.hero.addStream">Add Stream</span>
-          </button>
+        <div class="weather-controls">
+          <div class="weather-actions">
+            <button id="btn-weather-geo" type="button" class="btn btn-sm btn-outline-secondary btn-touch d-inline-flex align-items-center gap-1">
+              <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+              <span data-i18n="weather.useLocation">My location</span>
+            </button>
+            <button id="btn-weather-toggle-city" type="button" class="btn btn-sm btn-outline-secondary btn-touch d-inline-flex align-items-center gap-1" aria-expanded="false">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <span data-i18n="weather.changeCity">Other city</span>
+            </button>
+            <button id="btn-weather-refresh" type="button" class="btn btn-sm btn-outline-secondary btn-icon"
+                    aria-label="Refresh weather" title="Refresh weather" data-i18n-aria-label="weather.refresh" data-i18n-title="weather.refresh">
+              <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="weather-city-box" class="weather-city-box d-none" role="search">
+            <div class="input-group input-group-sm">
+              <input id="weather-city-input" type="search" class="form-control" maxlength="120" autocomplete="off"
+                     placeholder="City (e.g. Paris, Lyon, Tokyo)…" data-i18n-placeholder="weather.cityPlaceholder"
+                     aria-label="Search city for weather" data-i18n-aria-label="weather.cityAria">
+              <button id="btn-weather-city-go" type="button" class="btn btn-accent" data-i18n="weather.searchBtn">OK</button>
+            </div>
+          </div>
         </div>
       </section>
 
+      <section id="home-hero" class="home-hero d-none" aria-labelledby="h-hero">
+        <div class="home-hero-main">
+          <p id="hero-kicker" class="home-hero-kicker mb-1"></p>
+          <h2 id="h-hero" class="home-hero-title" data-i18n="home.hero.title">Tune into the world, without noise.</h2>
+          <p id="hero-summary" class="home-hero-sub mb-3"></p>
+          <div class="home-hero-actions">
+            <button id="btn-random-home" type="button" class="btn btn-accent btn-touch d-inline-flex align-items-center gap-2">
+              <i class="bi bi-shuffle" aria-hidden="true"></i>
+              <span data-i18n="home.hero.surprise">Surprise Me</span>
+            </button>
+            <button id="btn-resume-home" type="button" class="btn btn-outline-secondary btn-touch d-none d-inline-flex align-items-center gap-2">
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
+              <span id="btn-resume-label" class="text-truncate"></span>
+            </button>
+            <a id="btn-browse-home" href="#radios" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-2">
+              <i class="bi bi-broadcast" aria-hidden="true"></i>
+              <span data-i18n="home.hero.browse">Browse Catalog</span>
+            </a>
+            <button id="btn-custom-home" type="button" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-2"
+                    data-bs-toggle="modal" data-bs-target="#custom-station-modal">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2z"/></svg>
+              <span data-i18n="home.hero.addStream">Add Stream</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="hero-spotlight" class="home-spotlight d-none">
+          <p class="home-spotlight-kicker mb-2" data-i18n="home.spotlight.kicker">Spotlight for this hour</p>
+          <div class="d-flex align-items-center gap-3">
+            <div id="spotlight-logo" class="logo logo-lg" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
+            <div class="min-w-0 flex-grow-1">
+              <div id="spotlight-name" class="fw-semibold text-truncate"></div>
+              <div id="spotlight-meta" class="small text-muted-ui text-truncate"></div>
+            </div>
+          </div>
+          <div class="home-spotlight-footer mt-3">
+            <button id="btn-spotlight-play" type="button" class="btn btn-accent btn-touch w-100 d-inline-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
+              <span id="spotlight-play-label" data-i18n="home.spotlight.listen">Listen Live</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+<section id="home-favorites" class="home-section d-none" aria-labelledby="h-home-fav">
+  <div class="section-head">
+    <h2 id="h-home-fav" class="section-title" data-i18n="home.favorites.title">Your Favorites</h2>
+    <a href="#favoris" class="btn btn-sm btn-link text-muted-ui text-decoration-none" data-i18n="home.favorites.all">View all</a>
+  </div>
+  <div id="home-favorites-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
+</section>
+
 <section id="home-recents" class="home-section d-none" aria-labelledby="h-recents">
-  <div class="d-flex align-items-center justify-content-between mb-2">
+  <div class="section-head">
     <h2 id="h-recents" class="section-title" data-i18n="home.recents.title">Recently Played</h2>
-    <button type="button" id="btn-clear-history" class="btn btn-sm btn-link text-muted-ui" data-i18n="home.recents.clear">Clear</button>
+    <button type="button" id="btn-clear-history" class="btn btn-sm btn-link text-muted-ui text-decoration-none" data-i18n="home.recents.clear">Clear</button>
   </div>
   <div id="recents-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
 </section>
 
+<section id="home-moment" class="home-section d-none" aria-labelledby="h-moment">
+  <div class="section-head">
+    <div>
+      <h2 id="h-moment" class="section-title mb-0"></h2>
+      <p class="small text-muted-ui mb-0" data-i18n="home.moment.note">Selected automatically for the time of day.</p>
+    </div>
+  </div>
+  <div id="moment-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
+</section>
 
 <section id="home-picks" class="home-section d-none" aria-labelledby="h-picks">
-  <h2 id="h-picks" class="section-title" data-i18n="home.picks.title">Discover</h2>
-  <p class="small text-muted-ui mb-2" data-i18n="home.picks.note">Today's picks from your catalog (no listening statistics used).</p>
+  <div class="section-head">
+    <div>
+      <h2 id="h-picks" class="section-title mb-0" data-i18n="home.picks.title">Discover</h2>
+      <p class="small text-muted-ui mb-0" data-i18n="home.picks.note">A new selection every day.</p>
+    </div>
+  </div>
   <div id="picks-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
 </section>
 
 <section id="home-themes" class="home-section d-none" aria-labelledby="h-themes">
-  <h2 id="h-themes" class="section-title" data-i18n="home.themes.title">Listen by Activity</h2>
+  <div class="section-head">
+    <h2 id="h-themes" class="section-title" data-i18n="home.themes.title">Listen by Activity</h2>
+  </div>
   <div id="themes-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-genres" class="home-section d-none" aria-labelledby="h-genres">
-  <h2 id="h-genres" class="section-title" data-i18n="home.genres.title">Explore by Genre</h2>
+  <div class="section-head">
+    <h2 id="h-genres" class="section-title" data-i18n="home.genres.title">Explore by Genre</h2>
+    <button type="button" id="btn-toggle-genres" class="btn btn-sm btn-link text-muted-ui text-decoration-none d-none"></button>
+  </div>
   <div id="genres-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-countries" class="home-section d-none" aria-labelledby="h-countries">
-  <h2 id="h-countries" class="section-title" data-i18n="home.countries.title">Explore by Country</h2>
+  <div class="section-head">
+    <h2 id="h-countries" class="section-title" data-i18n="home.countries.title">Explore by Country</h2>
+    <button type="button" id="btn-toggle-countries" class="btn btn-sm btn-link text-muted-ui text-decoration-none d-none"></button>
+  </div>
   <div id="countries-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 
 <section id="home-languages" class="home-section d-none" aria-labelledby="h-languages">
-  <h2 id="h-languages" class="section-title" data-i18n="home.languages.title">Listen by Language</h2>
+  <div class="section-head">
+    <h2 id="h-languages" class="section-title" data-i18n="home.languages.title">Listen by Language</h2>
+    <button type="button" id="btn-toggle-languages" class="btn btn-sm btn-link text-muted-ui text-decoration-none d-none"></button>
+  </div>
   <div id="languages-list" class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4"></div>
 </section>
 

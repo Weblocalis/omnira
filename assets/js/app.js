@@ -13,8 +13,11 @@
     muted: 'radio.muted',
     history: 'radio.history',
     theme: 'radio.theme',
-    custom: 'radio.customStations'
+    custom: 'radio.customStations',
+    weatherLoc: 'radio.weatherLocation',
+    weatherCache: 'radio.weatherCache'
   };
+  const WEATHER_CACHE_TTL_MS = 20 * 60 * 1000;
   const CONNECT_TIMEOUT_MS = 14000;
   const RECONNECT_DELAYS_MS = [1200, 2500, 5000, 9000];
   const STALL_THRESHOLD_MS = 12000;
@@ -23,6 +26,19 @@
   const HISTORY_MAX = 12;
   const LIVE_REFRESH_MS = 15000;
   const THEME_COLOR = { dark: '#0f1216', light: '#f4f6f9' };
+
+  /* Protection quota Google Maps Platform (clé démo) */
+  window.gm_authFailure = () => {
+    window.dispatchEvent(new CustomEvent('gmp-quota-exceeded'));
+  };
+  const origConsoleError = console.error;
+  console.error = (...args) => {
+    origConsoleError.apply(console, args);
+    const msg = args.map((a) => String(a)).join(' ');
+    if (msg.includes('OverQuotaMapError') || msg.includes('QuotaExceededError')) {
+      window.dispatchEvent(new CustomEvent('gmp-quota-exceeded'));
+    }
+  };
 
   /* ---------- Activities (themes) and genre families ---------- */
   const THEMES = [
@@ -174,7 +190,13 @@
     streamInfoKey: '',
     streamInfoParams: null,
     sleepEndsAt: 0,
-    sleepMinutes: 0
+    sleepMinutes: 0,
+    spotlightStation: null,
+    expanded: { genres: false, countries: false, languages: false },
+    weatherLoc: null,
+    weatherData: null,
+    weatherStatus: 'idle',
+    weatherErrorKey: ''
   };
 
   const audio = new Audio();
@@ -203,12 +225,23 @@
     navRadios: $('nav-radios'), navFavorites: $('nav-favorites'), navCurrent: $('nav-current'), favBadge: $('fav-badge'),
     navHome: $('nav-home'), headerFav: $('header-fav'),
     homeView: $('home-view'), catalogView: $('catalog-view'), viewTitle: $('view-title'), chips: $('active-chips'),
-    homeHero: $('home-hero'), heroSummary: $('hero-summary'),
+    gmpQuotaBanner: $('gmp-quota-banner'),
+    homeWeather: $('home-weather'), weatherIcon: $('weather-icon'), weatherTemp: $('weather-temp'),
+    weatherPlace: $('h-weather'), weatherCondition: $('weather-condition'), weatherDetails: $('weather-details'),
+    btnWeatherGeo: $('btn-weather-geo'), btnWeatherToggleCity: $('btn-weather-toggle-city'),
+    btnWeatherRefresh: $('btn-weather-refresh'), weatherCityBox: $('weather-city-box'),
+    weatherCityInput: $('weather-city-input'), btnWeatherCityGo: $('btn-weather-city-go'),
+    homeHero: $('home-hero'), heroKicker: $('hero-kicker'), heroSummary: $('hero-summary'),
+    heroSpotlight: $('hero-spotlight'), spotlightLogo: $('spotlight-logo'), spotlightName: $('spotlight-name'),
+    spotlightMeta: $('spotlight-meta'), btnSpotlightPlay: $('btn-spotlight-play'), spotlightPlayLabel: $('spotlight-play-label'),
     btnRandomHome: $('btn-random-home'), btnResumeHome: $('btn-resume-home'), btnResumeLabel: $('btn-resume-label'),
     btnCatalogRandom: $('btn-catalog-random'),
     homeEmpty: $('home-empty'), clearHistory: $('btn-clear-history'),
-    recents: $('recents-list'), picks: $('picks-list'), themes: $('themes-list'), genres: $('genres-list'),
+    homeFavoritesList: $('home-favorites-list'), recents: $('recents-list'),
+    momentTitle: $('h-moment'), momentList: $('moment-list'),
+    picks: $('picks-list'), themes: $('themes-list'), genres: $('genres-list'),
     countries: $('countries-list'), languages: $('languages-list'),
+    btnToggleGenres: $('btn-toggle-genres'), btnToggleCountries: $('btn-toggle-countries'), btnToggleLanguages: $('btn-toggle-languages'),
     themeInputs: [...document.querySelectorAll('input[name="theme"]')], themeHint: $('theme-hint'),
     langFieldset: $('language-settings'), langOptions: $('language-options'), langHint: $('language-hint'),
     player: $('player'), playerOpen: $('player-open'), logo: $('player-logo'), name: $('player-name'),
@@ -580,7 +613,9 @@
       renderList();
       paintPlayerFav();
     } else {
+      if (state.view === 'home') renderHomeFavorites();
       paintAllFavButtons();
+      paintCardStates();
       paintNav();
     }
     showToast(tr(adding ? 'station.fav.add' : 'station.fav.remove'));
@@ -732,18 +767,121 @@
     fillSection(target, frag);
   }
 
-  function renderHero() {
-    const total = state.stations.length;
-    el.homeHero.classList.toggle('d-none', total === 0);
-    if (total === 0) return;
-    const countries = new Set(state.stations.map((s) => s.country).filter((c) => c !== UNSPECIFIED)).size;
-    el.heroSummary.textContent = tr('home.hero.summary', { stations: I18N.number(total), countries: I18N.number(countries) });
-    if (state.current && !state.wantPlay) {
+  const MOMENT_THEMES = {
+    morning: ['news', 'drive', 'discover'],
+    afternoon: ['focus', 'work', 'discover'],
+    evening: ['relax', 'discover', 'drive'],
+    night: ['sleep', 'relax', 'focus']
+  };
+  const CATEGORY_CAPS = { genres: 12, countries: 12, languages: 8 };
+
+  function stableHash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function getDayPeriod() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return 'morning';
+    if (h >= 12 && h < 18) return 'afternoon';
+    if (h >= 18 && h < 22) return 'evening';
+    return 'night';
+  }
+
+  function pickMomentStations(period, count) {
+    const preferred = MOMENT_THEMES[period] || MOMENT_THEMES.afternoon;
+    const d = new Date();
+    const seed = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + '|' + period;
+    const scored = state.stations.map((s) => {
+      let score = 0;
+      for (let i = 0; i < preferred.length; i++) {
+        if (s.themeIds.includes(preferred[i])) {
+          score = preferred.length - i;
+          break;
+        }
+      }
+      return { s, score, h: stableHash(seed + '|' + s.id) };
+    });
+    scored.sort((a, b) => b.score - a.score || a.h - b.h || a.s.id.localeCompare(b.s.id));
+    return scored.slice(0, count).map((x) => x.s);
+  }
+
+  function pickSpotlightStation(period) {
+    if (!state.stations.length) return null;
+    const preferred = MOMENT_THEMES[period] || MOMENT_THEMES.afternoon;
+    const d = new Date();
+    const seed = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + d.getHours();
+    const momentPool = state.stations.filter((s) => s.logoUrl && preferred.some((t) => s.themeIds.includes(t)));
+    const pool = momentPool.length ? momentPool : state.stations.filter((s) => s.logoUrl);
+    const list = pool.length ? pool : state.stations;
+    return list
+      .map((s) => ({ s, h: stableHash('spotlight|' + seed + '|' + s.id) }))
+      .sort((a, b) => a.h - b.h || a.s.id.localeCompare(b.s.id))[0].s;
+  }
+
+  function paintSpotlightState() {
+    if (!el.heroSpotlight || !el.btnSpotlightPlay) return;
+    const st = state.spotlightStation;
+    const isCurrent = !!st && !!state.current && state.current.id === st.id;
+    const isPlaying = isCurrent && state.status === 'playing';
+    const active = isCurrent && state.wantPlay;
+    el.heroSpotlight.classList.toggle('is-playing', isPlaying);
+    const ico = el.btnSpotlightPlay.querySelector('i');
+    if (ico) ico.className = 'bi ' + (active ? 'bi-pause-fill' : 'bi-play-fill');
+    if (el.spotlightPlayLabel) {
+      el.spotlightPlayLabel.textContent = tr(active ? 'home.spotlight.playing' : 'home.spotlight.listen');
+    }
+  }
+
+  function paintHeroResume() {
+    const st = state.spotlightStation;
+    const showResume = !!state.current && !state.wantPlay && (!st || state.current.id !== st.id);
+    if (showResume) {
       el.btnResumeLabel.textContent = tr('home.hero.resume', { name: state.current.name });
       el.btnResumeHome.classList.remove('d-none');
     } else {
       el.btnResumeHome.classList.add('d-none');
     }
+  }
+
+  function renderHero() {
+    const total = state.stations.length;
+    el.homeHero.classList.toggle('d-none', total === 0);
+    if (total === 0) {
+      if (el.heroSpotlight) el.heroSpotlight.classList.add('d-none');
+      return;
+    }
+    const period = getDayPeriod();
+    if (el.heroKicker) el.heroKicker.textContent = tr('home.hero.kicker.' + period);
+    const countries = new Set(state.stations.map((s) => s.country).filter((c) => c !== UNSPECIFIED)).size;
+    el.heroSummary.textContent = tr('home.hero.summary', { stations: I18N.number(total), countries: I18N.number(countries) });
+
+    const st = pickSpotlightStation(period);
+    state.spotlightStation = st;
+    if (el.heroSpotlight) {
+      el.heroSpotlight.classList.toggle('d-none', !st);
+      if (st) {
+        const logoBox = makeLogo(st, true);
+        el.spotlightLogo.replaceChildren(...logoBox.childNodes);
+        el.spotlightName.textContent = st.name;
+        const flag = st.country !== UNSPECIFIED ? countryFlag(st.country) : '';
+        const countryShown = (flag ? flag + ' ' : '') + shown(st.country);
+        el.spotlightMeta.textContent = [countryShown, shown(st.language), shown(st.genre)].join(' · ');
+        paintSpotlightState();
+      }
+    }
+
+    paintHeroResume();
+  }
+
+  function renderHomeFavorites() {
+    if (!el.homeFavoritesList) return;
+    const favs = favoriteStations('').slice(0, 6);
+    stationCards(favs, el.homeFavoritesList);
   }
 
   function renderRecents() {
@@ -752,11 +890,17 @@
     paintCardStates();
   }
 
+  function renderMoment() {
+    if (!el.momentList) return;
+    const period = getDayPeriod();
+    if (el.momentTitle) el.momentTitle.textContent = tr('home.moment.title.' + period);
+    stationCards(pickMomentStations(period, 3), el.momentList);
+  }
+
   function dailyPicks(count) {
     const d = new Date();
     const seed = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-    const hash = (str) => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
-    return state.stations.map((s) => ({ s, h: hash(seed + '|' + s.id) })).sort((a, b) => a.h - b.h || a.s.id.localeCompare(b.s.id))
+    return state.stations.map((s) => ({ s, h: stableHash(seed + '|' + s.id) })).sort((a, b) => a.h - b.h || a.s.id.localeCompare(b.s.id))
       .slice(0, count).map((x) => x.s);
   }
 
@@ -765,40 +909,302 @@
     paintCardStates();
   }
 
+  function fillCollapsibleCategory(listEl, toggleBtn, cards, limit, expandedKey) {
+    if (!toggleBtn || cards.length <= limit) {
+      fillSection(listEl, cards);
+      if (toggleBtn) toggleBtn.classList.add('d-none');
+      return;
+    }
+    const expanded = !!state.expanded[expandedKey];
+    fillSection(listEl, expanded ? cards : cards.slice(0, limit));
+    toggleBtn.classList.remove('d-none');
+    toggleBtn.setAttribute('aria-expanded', String(expanded));
+    toggleBtn.textContent = expanded ? tr('home.showLess') : tr('home.showAll', { n: I18N.number(cards.length) });
+  }
+
   function renderCategories() {
     const st = state.stations;
     const count = (n) => trn('count.stations', n);
     fillSection(el.themes, THEMES.map((t) => [t, st.filter((s) => s.themeIds.includes(t.id)).length]).filter(([, n]) => n > 0)
       .map(([t, n]) => makeCategoryCard({ icon: t.icon, title: tr('theme.' + t.id + '.title'), lines: [tr('theme.' + t.id + '.desc'), count(n)], patch: { theme: t.id } })));
+
     const genreCards = FAMILIES.map((f) => [f, st.filter((s) => s.families.includes(f.id)).length]).filter(([, n]) => n > 0)
       .map(([f, n]) => makeCategoryCard({ icon: f.icon, title: tr('family.' + f.id), lines: [count(n)], patch: { family: f.id } }));
     const loose = new Map();
     st.filter((s) => s.looseGenre).forEach((s) => loose.set(s.looseGenre, (loose.get(s.looseGenre) || 0) + 1));
     [...loose.entries()].sort((a, b) => shown(a[0]).localeCompare(shown(b[0]), loc())).forEach(([g, n]) =>
       genreCards.push(makeCategoryCard({ icon: 'bi-vinyl', title: shown(g), lines: [count(n)], patch: { genre: g } })));
-    fillSection(el.genres, genreCards);
+    fillCollapsibleCategory(el.genres, el.btnToggleGenres, genreCards, CATEGORY_CAPS.genres, 'genres');
+
     const byCountry = new Map();
     st.forEach((s) => byCountry.set(s.country, (byCountry.get(s.country) || 0) + 1));
-    fillSection(el.countries, [...byCountry.entries()].sort((a, b) => b[1] - a[1] || shown(a[0]).localeCompare(shown(b[0]), loc()))
-      .map(([c, n]) => makeCategoryCard({ icon: 'bi-geo-alt-fill', flag: countryFlag(c), title: shown(c), lines: [count(n)], patch: { country: c } })));
+    const countryCards = [...byCountry.entries()].sort((a, b) => b[1] - a[1] || shown(a[0]).localeCompare(shown(b[0]), loc()))
+      .map(([c, n]) => makeCategoryCard({ icon: 'bi-geo-alt-fill', flag: countryFlag(c), title: shown(c), lines: [count(n)], patch: { country: c } }));
+    fillCollapsibleCategory(el.countries, el.btnToggleCountries, countryCards, CATEGORY_CAPS.countries, 'countries');
+
     const byLang = new Map();
     st.forEach((s) => s.langs.forEach((k) => byLang.set(k, (byLang.get(k) || 0) + 1)));
-    fillSection(el.languages, [...byLang.entries()].sort((a, b) => b[1] - a[1] || langLabel(a[0]).localeCompare(langLabel(b[0]), loc()))
+    const langCards = [...byLang.entries()].sort((a, b) => b[1] - a[1] || langLabel(a[0]).localeCompare(langLabel(b[0]), loc()))
       .map(([k, n]) => makeCategoryCard({ icon: k === INSTRUMENTAL_KEY ? 'bi-music-note-beamed' : 'bi-translate',
-        title: langLabel(k), lines: [count(n)], patch: { language: k } })));
+        title: langLabel(k), lines: [count(n)], patch: { language: k } }));
+    fillCollapsibleCategory(el.languages, el.btnToggleLanguages, langCards, CATEGORY_CAPS.languages, 'languages');
+  }
+
+  /* ---------- Météo locale (Google Maps Platform Weather & Geocoding) ---------- */
+  function guessCityFromTimeZone() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (!tz || /^(UTC|GMT|Etc\/)/i.test(tz) || !tz.includes('/')) return 'Paris';
+      const city = tz.split('/').pop().replace(/_/g, ' ').trim();
+      return city || 'Paris';
+    } catch (e) {
+      return 'Paris';
+    }
+  }
+
+  function weatherFallbackIconName(type, isDaytime) {
+    const t = String(type || '').toUpperCase();
+    if (t.includes('THUNDER')) return 'bi-lightning-charge-fill';
+    if (t.includes('CLOUD') || t.includes('FOG') || t.includes('MIST') || t.includes('HAZE') || t.includes('RAIN') || t.includes('DRIZZLE') || t.includes('SHOWER') || t.includes('SNOW')) {
+      return 'bi-cloud-haze2';
+    }
+    return isDaytime === false ? 'bi-moon-stars' : 'bi-sun';
+  }
+
+  function formatTemp(deg, unit) {
+    if (!Number.isFinite(deg)) return '--°';
+    const suffix = unit === 'FAHRENHEIT' ? '°F' : '°C';
+    return Math.round(deg) + suffix;
+  }
+
+  function paintWeather() {
+    if (!el.homeWeather) return;
+    const data = state.weatherData;
+    const st = state.weatherStatus;
+
+    if (st === 'loading' && !data) {
+      el.weatherTemp.textContent = '--°';
+      el.weatherPlace.textContent = tr('weather.title');
+      el.weatherCondition.textContent = tr(state.weatherErrorKey || 'weather.loading');
+      el.weatherDetails.classList.add('d-none');
+      el.weatherIcon.replaceChildren(icon('bi-sun'));
+      return;
+    }
+
+    if (!data) {
+      el.weatherTemp.textContent = '--°';
+      el.weatherPlace.textContent = tr('weather.title');
+      el.weatherCondition.textContent = tr(state.weatherErrorKey || 'weather.prompt');
+      el.weatherDetails.classList.add('d-none');
+      el.weatherIcon.replaceChildren(icon('bi-cloud-haze2'));
+      return;
+    }
+
+    el.weatherTemp.textContent = formatTemp(data.temperature && data.temperature.degrees, data.temperature && data.temperature.unit);
+    el.weatherPlace.textContent = data.locationName || tr('weather.title');
+    const condText = (data.condition && data.condition.text) ? data.condition.text : tr('weather.title');
+    el.weatherCondition.textContent = state.weatherErrorKey ? tr(state.weatherErrorKey) : condText;
+
+    const unit = data.temperature && data.temperature.unit;
+    const details = [];
+    if (data.feelsLike && Number.isFinite(data.feelsLike.degrees)) {
+      details.push(tr('weather.feelsLike', { temp: formatTemp(data.feelsLike.degrees, data.feelsLike.unit || unit) }));
+    }
+    if (Number.isFinite(data.humidity)) {
+      details.push(tr('weather.humidity', { n: I18N.number(Math.round(data.humidity)) }));
+    }
+    if (data.wind && Number.isFinite(data.wind.speed)) {
+      const windKey = data.wind.unit === 'MILES_PER_HOUR' ? 'weather.windImperial' : 'weather.windMetric';
+      details.push(tr(windKey, { speed: I18N.number(Math.round(data.wind.speed)) }));
+    }
+    if (data.minTemperature && data.maxTemperature &&
+        Number.isFinite(data.minTemperature.degrees) && Number.isFinite(data.maxTemperature.degrees)) {
+      details.push(tr('weather.range', {
+        min: formatTemp(data.minTemperature.degrees, data.minTemperature.unit || unit),
+        max: formatTemp(data.maxTemperature.degrees, data.maxTemperature.unit || unit)
+      }));
+    }
+    if (state.weatherLoc && state.weatherLoc.mode === 'tz') {
+      details.push(tr('weather.tzSource'));
+    } else if (state.weatherLoc && state.weatherLoc.mode === 'coords') {
+      details.push(tr('weather.geoSource'));
+    }
+
+    el.weatherDetails.textContent = details.join(' · ');
+    el.weatherDetails.classList.toggle('d-none', details.length === 0);
+
+    const fallbackIcon = weatherFallbackIconName(data.condition && data.condition.type, data.isDaytime);
+    const iconUrl = data.condition && typeof data.condition.iconUrl === 'string' ? data.condition.iconUrl : '';
+    if (iconUrl && iconUrl.startsWith('https://maps.gstatic.com/')) {
+      const img = new Image();
+      img.alt = '';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('error', () => el.weatherIcon.replaceChildren(icon(fallbackIcon)));
+      img.src = iconUrl;
+      el.weatherIcon.replaceChildren(img);
+    } else {
+      el.weatherIcon.replaceChildren(icon(fallbackIcon));
+    }
+  }
+
+  function weatherCacheKey(target, lang) {
+    if (!target) return '';
+    if (target.mode === 'coords') return `coords:${target.lat.toFixed(2)},${target.lng.toFixed(2)}:${lang}`;
+    return `city:${normalize(target.city)}:${lang}`;
+  }
+
+  async function loadWeather(opts) {
+    const options = opts || {};
+    const lang = loc() === 'fr' ? 'fr' : 'en';
+    const target = state.weatherLoc || { mode: 'tz', city: guessCityFromTimeZone() };
+    state.weatherLoc = target;
+    const cacheKey = weatherCacheKey(target, lang);
+
+    if (!options.force) {
+      const cached = store.get(KEYS.weatherCache, null);
+      if (cached && cached.key === cacheKey && cached.data && (Date.now() - Number(cached.ts || 0)) < WEATHER_CACHE_TTL_MS) {
+        state.weatherData = cached.data;
+        state.weatherStatus = 'ready';
+        state.weatherErrorKey = '';
+        paintWeather();
+        return;
+      }
+    }
+
+    state.weatherStatus = 'loading';
+    state.weatherErrorKey = '';
+    paintWeather();
+
+    try {
+      const url = new URL('/api/weather', location.origin);
+      url.searchParams.set('lang', lang);
+      url.searchParams.set('units', 'METRIC');
+      if (target.mode === 'coords') {
+        url.searchParams.set('lat', String(target.lat));
+        url.searchParams.set('lng', String(target.lng));
+      } else {
+        url.searchParams.set('city', target.city);
+      }
+
+      const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+      const body = await res.json().catch(() => null);
+
+      if (res.status === 429 || (body && body.quotaExceeded)) {
+        window.dispatchEvent(new CustomEvent('gmp-quota-exceeded'));
+        state.weatherStatus = 'error';
+        state.weatherErrorKey = 'weather.unavailable';
+        paintWeather();
+        return;
+      }
+
+      if (res.status === 404) {
+        state.weatherStatus = 'error';
+        state.weatherErrorKey = 'weather.notFound';
+        paintWeather();
+        showToast(tr('weather.notFound'));
+        return;
+      }
+
+      if (!res.ok || !body) {
+        state.weatherStatus = 'error';
+        state.weatherErrorKey = 'weather.unavailable';
+        paintWeather();
+        return;
+      }
+
+      state.weatherData = body;
+      state.weatherStatus = 'ready';
+      state.weatherErrorKey = '';
+      store.set(KEYS.weatherCache, { key: cacheKey, ts: Date.now(), data: body });
+      paintWeather();
+    } catch (e) {
+      state.weatherStatus = 'error';
+      state.weatherErrorKey = 'weather.unavailable';
+      paintWeather();
+    }
+  }
+
+  function openCitySelector(focusInput) {
+    if (!el.weatherCityBox || !el.btnWeatherToggleCity) return;
+    el.weatherCityBox.classList.remove('d-none');
+    el.btnWeatherToggleCity.setAttribute('aria-expanded', 'true');
+    if (focusInput && el.weatherCityInput) el.weatherCityInput.focus();
+  }
+
+  function toggleCitySelector() {
+    if (!el.weatherCityBox || !el.btnWeatherToggleCity) return;
+    const opening = el.weatherCityBox.classList.contains('d-none');
+    el.weatherCityBox.classList.toggle('d-none', !opening);
+    el.btnWeatherToggleCity.setAttribute('aria-expanded', String(opening));
+    if (opening && el.weatherCityInput) el.weatherCityInput.focus();
+  }
+
+  function submitCityWeather() {
+    if (!el.weatherCityInput) return;
+    const city = el.weatherCityInput.value.trim();
+    if (!city) {
+      el.weatherCityInput.focus();
+      return;
+    }
+    state.weatherLoc = { mode: 'city', city };
+    if (!store.set(KEYS.weatherLoc, state.weatherLoc)) showStorageWarning();
+    if (el.weatherCityBox && el.btnWeatherToggleCity) {
+      el.weatherCityBox.classList.add('d-none');
+      el.btnWeatherToggleCity.setAttribute('aria-expanded', 'false');
+    }
+    loadWeather({ force: true });
+  }
+
+  function requestWeatherGeolocation() {
+    if (!('geolocation' in navigator) || !navigator.geolocation) {
+      state.weatherErrorKey = 'weather.geoUnsupported';
+      paintWeather();
+      showToast(tr('weather.geoUnsupported'));
+      openCitySelector(true);
+      return;
+    }
+    state.weatherStatus = 'loading';
+    state.weatherErrorKey = 'weather.locating';
+    paintWeather();
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        state.weatherLoc = {
+          mode: 'coords',
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        if (!store.set(KEYS.weatherLoc, state.weatherLoc)) showStorageWarning();
+        loadWeather({ force: true });
+      },
+      () => {
+        state.weatherStatus = state.weatherData ? 'ready' : 'error';
+        state.weatherErrorKey = 'weather.geoDenied';
+        paintWeather();
+        showToast(tr('weather.geoDenied'));
+        openCitySelector(true);
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
   }
 
   function renderHome() {
+    paintWeather();
     const empty = state.stations.length === 0;
     el.homeEmpty.classList.toggle('d-none', !empty);
     if (empty) {
       el.homeEmpty.textContent = tr('empty.catalog');
       el.homeHero.classList.add('d-none');
-      [el.recents, el.picks, el.themes, el.genres, el.countries, el.languages].forEach((l) => fillSection(l, []));
+      [el.homeFavoritesList, el.recents, el.momentList, el.picks, el.themes, el.genres, el.countries, el.languages]
+        .filter(Boolean).forEach((l) => fillSection(l, []));
+      [el.btnToggleGenres, el.btnToggleCountries, el.btnToggleLanguages]
+        .filter(Boolean).forEach((b) => b.classList.add('d-none'));
       return;
     }
     renderHero();
+    renderHomeFavorites();
     renderRecents();
+    renderMoment();
     renderPicks();
     renderCategories();
     paintCardStates();
@@ -1030,7 +1436,10 @@
     updateLiveMeta();
     updateMediaSession();
     paintCardStates();
-    if (state.view === 'home') renderHero();
+    if (state.view === 'home') {
+      paintSpotlightState();
+      paintHeroResume();
+    }
   }
 
   function paintPlayerStation() {
@@ -1603,6 +2012,7 @@
     paintPlayerStation();
     setStatus(state.status, state.statusKey, state.statusParams);
     applyView(state.view, false);
+    if (state.view === 'home' || state.weatherData) loadWeather({ force: false });
     updateLanguageControls();
     updateSleepUi();
   }
@@ -1703,7 +2113,20 @@
     else if (btn.dataset.action === 'favorite') toggleFavorite(id);
     else if (btn.dataset.action === 'remove-custom') removeCustomStation(id);
   }
-  [el.list, el.recents, el.picks].forEach((c) => c.addEventListener('click', onStationClick));
+  [el.list, el.homeFavoritesList, el.recents, el.momentList, el.picks].forEach((c) => {
+    if (c) c.addEventListener('click', onStationClick);
+  });
+
+  [
+    [el.btnToggleGenres, 'genres'],
+    [el.btnToggleCountries, 'countries'],
+    [el.btnToggleLanguages, 'languages']
+  ].forEach(([btn, key]) => {
+    if (btn) btn.addEventListener('click', () => {
+      state.expanded[key] = !state.expanded[key];
+      renderCategories();
+    });
+  });
 
   [el.themes, el.genres, el.countries, el.languages].forEach((c) => c.addEventListener('click', (e) => {
     const btn = e.target.closest('.cat-card');
@@ -1778,6 +2201,29 @@
   el.btnCatalogRandom.addEventListener('click', playRandomStation);
   el.sheetRandom.addEventListener('click', playRandomStation);
   el.btnResumeHome.addEventListener('click', () => { if (state.current) startPlayback(); });
+  if (el.btnSpotlightPlay) {
+    el.btnSpotlightPlay.addEventListener('click', () => {
+      const st = state.spotlightStation;
+      if (!st) return;
+      if (state.current && state.current.id === st.id) togglePlay();
+      else selectStation(st.id, true);
+    });
+  }
+  window.addEventListener('gmp-quota-exceeded', () => {
+    if (el.gmpQuotaBanner) el.gmpQuotaBanner.classList.remove('d-none');
+  });
+  if (el.btnWeatherGeo) el.btnWeatherGeo.addEventListener('click', requestWeatherGeolocation);
+  if (el.btnWeatherToggleCity) el.btnWeatherToggleCity.addEventListener('click', toggleCitySelector);
+  if (el.btnWeatherRefresh) el.btnWeatherRefresh.addEventListener('click', () => loadWeather({ force: true }));
+  if (el.btnWeatherCityGo) el.btnWeatherCityGo.addEventListener('click', submitCityWeather);
+  if (el.weatherCityInput) {
+    el.weatherCityInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitCityWeather();
+      }
+    });
+  }
   el.retry.addEventListener('click', () => startPlayback());
 
   [el.playerFav, el.sheetFav].forEach((btn) => {
@@ -1888,7 +2334,15 @@
     state.muted = store.get(KEYS.muted, false) === true;
     applyVolume();
 
+    const savedWeatherLoc = store.get(KEYS.weatherLoc, null);
+    if (savedWeatherLoc && typeof savedWeatherLoc === 'object' &&
+        ((savedWeatherLoc.mode === 'coords' && Number.isFinite(savedWeatherLoc.lat) && Number.isFinite(savedWeatherLoc.lng)) ||
+         (savedWeatherLoc.mode === 'city' && typeof savedWeatherLoc.city === 'string' && savedWeatherLoc.city.trim()))) {
+      state.weatherLoc = savedWeatherLoc;
+    }
+
     applyView(viewFromHash(), false);
+    loadWeather({ force: false });
     setStatus('idle');
     updateLanguageControls();
     updateSleepUi();
