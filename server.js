@@ -237,6 +237,13 @@ app.get('/api/weather', async (req, res) => {
   }
 });
 
+// Serve ads.txt for Google AdSense verification
+app.get('/ads.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.sendFile(path.join(ROOT, 'ads.txt'));
+});
+
 // Serve Android Digital Asset Links for TWA verification
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');

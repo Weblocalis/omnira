@@ -4,7 +4,7 @@
  * and handled by the browser as usual. Listening offline is not possible.
  * Bump CACHE_VERSION whenever a file of APP_FILES is added, renamed or changed.
  */
-const CACHE_VERSION = 'v33';
+const CACHE_VERSION = 'v34';
 const CACHE_PREFIX = 'radio-app-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 const APP_FILES = [
@@ -26,6 +26,7 @@ const APP_FILES = [
   './assets/js/locales/en.js',
   './assets/js/locales/fr.js',
   './assets/js/stations.js',
+  './assets/js/ads.js',
   './assets/js/app.js',
   './assets/icons/favicon.svg',
   './assets/icons/icon-192.png',
@@ -68,8 +69,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;                          // streams, HLS: never intercepted
-  if (url.pathname.startsWith('/api/')) return;                             // API routes: always live network
+  if (url.origin !== self.location.origin) return;                          // streams, HLS, Google Ads: never intercepted
+  if (url.pathname.startsWith('/api/') || url.pathname === '/ads.txt') return;
   if (req.destination === 'audio' || req.destination === 'video' || req.headers.has('range')) return;
 
   // Network first (a new deployment shows up immediately), cache as a fallback when offline.

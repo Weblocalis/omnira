@@ -235,6 +235,11 @@
   <div id="picks-list" class="row g-2 row-cols-1 row-cols-md-2 row-cols-xl-3"></div>
 </section>
 
+<aside id="ad-home-container" class="ad-slot-wrap home-section d-none" aria-label="Advertisement" data-i18n-aria-label="ads.label">
+  <div class="ad-slot-label" data-i18n="ads.label">Advertisement</div>
+  <div class="ad-slot-box"></div>
+</aside>
+
 <section id="home-themes" class="home-section d-none" aria-labelledby="h-themes">
   <div class="section-head">
     <h2 id="h-themes" class="section-title" data-i18n="home.themes.title">Listen by Activity</h2>
@@ -334,7 +339,12 @@
     <a id="empty-action" href="#radios" class="btn btn-accent btn-touch d-none" data-i18n="empty.browse">Browse Stations</a>
   </div>
 </section>
-      
+
+      <aside id="ad-catalog-container" class="ad-slot-wrap mt-4 d-none" aria-label="Advertisement" data-i18n-aria-label="ads.label">
+        <div class="ad-slot-label" data-i18n="ads.label">Advertisement</div>
+        <div class="ad-slot-box"></div>
+      </aside>
+
     </div>
   </main>
 
@@ -349,6 +359,21 @@
       <li class="list-inline-item"><a href="terms-of-use.html" target="_blank" rel="noopener"><span data-i18n="legal.terms">Terms of Use</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
     </ul>
   </footer>
+
+  <!-- Bannière de consentement publicitaire Google (masquée tant que AdSense n'est pas configuré) -->
+  <section id="ad-consent-banner" class="ad-consent-banner d-none" role="dialog" aria-labelledby="ad-consent-title">
+    <div class="ad-consent-body">
+      <div class="ad-consent-copy">
+        <h2 id="ad-consent-title" class="h6 mb-1" data-i18n="ads.consent.title">Privacy &amp; Advertising</h2>
+        <p class="small text-muted-ui mb-2" data-i18n="ads.consent.text">Omnira stays free with Google ads. Choose whether to allow personalized ads or limit to non-personalized ads.</p>
+        <a class="small" href="privacy-policy.html" target="_blank" rel="noopener"><span data-i18n="ads.consent.privacyLink">Privacy Policy</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a>
+      </div>
+      <div class="ad-consent-actions">
+        <button id="btn-ad-essential" type="button" class="btn btn-outline-secondary btn-touch" data-i18n="ads.consent.essential">Non-personalized only</button>
+        <button id="btn-ad-accept" type="button" class="btn btn-accent btn-touch" data-i18n="ads.consent.accept">Accept all</button>
+      </div>
+    </div>
+  </section>
 
   <!-- Toast de retour utilisateur -->
   <div id="app-toast" class="app-toast d-none" role="status" aria-live="polite"></div>
@@ -602,6 +627,14 @@
                 data-i18n="settings.custom.add">Add a custom station</button>
       </fieldset>
 
+      <fieldset id="ad-privacy-settings" class="mt-4 d-none">
+        <legend class="h6" data-i18n="ads.settings.title">Advertising Preferences</legend>
+        <p class="small text-muted-ui mb-1" data-i18n="ads.settings.desc">Manage your consent for Google advertising on Omnira.</p>
+        <p id="ad-consent-status" class="small text-muted-ui mb-2"></p>
+        <button id="btn-ad-manage" type="button" class="btn btn-outline-secondary btn-touch w-100 text-start"
+                data-bs-dismiss="offcanvas" data-i18n="ads.settings.btn">Manage ad consent</button>
+      </fieldset>
+
       <fieldset class="mt-4">
         <legend class="h6" data-i18n="legal.title">Legal</legend>
         <ul class="list-unstyled d-grid gap-2 mb-0">
@@ -619,6 +652,7 @@
   <script src="assets/js/locales/en.js"></script>
   <script src="assets/js/locales/fr.js"></script>
   <script src="assets/js/stations.js"></script>
+  <script src="assets/js/ads.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

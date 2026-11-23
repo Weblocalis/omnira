@@ -15,7 +15,8 @@
     theme: 'radio.theme',
     custom: 'radio.customStations',
     weatherLoc: 'radio.weatherLocation',
-    weatherCache: 'radio.weatherCache'
+    weatherCache: 'radio.weatherCache',
+    adConsent: 'radio.adConsent'
   };
   const WEATHER_CACHE_TTL_MS = 20 * 60 * 1000;
   const CONNECT_TIMEOUT_MS = 14000;
@@ -261,6 +262,9 @@
     customName: $('custom-name'), customUrl: $('custom-url'),
     customCountry: $('custom-country'), customGenre: $('custom-genre'),
     btnSaveCustom: $('btn-save-custom'), btnSettingsCustom: $('btn-settings-custom'),
+    adHome: $('ad-home-container'), adCatalog: $('ad-catalog-container'),
+    adConsentBanner: $('ad-consent-banner'), btnAdAccept: $('btn-ad-accept'), btnAdEssential: $('btn-ad-essential'),
+    adPrivacySettings: $('ad-privacy-settings'), adConsentStatus: $('ad-consent-status'), btnAdManage: $('btn-ad-manage'),
     settingsPanel: $('settings-panel'), toast: $('app-toast')
   };
 
@@ -2015,6 +2019,7 @@
     if (state.view === 'home' || state.weatherData) loadWeather({ force: false });
     updateLanguageControls();
     updateSleepUi();
+    paintAdConsentStatus();
   }
 
   /* ---------- Volume ---------- */
@@ -2251,6 +2256,18 @@
       }
     });
   }
+  if (el.btnAdAccept) {
+    el.btnAdAccept.addEventListener('click', () => applyAdConsentChoice('personalized'));
+  }
+  if (el.btnAdEssential) {
+    el.btnAdEssential.addEventListener('click', () => applyAdConsentChoice('essential'));
+  }
+  if (el.btnAdManage) {
+    el.btnAdManage.addEventListener('click', () => {
+      if (!window.OMNIRA_AD_ENGINE || !window.OMNIRA_AD_ENGINE.isConfigured()) return;
+      if (el.adConsentBanner) el.adConsentBanner.classList.remove('d-none');
+    });
+  }
   el.btnSaveCustom.addEventListener('click', saveCustomStation);
   [el.customName, el.customUrl, el.customCountry, el.customGenre].forEach((inp) => {
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveCustomStation(); });
@@ -2310,6 +2327,38 @@
     }
   });
 
+  /* ---------- Publicité Google AdSense & Consentement ---------- */
+  function paintAdConsentStatus() {
+    if (!el.adConsentStatus) return;
+    const saved = store.get(KEYS.adConsent, null);
+    if (saved === 'personalized') el.adConsentStatus.textContent = tr('ads.settings.statusGranted');
+    else if (saved === 'essential') el.adConsentStatus.textContent = tr('ads.settings.statusEssential');
+    else el.adConsentStatus.textContent = tr('ads.settings.statusUnset');
+  }
+
+  function applyAdConsentChoice(choice) {
+    if (choice !== 'personalized' && choice !== 'essential') return;
+    store.set(KEYS.adConsent, choice);
+    if (el.adConsentBanner) el.adConsentBanner.classList.add('d-none');
+    paintAdConsentStatus();
+    if (window.OMNIRA_AD_ENGINE && window.OMNIRA_AD_ENGINE.isConfigured()) {
+      window.OMNIRA_AD_ENGINE.applyConsent(choice, { home: el.adHome, catalog: el.adCatalog });
+    }
+  }
+
+  function initAds() {
+    const engine = window.OMNIRA_AD_ENGINE;
+    if (!engine || !engine.isConfigured()) return;
+    if (el.adPrivacySettings) el.adPrivacySettings.classList.remove('d-none');
+    paintAdConsentStatus();
+    const saved = store.get(KEYS.adConsent, null);
+    if (saved === 'personalized' || saved === 'essential') {
+      engine.applyConsent(saved, { home: el.adHome, catalog: el.adCatalog });
+    } else if (el.adConsentBanner) {
+      el.adConsentBanner.classList.remove('d-none');
+    }
+  }
+
   /* ---------- Initialisation ---------- */
   function init() {
     I18N.init();
@@ -2346,6 +2395,7 @@
     setStatus('idle');
     updateLanguageControls();
     updateSleepUi();
+    initAds();
 
     const params = new URLSearchParams(location.search);
     const linkedId = params.get('station');

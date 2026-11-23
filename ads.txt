@@ -1,0 +1,4 @@
+# Omnira — Google AdSense authorized digital sellers file (ads.txt)
+# Before activating Google Ads, uncomment the line below and replace pub-0000000000000000
+# with your real AdSense publisher ID (replace "ca-pub-" prefix with "pub-").
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

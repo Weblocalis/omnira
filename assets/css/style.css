@@ -708,3 +708,71 @@ body { padding-bottom: calc(var(--player-h) + env(safe-area-inset-bottom, 0px));
 /* Google Play link: only in a browser tab, never inside the Android app or the installed PWA */
 .legal-links .play-link { color: var(--accent); min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; }
 @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) { .web-only { display: none !important; } }
+
+/* ===== Emplacements publicitaires Google AdSense & Consentement ===== */
+.ad-slot-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .85rem;
+  padding: .65rem .85rem .8rem;
+}
+.ad-slot-label {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .4rem;
+}
+.ad-slot-box {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: .5rem;
+  background: var(--surface-2);
+}
+.ad-slot-ins {
+  display: block;
+  width: 100%;
+}
+
+.ad-consent-banner {
+  position: fixed;
+  left: .75rem;
+  right: .75rem;
+  bottom: calc(var(--player-h) + .75rem + env(safe-area-inset-bottom, 0px));
+  z-index: 1045;
+  max-width: 720px;
+  margin-inline: auto;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+}
+.ad-consent-body {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+}
+.ad-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+@media (min-width: 768px) {
+  .ad-consent-body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+  .ad-consent-actions {
+    flex-shrink: 0;
+  }
+}
+

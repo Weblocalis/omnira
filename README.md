@@ -103,11 +103,18 @@ Cloudflare Pages sert les pages sans extension (`/privacy-policy.html` → `/pri
 
 ## Sécurité et confidentialité
 
-- **CSP stricte** (`_headers`) : scripts, styles et polices uniquement depuis le site ; aucun script inline.
+- **CSP stricte** (`_headers`) : styles, polices et code applicatif depuis le site ; les scripts et cadres officiels Google AdSense sont autorisés dans la CSP pour l'activation publicitaire, sans script ni style inline.
   Les flux audio (`media-src https:`) et HLS (`connect-src https:`) restent autorisés vers toutes les radios.
-- Aucun tiers contacté hormis les radios écoutées et l'hébergeur (plus de jsDelivr ni de service d'icônes Google) :
-  la politique de confidentialité a été mise à jour en conséquence.
-- Favoris, historique et réglages restent dans le `localStorage` de l'appareil (clés `radio.*`).
+- Favoris, historique, réglages, consentement publicitaire (`radio.adConsent`) et météo locale (`radio.weatherLocation`) restent dans le `localStorage` de l'appareil.
+
+## Publicité Google AdSense (prête à activer)
+
+L'infrastructure publicitaire est intégrée (`assets/js/ads.js`, `ads.txt`, emplacements `#ad-home-container` et `#ad-catalog-container`, bannière Consent Mode v2 et gestion du consentement dans Paramètres) et reste **masquée tant qu'aucun compte éditeur n'est renseigné**.
+
+Pour activer Google AdSense :
+1. Ouvrir `assets/js/ads.js`, renseigner `publisherId` (`'ca-pub-XXXXXXXXXXXXXXXX'`) ainsi que les identifiants `slots.home` et `slots.catalog`, puis passer `enabled` à `true`.
+2. Compléter le fichier `ads.txt` à la racine du projet (servi sur `/ads.txt`) avec votre identifiant éditeur `pub-XXXXXXXXXXXXXXXX`.
+3. Remplacer les marqueurs `[…]` dans `privacy-policy.html` et `legal-notice.html` avant de soumettre le site à la validation AdSense.
 
 ## Traductions
 

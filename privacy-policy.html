@@ -28,7 +28,7 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
 
   <main class="container legal-content">
     <h1>Privacy Policy</h1>
-    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-10-31">October 31, 2026</time></p>
+    <p class="legal-meta">Omnira - Your World of Radio. &middot; Last updated: <time datetime="2026-11-23">November 23, 2026</time></p>
 
     <nav class="legal-toc" aria-label="Contents">
       <strong>Contents</strong>
@@ -59,10 +59,11 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
       <div class="legal-summary">
         <ul>
           <li>No account, no sign-up, no payment and no contact form.</li>
-          <li>No advertising, and no analytics or tracking tools in Omnira&rsquo;s own code.</li>
-          <li>Omnira has no server of its own that receives your information: the app&rsquo;s code does not send your favorites, listening history or settings to us or to anyone else.</li>
-          <li>Your favorites, history and preferences are saved on your device only, and you can delete them at any time.</li>
-          <li>As with any web page or app, using Omnira makes your device connect to third-party servers (the radio streams you play and our hosting provider). They can see technical information such as your IP address. See section 4.</li>
+          <li>Omnira has no user-tracking database of its own: the app&rsquo;s code does not upload your favorites, listening history or custom stations to us.</li>
+          <li>When Google AdSense is enabled, advertising is governed by your consent choice (personalized or non-personalized ads), which you can change at any time in Settings.</li>
+          <li>Local weather on the home screen uses browser geolocation only if you explicitly trigger it, or a city name/timezone fallback you choose.</li>
+          <li>Your favorites, history, custom streams, weather city, ad consent preference and settings are saved on your device only, and you can delete them at any time.</li>
+          <li>As with any web page or app, using Omnira makes your device connect to third-party servers (the radio streams you play, Google services when used/enabled, and our hosting provider). See section 4.</li>
         </ul>
       </div>
     </section>
@@ -79,8 +80,11 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
             <tr><th scope="row">Volume and mute</th><td>The volume level and whether sound is muted.</td><td>To restore your audio settings.</td></tr>
             <tr><th scope="row">Theme</th><td>Light, dark or automatic.</td><td>To restore the appearance you chose.</td></tr>
             <tr><th scope="row">Interface language</th><td>Automatic, or the language code you chose.</td><td>To restore your language.</td></tr>
+            <tr><th scope="row">Weather location &amp; cache</th><td>The city or coordinates you chose for home-screen weather and a 20-minute cached forecast.</td><td>To display local weather without repeated API calls.</td></tr>
+            <tr><th scope="row">Advertising consent</th><td>Your choice between personalized and non-personalized Google ads (when ads are enabled).</td><td>To apply Google Consent Mode v2 preferences and let you revise them in Settings.</td></tr>
+            <tr><th scope="row">Custom streams</th><td>The names, stream URLs, countries and genres of any public radio streams you added manually.</td><td>To keep your custom stations in your local catalog.</td></tr>
             <tr><th scope="row">Storage test</th><td>A short-lived test entry, removed immediately.</td><td>To detect whether your browser allows local storage.</td></tr>
-            <tr><th scope="row">Offline copy of the app</th><td>The app&rsquo;s own files (pages, scripts, styles, icons) kept by the app&rsquo;s service worker. Live audio streams are never stored.</td><td>To load the app faster and show its interface when you are offline.</td></tr>
+            <tr><th scope="row">Offline copy of the app</th><td>The app&rsquo;s own files (pages, scripts, styles, icons) kept by the app&rsquo;s service worker. Live audio streams and ad scripts are never stored offline.</td><td>To load the app faster and show its interface when you are offline.</td></tr>
           </tbody>
         </table>
       </div>
@@ -95,7 +99,9 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
           <thead><tr><th scope="col">Who</th><th scope="col">When</th><th scope="col">What they may receive</th></tr></thead>
           <tbody>
             <tr><th scope="row">Radio stations and their streaming providers (the catalog currently refers to about thirty different streaming hosts)</th><td>When you play a station, and when a stream reconnects.</td><td>Your IP address, browser or device type, the stream requested and the web address of Omnira (referrer). They can tell that your device is listening to their station. Omnira does not relay or record the audio. Some stations may stream over unencrypted HTTP.</td></tr>
-            <tr><th scope="row">Cloudflare, Inc. (hosting)</th><td>Each time the app or its pages are loaded.</td><td>Technical request data (such as IP address, page requested, time, browser or device type) used to deliver and protect the service, kept according to Cloudflare&rsquo;s own practices. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</td></tr>
+            <tr><th scope="row">Google AdSense (Google LLC &mdash; advertising, when enabled)</th><td>Only when AdSense is activated in configuration and after you select a consent preference in the banner.</td><td>Technical request data, advertising identifiers and cookies (for personalized ads when you consent, or limited non-personalized delivery and fraud/frequency capping if you choose non-personalized ads). <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">How Google uses information from sites that use our services</a>.</td></tr>
+            <tr><th scope="row">Google Maps Platform Weather &amp; Geocoding (Google LLC)</th><td>When loading or refreshing the local weather widget on the home screen.</td><td>Coordinates or city name you entered (sent via the app&rsquo;s server proxy without storing user profiles) to return current weather conditions. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</td></tr>
+            <tr><th scope="row">Cloudflare, Inc. / hosting provider</th><td>Each time the app or its pages are loaded.</td><td>Technical request data (such as IP address, page requested, time, browser or device type) used to deliver and protect the service, kept according to the hosting provider&rsquo;s own practices. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</td></tr>
             <tr><th scope="row">Websites of the stations</th><td>Only if you open a station&rsquo;s &ldquo;Official website&rdquo; link (it opens in a new tab, without sending a referrer).</td><td>Whatever that website collects. Read its own policy.</td></tr>
           </tbody>
         </table>
@@ -107,12 +113,11 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
       <h2 id="h-not-do">5. What Omnira does not do</h2>
       <ul>
         <li>It does not ask you to create an account or collect your name, email address or payment details.</li>
-        <li>It does not show advertising and does not include advertising identifiers, analytics or tracking software.</li>
-        <li>It does not ask for access to your location, microphone, camera, contacts, photos or notifications.</li>
-        <li>It does not set cookies itself.</li>
-        <li>It does not sell your personal information or use it for profiling.</li>
+        <li>It does not ask for access to your microphone, camera, contacts, photos or push notifications.</li>
+        <li>It only requests browser geolocation when you explicitly press the geolocation button for local weather, and never tracks your movements in the background.</li>
+        <li>It never serves personalized advertising cookies before you grant consent.</li>
+        <li>It does not sell your personal information.</li>
       </ul>
-      <p>If this changes (for example if analytics or advertising were added), this policy will be updated before the change takes effect.</p>
     </section>
     <section aria-labelledby="h-purposes">
       <h2 id="h-purposes">6. Purposes, legal bases and retention</h2>
@@ -121,12 +126,12 @@ and keep this policy in sync with the app (see README, "Legal pages"). Have it v
     </section>
     <section aria-labelledby="h-security">
       <h2 id="h-security">7. Security</h2>
-      <p>Omnira is delivered over HTTPS. All of its files, including the open-source libraries it uses and the station logos, are served from its own website: no third-party script, style sheet or font is loaded. Most stations stream over HTTPS, but a few may use unencrypted HTTP, which your browser may block on a secure page. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
+      <p>Omnira is delivered over HTTPS. The application interface and vendor libraries are served from its own origin; when Google AdSense is enabled and consented to, the Google AdSense script is loaded over HTTPS from Google&rsquo;s official domain under a strict Content Security Policy. Most stations stream over HTTPS, but a few may use unencrypted HTTP, which your browser may block on a secure page. No method of transmission or storage is completely secure, and we cannot guarantee absolute security.</p>
     </section>
     <section aria-labelledby="h-rights">
       <h2 id="h-rights">8. Your rights and choices</h2>
-      <p><strong>Choices.</strong> You can delete everything Omnira saves on your device (section 3), choose not to play a station, or stop using the app at any time.</p>
-      <p><strong>Rights.</strong> Depending on where you live, you may have the right to access, correct or delete personal data about you, to restrict or object to its processing, to data portability, and to complain to a data protection authority (in France, the <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">CNIL</a>). Because Omnira does not hold your listening data, we may have nothing to provide, correct or delete, but you can write to us at <mark class="legal-placeholder">[CONTACT EMAIL]</mark> with any question about your privacy. To exercise rights regarding data held by the third parties in section 4, contact them directly.</p>
+      <p><strong>Choices.</strong> You can change or withdraw your advertising consent choice at any time from <em>Settings &rsaquo; Advertising Preferences</em> (when AdSense is active), manage Google ad personalization directly via <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">Google Ad Settings</a>, or delete everything Omnira saves on your device (section 3).</p>
+      <p><strong>Rights.</strong> Depending on where you live, you may have the right to access, correct or delete personal data about you, to restrict or object to its processing, to data portability, and to complain to a data protection authority (in France, the <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">CNIL</a>). Because Omnira does not store your listening history or favorites on a central server, write to us at <mark class="legal-placeholder">[CONTACT EMAIL]</mark> with any question about your privacy, or contact the third parties in section 4 directly.</p>
     </section>
     <section aria-labelledby="h-children">
       <h2 id="h-children">9. Children</h2>
