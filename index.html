@@ -76,8 +76,12 @@
         </a>
         <div class="input-group search-group order-3 order-md-2">
           <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
-          <input type="search" id="search" class="form-control" placeholder="Search for a station" data-i18n-placeholder="search.placeholder"
-                 aria-label="Search for a station by name" data-i18n-aria-label="search.aria" autocomplete="off">
+          <input type="search" id="search" class="form-control" placeholder="Search station, genre, country…" data-i18n-placeholder="search.placeholder"
+                 aria-label="Search for a station by name, genre, country, or language" data-i18n-aria-label="search.aria" autocomplete="off">
+          <button id="btn-clear-search" type="button" class="btn btn-outline-secondary d-none"
+                  aria-label="Clear search" title="Clear search" data-i18n-aria-label="search.clear" data-i18n-title="search.clear">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
         </div>
         <a id="header-fav" href="#favoris" class="btn btn-outline-secondary btn-icon order-2 order-md-3 ms-auto ms-md-0"
            aria-label="My favorites" title="My favorites" data-i18n-aria-label="header.favorites" data-i18n-title="header.favorites"><i class="bi bi-heart" aria-hidden="true"></i></a>
@@ -105,6 +109,27 @@
     <div id="home-view">
       <p id="home-empty" class="text-center text-muted-ui py-5 d-none"></p>
 
+      <section id="home-hero" class="home-hero d-none" aria-labelledby="h-hero">
+        <div class="home-hero-copy">
+          <h2 id="h-hero" class="home-hero-title" data-i18n="home.hero.title">Live Radio Worldwide</h2>
+          <p id="hero-summary" class="home-hero-sub mb-0"></p>
+        </div>
+        <div class="home-hero-actions">
+          <button id="btn-random-home" type="button" class="btn btn-accent btn-touch d-inline-flex align-items-center gap-2">
+            <i class="bi bi-shuffle" aria-hidden="true"></i>
+            <span data-i18n="home.hero.surprise">Surprise Me</span>
+          </button>
+          <button id="btn-resume-home" type="button" class="btn btn-outline-secondary btn-touch d-none d-inline-flex align-items-center gap-2">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+            <span id="btn-resume-label" class="text-truncate"></span>
+          </button>
+          <button id="btn-custom-home" type="button" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-2"
+                  data-bs-toggle="modal" data-bs-target="#custom-station-modal">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2z"/></svg>
+            <span data-i18n="home.hero.addStream">Add Stream</span>
+          </button>
+        </div>
+      </section>
 
 <section id="home-recents" class="home-section d-none" aria-labelledby="h-recents">
   <div class="d-flex align-items-center justify-content-between mb-2">
@@ -151,7 +176,11 @@
   <a id="btn-back-home" href="#accueil" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center gap-1">
     <i class="bi bi-arrow-left" aria-hidden="true"></i><span data-i18n="nav.home">Home</span>
   </a>
-  <h2 id="view-title" class="h5 mb-0 text-truncate">All Stations</h2>
+  <h2 id="view-title" class="h5 mb-0 text-truncate flex-grow-1">All Stations</h2>
+  <button id="btn-catalog-random" type="button" class="btn btn-outline-secondary btn-icon"
+          title="Play random station" aria-label="Play random station" data-i18n-title="player.random" data-i18n-aria-label="player.random">
+    <i class="bi bi-shuffle" aria-hidden="true"></i>
+  </button>
 </div>      
 
       <div id="active-chips" class="d-flex flex-wrap gap-2 mb-2 d-none"></div>
@@ -221,37 +250,70 @@
     </ul>
   </footer>
 
+  <!-- Toast de retour utilisateur -->
+  <div id="app-toast" class="app-toast d-none" role="status" aria-live="polite"></div>
+
   <!-- Barre de lecture, toujours accessible en bas de l'écran -->
   <section id="player" class="player fixed-bottom" aria-label="Player" data-i18n-aria-label="player.aria" data-status="idle">
     <div class="container">
-      <div class="d-flex align-items-center gap-3">
-        <div id="player-logo" class="logo logo-lg" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
-        <div class="flex-grow-1 min-w-0">
+      <div class="player-grid">
+        <button id="player-open" type="button" class="player-station-btn" disabled aria-label="Open Now Playing view" data-i18n-aria-label="player.expand">
+          <div id="player-logo" class="logo logo-lg" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
+          <div class="flex-grow-1 min-w-0 text-start">
+            <div id="player-name" class="fw-semibold text-truncate">No station selected</div>
+            <div class="small text-muted-ui d-flex align-items-center gap-2" role="status" aria-live="polite">
+              <span id="status-dot" class="status-dot status-idle" aria-hidden="true"></span>
+              <span id="status-text" class="text-truncate">Choose a station from the list</span>
+            </div>
+            <div id="player-meta" class="player-meta d-none"></div>
+          </div>
+        </button>
 
-<div id="player-name" class="fw-semibold text-truncate">No station selected</div>
-<div class="small text-muted-ui d-flex align-items-center gap-2" role="status" aria-live="polite">
-  <span id="status-dot" class="status-dot status-idle" aria-hidden="true"></span>
-  <span id="status-text" class="text-truncate">Choose a station from the list</span>
-</div>
-          
+        <div class="player-transport">
+          <div id="player-eq" class="eq eq-player" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <button id="btn-prev" type="button" class="btn btn-outline-secondary btn-icon d-none d-sm-inline-flex" disabled
+                  title="Previous station" aria-label="Previous station" data-i18n-title="player.prev" data-i18n-aria-label="player.prev">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.54-.313 1.232.066 1.232.696v7.384c0 .63-.692 1.01-1.232.697L5 8.753V12a.5.5 0 0 1-1 0V4z"/></svg>
+          </button>
+          <button id="btn-retry" type="button" class="btn btn-outline-secondary btn-icon d-none"
+                  title="Restart stream" aria-label="Restart stream" data-i18n-title="player.retry" data-i18n-aria-label="player.retry">
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          </button>
+          <button id="btn-play" type="button" class="btn btn-accent btn-play" disabled aria-label="Play" data-i18n-aria-label="player.play">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+          </button>
+          <button id="btn-next" type="button" class="btn btn-outline-secondary btn-icon d-none d-sm-inline-flex" disabled
+                  title="Next station" aria-label="Next station" data-i18n-title="player.next" data-i18n-aria-label="player.next">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.693 3.3 4 3.678 4 4.308v7.384c0 .63.692 1.01 1.233.697L11.5 8.753V12a.5.5 0 0 0 1 0V4z"/></svg>
+          </button>
         </div>
-        <div id="player-eq" class="eq eq-player" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
+
+        <div class="player-extras">
+          <button id="btn-player-fav" type="button" class="btn btn-outline-secondary btn-icon d-none d-md-inline-flex" disabled
+                  title="Add to favorites" aria-label="Add to favorites" aria-pressed="false">
+            <i class="bi bi-heart" aria-hidden="true"></i>
+          </button>
+          <button id="btn-sleep" type="button" class="btn btn-outline-secondary btn-sleep d-none d-lg-inline-flex align-items-center gap-1"
+                  data-bs-toggle="offcanvas" data-bs-target="#now-playing-sheet"
+                  title="Sleep timer" aria-label="Sleep timer" data-i18n-title="player.sleep" data-i18n-aria-label="player.sleep">
+            <i class="bi bi-moon-stars" aria-hidden="true"></i>
+            <span id="sleep-badge" class="sleep-countdown d-none"></span>
+          </button>
+          <div class="player-volume-wrap">
+            <button id="btn-mute" type="button" class="btn btn-icon text-body" aria-label="Mute" data-i18n-aria-label="player.mute" aria-pressed="false">
+              <i class="bi bi-volume-up-fill" aria-hidden="true"></i>
+            </button>
+            <input id="volume" type="range" class="form-range" min="0" max="100" step="1" value="80" aria-label="Volume" data-i18n-aria-label="player.volume">
+            <output id="volume-value" for="volume" class="small text-muted-ui volume-value">80</output>
+          </div>
+          <button id="btn-expand-player" type="button" class="btn btn-outline-secondary btn-icon d-none d-md-inline-flex" disabled
+                  data-bs-toggle="offcanvas" data-bs-target="#now-playing-sheet"
+                  title="Open Now Playing view" aria-label="Open Now Playing view" data-i18n-title="player.expand" data-i18n-aria-label="player.expand">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/></svg>
+          </button>
         </div>
-        <button id="btn-retry" type="button" class="btn btn-outline-secondary btn-icon d-none"
-                title="Restart stream" aria-label="Restart stream" data-i18n-title="player.retry" data-i18n-aria-label="player.retry">
-          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-        </button>
-        <button id="btn-play" type="button" class="btn btn-accent btn-play" disabled aria-label="Play" data-i18n-aria-label="player.play">
-          <i class="bi bi-play-fill" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="d-flex align-items-center gap-2 mt-2">
-        <button id="btn-mute" type="button" class="btn btn-icon text-body" aria-label="Mute" data-i18n-aria-label="player.mute" aria-pressed="false">
-          <i class="bi bi-volume-up-fill" aria-hidden="true"></i>
-        </button>
-        <input id="volume" type="range" class="form-range" min="0" max="100" step="1" value="80" aria-label="Volume" data-i18n-aria-label="player.volume">
-        <output id="volume-value" for="volume" class="small text-muted-ui volume-value">80</output>
       </div>
 
       <!-- Navigation entre les vues : le lecteur ci-dessus reste en place, la lecture n'est jamais interrompue -->
@@ -276,6 +338,131 @@
       
     </div>
   </section>
+
+  <!-- Vue « En lecture » complète (volet plein écran sur mobile, panneau fluide sur ordinateur) -->
+  <div class="offcanvas offcanvas-bottom now-playing-sheet" tabindex="-1" id="now-playing-sheet" aria-labelledby="sheet-title">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title h6 text-muted-ui mb-0" id="sheet-title" data-i18n="nowPlaying.title">Now Playing</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-i18n-aria-label="common.close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="sheet-layout">
+        <div class="sheet-hero">
+          <div id="sheet-logo" class="logo sheet-artwork" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
+          <h3 id="sheet-name" class="h4 mb-1 text-center text-wrap-balance"></h3>
+          <p id="sheet-meta" class="small text-muted-ui mb-2 text-center"></p>
+          <div class="sheet-live-line small">
+            <span id="sheet-dot" class="status-dot status-idle" aria-hidden="true"></span>
+            <span id="sheet-status"></span>
+            <span id="sheet-timer" class="tabular-nums text-muted-ui d-none"></span>
+            <span id="sheet-quality" class="text-muted-ui d-none"></span>
+          </div>
+
+          <!-- Égaliseur 12 bandes dynamique -->
+          <div id="sheet-eq" class="eq eq-stage mt-3" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <div class="sheet-controls mt-3">
+            <button id="sheet-random" type="button" class="btn btn-outline-secondary btn-icon"
+                    title="Play random station" aria-label="Play random station" data-i18n-title="player.random" data-i18n-aria-label="player.random">
+              <i class="bi bi-shuffle" aria-hidden="true"></i>
+            </button>
+            <button id="sheet-prev" type="button" class="btn btn-outline-secondary btn-icon"
+                    title="Previous station" aria-label="Previous station" data-i18n-title="player.prev" data-i18n-aria-label="player.prev">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.54-.313 1.232.066 1.232.696v7.384c0 .63-.692 1.01-1.232.697L5 8.753V12a.5.5 0 0 1-1 0V4z"/></svg>
+            </button>
+            <button id="sheet-play" type="button" class="btn btn-accent btn-play-lg" aria-label="Play" data-i18n-aria-label="player.play">
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
+            </button>
+            <button id="sheet-next" type="button" class="btn btn-outline-secondary btn-icon"
+                    title="Next station" aria-label="Next station" data-i18n-title="player.next" data-i18n-aria-label="player.next">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.693 3.3 4 3.678 4 4.308v7.384c0 .63.692 1.01 1.233.697L11.5 8.753V12a.5.5 0 0 0 1 0V4z"/></svg>
+            </button>
+            <button id="sheet-fav" type="button" class="btn btn-outline-secondary btn-icon" aria-pressed="false"
+                    title="Add to favorites" aria-label="Add to favorites">
+              <i class="bi bi-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="sheet-panels">
+          <div class="sheet-block">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="fw-semibold small" data-i18n="nowPlaying.sleepTitle">Sleep Timer</span>
+              <span id="sheet-sleep-remaining" class="small text-accent tabular-nums"></span>
+            </div>
+            <div id="sleep-options" class="sleep-grid" role="group" aria-label="Sleep timer" data-i18n-aria-label="nowPlaying.sleepTitle">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="0" data-i18n="nowPlaying.sleepOff">Off</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="15">15m</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="30">30m</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="45">45m</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="60">60m</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-sleep="90">90m</button>
+            </div>
+          </div>
+
+          <div class="sheet-actions mt-3">
+            <button id="sheet-share" type="button" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center justify-content-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>
+              <span data-i18n="nowPlaying.share">Share station</span>
+            </button>
+            <button id="sheet-locate" type="button" class="btn btn-outline-secondary btn-touch d-inline-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-compass" aria-hidden="true"></i>
+              <span data-i18n="nowPlaying.locate">Locate in catalog</span>
+            </button>
+            <a id="sheet-website" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-touch d-none d-inline-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+              <span data-i18n="station.website">Official website</span>
+            </a>
+          </div>
+          <p class="small text-muted-ui mt-3 mb-0 d-none d-lg-block text-center" data-i18n="nowPlaying.shortcuts">Shortcuts: Space play/pause · ←/→ switch station · ↑/↓ volume · M mute · F favorite · / search</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal : Ajouter une station personnalisée -->
+  <div class="modal fade" id="custom-station-modal" tabindex="-1" aria-labelledby="custom-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-modal-surface">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="custom-modal-title" data-i18n="custom.title">Add Custom Stream</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="custom-form-error" class="alert alert-danger py-2 small d-none" role="alert"></div>
+          <div class="mb-3">
+            <label for="custom-name" class="form-label" data-i18n="custom.nameLabel">Station name</label>
+            <input type="text" id="custom-name" class="form-control btn-touch" maxlength="80"
+                   placeholder="e.g. FIP Jazz" data-i18n-placeholder="custom.namePlaceholder">
+          </div>
+          <div class="mb-3">
+            <label for="custom-url" class="form-label" data-i18n="custom.urlLabel">Stream URL (HTTPS MP3, AAC, OGG, or M3U8)</label>
+            <input type="url" id="custom-url" class="form-control btn-touch"
+                   placeholder="https://example.org/stream.mp3" data-i18n-placeholder="custom.urlPlaceholder">
+          </div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6">
+              <label for="custom-country" class="form-label" data-i18n="custom.countryLabel">Country (optional)</label>
+              <input type="text" id="custom-country" class="form-control btn-touch" maxlength="50"
+                     placeholder="e.g. France" data-i18n-placeholder="custom.countryPlaceholder">
+            </div>
+            <div class="col-12 col-sm-6">
+              <label for="custom-genre" class="form-label" data-i18n="custom.genreLabel">Genre (optional)</label>
+              <input type="text" id="custom-genre" class="form-control btn-touch" maxlength="60"
+                     placeholder="e.g. Jazz, Eclectic" data-i18n-placeholder="custom.genrePlaceholder">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-touch" data-bs-dismiss="modal" data-i18n="common.close">Close</button>
+          <button id="btn-save-custom" type="button" class="btn btn-accent btn-touch" data-i18n="custom.save">Add &amp; Listen</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Paramètres (volet du bas, accessible au pouce) -->
   <div class="offcanvas offcanvas-bottom settings-panel" tabindex="-1" id="settings-panel" aria-labelledby="settings-title">
@@ -308,6 +495,14 @@
       </fieldset>
 
       <fieldset class="mt-4">
+        <legend class="h6" data-i18n="settings.custom.title">Custom Streams</legend>
+        <p class="small text-muted-ui mb-2" data-i18n="settings.custom.desc">Add any public HTTPS radio stream URL directly to your personal catalog.</p>
+        <button id="btn-settings-custom" type="button" class="btn btn-outline-secondary btn-touch w-100 text-start"
+                data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#custom-station-modal"
+                data-i18n="settings.custom.add">Add a custom station</button>
+      </fieldset>
+
+      <fieldset class="mt-4">
         <legend class="h6" data-i18n="legal.title">Legal</legend>
         <ul class="list-unstyled d-grid gap-2 mb-0">
           <li><a class="btn btn-outline-secondary btn-touch w-100 text-start" href="privacy-policy.html" target="_blank" rel="noopener"><span data-i18n="legal.privacy">Privacy Policy</span><span class="visually-hidden" data-i18n="legal.newTab"> (opens in a new tab)</span></a></li>
@@ -318,7 +513,7 @@
     </div>
   </div>
 
-  <!-- Only Offcanvas, Collapse and Alert are used: bootstrap.min.js (without Popper) is enough -->
+  <!-- Offcanvas, Collapse, Modal, Alert and Toast are bundled in bootstrap.min.js -->
   <script src="assets/vendor/bootstrap-5.3.3/bootstrap.min.js"></script>
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/locales/en.js"></script>

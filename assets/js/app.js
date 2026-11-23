@@ -1,6 +1,6 @@
 /*
- * Omnira — logique du lecteur (JavaScript natif, sans dépendance).
- * Le catalogue est lu depuis window.STATIONS (assets/js/stations.js).
+ * Omnira — lecteur radio international (JavaScript natif, sans dépendance).
+ * Le catalogue est lu depuis window.STATIONS (assets/js/stations.js) + flux personnalisés (localStorage).
  * Toutes les données de station sont affichées via textContent : aucune injection HTML.
  */
 (() => {
@@ -12,21 +12,19 @@
     volume: 'radio.volume',
     muted: 'radio.muted',
     history: 'radio.history',
-    theme: 'radio.theme'
+    theme: 'radio.theme',
+    custom: 'radio.customStations'
   };
-  const CONNECT_TIMEOUT_MS = 15000;
-  const ALL = ''; // valeur « tous » des filtres
-  const UNSPECIFIED = '__unspecified__';   // valeur interne d'un champ de catalogue absent (affichée via i18n : data.unspecified)
+  const CONNECT_TIMEOUT_MS = 14000;
+  const RECONNECT_DELAYS_MS = [1200, 2500, 5000, 9000];
+  const STALL_THRESHOLD_MS = 12000;
+  const ALL = '';
+  const UNSPECIFIED = '__unspecified__';
   const HISTORY_MAX = 12;
-  // Après une interruption plus longue que ça, le flux en direct est relancé pour rattraper le direct (au lieu de rejouer un tampon périmé).
-  const LIVE_REFRESH_MS = 20000;
-  const THEME_COLOR = { dark: '#0f1216', light: '#f4f6f9' };    // couleur de la barre du navigateur
+  const LIVE_REFRESH_MS = 15000;
+  const THEME_COLOR = { dark: '#0f1216', light: '#f4f6f9' };
 
-  /* ---------- Activities (themes) and genre families ----------
-   * Nothing is duplicated from the catalog: stations are classified from their genre (and name) with the keywords below.
-   * A category without any station is never displayed. */
-  /* Keywords are compared on the normalized genre (and name for themes): lowercase, no accents. English first,
-   * French kept for older catalogs. A station can force its activities with themes: ["focus", ...] in stations.js. */
+  /* ---------- Activities (themes) and genre families ---------- */
   const THEMES = [
     { id: 'focus', icon: 'bi-code-slash',
       match: 'ambient|concentration|lo-?fi|chillhop|chillsynth|synthwave|spacesynth|idm|glitch|programm|coding|informatique|drone' },
@@ -46,8 +44,6 @@
       match: 'news|information|actualit|current affairs|journal|general interest|generaliste|culture|science|philosoph|ideas|idees|debat|talk|analysis|documentar' }
   ];
 
-  /* Genre families: used by the home page cards AND the Genre filter. A station can belong to several families.
-   * Genres that match no family get their own entry (first genre of the list). */
   const FAMILIES = [
     { id: 'pop', icon: 'bi-stars', match: '\\bpop\\b|hits|top 40|variety|variete|popular' },
     { id: 'rock', icon: 'bi-speaker', match: '\\brock\\b|metal|indie|alternative' },
@@ -71,7 +67,7 @@
   FAMILIES.forEach((f) => { f.re = new RegExp(f.match); });
   const INSTRUMENTAL_KEY = 'instrumental';
 
-  /* ---------- Stockage local (tolérant aux navigateurs qui le bloquent) ---------- */
+  /* ---------- Stockage local ---------- */
   const store = {
     get(key, fallback) {
       try {
@@ -79,11 +75,9 @@
         return raw === null ? fallback : JSON.parse(raw);
       } catch (e) { return fallback; }
     },
-    /** Renvoie true si l'écriture a réussi. */
     set(key, value) {
       try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
     },
-    /** Teste que le stockage local est utilisable (navigation privée, stockage bloqué...). */
     available() {
       try {
         localStorage.setItem('radio.probe', '1');
@@ -95,13 +89,12 @@
 
   /* ---------- Utilitaires ---------- */
   const $ = (id) => document.getElementById(id);
-  const normalize = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+  const normalize = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 
-  /* ---------- i18n : toute la chaîne affichée passe par I18N (assets/js/i18n.js + assets/js/locales/*.js) ---------- */
   const tr = (key, params) => I18N.t(key, params);
   const trn = (key, n, params) => I18N.tn(key, n, params);
-  const loc = () => I18N.getLanguage();                         // langue de l'INTERFACE (tri des listes)
-  const shown = (value) => (value === UNSPECIFIED ? tr('data.unspecified') : value);   // champ de catalogue absent
+  const loc = () => I18N.getLanguage();
+  const shown = (value) => (value === UNSPECIFIED ? tr('data.unspecified') : value);
   const langLabel = (key) => (key === INSTRUMENTAL_KEY ? tr('lang.instrumental') : (state.langLabels.get(key) || key));
 
   function isHttpUrl(value) {
@@ -111,7 +104,6 @@
     } catch (e) { return false; }
   }
 
-  /** Absolute http(s) URL, relative paths resolved against the page (local logos in assets/logos/), or ''. */
   function resolveUrl(value) {
     if (!value) return '';
     try {
@@ -121,8 +113,17 @@
   }
 
   const isHls = (url) => /\.m3u8(\?|#|$)/i.test(url);
+  const isPlaylistFile = (url) => /\.(m3u|pls)(\?|#|$)/i.test(url);
 
-  /** Valide une entrée du catalogue ; renvoie null si elle est inutilisable. */
+  function formatDuration(ms) {
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = (n) => String(n).padStart(2, '0');
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+  }
+
   function normalizeStation(raw) {
     if (!raw || typeof raw !== 'object') return null;
     const id = String(raw.id || '').trim();
@@ -141,8 +142,8 @@
       logoUrl: resolveUrl(raw.logoUrl),
       website: isHttpUrl(raw.website) ? String(raw.website).trim() : '',
       themes: Array.isArray(raw.themes) ? raw.themes.map(String) : null,
+      custom: raw.custom === true,
       hls: isHls(streamUrl),
-      // flux HTTP sur page HTTPS : probablement bloqué par le navigateur (contenu mixte)
       insecure: location.protocol === 'https:' && /^http:/i.test(streamUrl)
     };
   }
@@ -151,51 +152,93 @@
   const state = {
     stations: [],
     byId: new Map(),
+    customStations: [],
     favorites: new Set(),
     filters: { query: '', country: ALL, language: ALL, genre: ALL, theme: '', family: '' },
-    view: 'home',        // 'home', 'radios' (catalogue) ou 'favorites'
+    view: 'home',
     history: [],
     langLabels: new Map(),
-    theme: 'auto',       // 'light', 'dark' ou 'auto' (suit le système)
-    interrupted: false,  // lecture mise en pause par le système (appel, autre application...), pas par l'utilisateur
+    theme: 'auto',
+    interrupted: false,
     interruptedAt: 0,
     current: null,
-    wantPlay: false,     // l'utilisateur veut écouter (connexion, tampon ou lecture)
+    wantPlay: false,
     status: 'idle',
-    statusKey: 'status.idle',   // clé + paramètres du texte affiché (pour le retraduire au changement de langue)
+    statusKey: 'status.idle',
     statusParams: null,
     volume: 80,
-    muted: false
+    muted: false,
+    reconnectAttempts: 0,
+    autoResumeOnOnline: false,
+    playStartedAt: 0,
+    streamInfoKey: '',
+    streamInfoParams: null,
+    sleepEndsAt: 0,
+    sleepMinutes: 0
   };
 
   const audio = new Audio();
   audio.preload = 'none';
   let playToken = 0;
   let connectTimer = null;
-  let hls = null;                      // hls.js instance for .m3u8 streams (only when the browser cannot play HLS natively)
+  let reconnectTimer = null;
+  let stallTimer = null;
+  let lastAudioTime = -1;
+  let stallElapsedMs = 0;
+  let fadeRaf = null;
+  let liveTickTimer = null;
+  let sleepTickTimer = null;
+  let toastTimer = null;
+  let hls = null;
   let hlsLoader = null;
   const HLS_SCRIPT = 'assets/vendor/hls.js-1.7.3/hls.light.min.js';
 
   const el = {
     list: $('station-list'), empty: $('empty-state'), count: $('result-count'),
-    search: $('search'), country: $('filter-country'), language: $('filter-language'), genre: $('filter-genre'),
+    search: $('search'), clearSearch: $('btn-clear-search'),
+    country: $('filter-country'), language: $('filter-language'), genre: $('filter-genre'),
     reset: $('btn-reset'), filtersSection: $('filters-section'), storageWarning: $('storage-warning'),
     orphans: $('orphans-notice'), orphansText: $('orphans-text'), forgetOrphans: $('btn-forget-orphans'),
     emptyIcon: $('empty-icon'), emptyText: $('empty-text'), emptyAction: $('empty-action'),
     navRadios: $('nav-radios'), navFavorites: $('nav-favorites'), navCurrent: $('nav-current'), favBadge: $('fav-badge'),
     navHome: $('nav-home'), headerFav: $('header-fav'),
     homeView: $('home-view'), catalogView: $('catalog-view'), viewTitle: $('view-title'), chips: $('active-chips'),
+    homeHero: $('home-hero'), heroSummary: $('hero-summary'),
+    btnRandomHome: $('btn-random-home'), btnResumeHome: $('btn-resume-home'), btnResumeLabel: $('btn-resume-label'),
+    btnCatalogRandom: $('btn-catalog-random'),
     homeEmpty: $('home-empty'), clearHistory: $('btn-clear-history'),
     recents: $('recents-list'), picks: $('picks-list'), themes: $('themes-list'), genres: $('genres-list'),
     countries: $('countries-list'), languages: $('languages-list'),
     themeInputs: [...document.querySelectorAll('input[name="theme"]')], themeHint: $('theme-hint'),
     langFieldset: $('language-settings'), langOptions: $('language-options'), langHint: $('language-hint'),
-    player: $('player'), logo: $('player-logo'), name: $('player-name'),
-    dot: $('status-dot'), statusText: $('status-text'), eq: $('player-eq'),
-    play: $('btn-play'), retry: $('btn-retry'), mute: $('btn-mute'), volume: $('volume'), volumeValue: $('volume-value')
+    player: $('player'), playerOpen: $('player-open'), logo: $('player-logo'), name: $('player-name'),
+    dot: $('status-dot'), statusText: $('status-text'), playerMeta: $('player-meta'), eq: $('player-eq'),
+    play: $('btn-play'), prev: $('btn-prev'), next: $('btn-next'), retry: $('btn-retry'),
+    playerFav: $('btn-player-fav'), btnSleep: $('btn-sleep'), sleepBadge: $('sleep-badge'),
+    expandPlayer: $('btn-expand-player'),
+    mute: $('btn-mute'), volume: $('volume'), volumeValue: $('volume-value'),
+    sheet: $('now-playing-sheet'), sheetLogo: $('sheet-logo'), sheetName: $('sheet-name'),
+    sheetMeta: $('sheet-meta'), sheetDot: $('sheet-dot'), sheetStatus: $('sheet-status'),
+    sheetTimer: $('sheet-timer'), sheetQuality: $('sheet-quality'), sheetEq: $('sheet-eq'),
+    sheetRandom: $('sheet-random'), sheetPrev: $('sheet-prev'), sheetPlay: $('sheet-play'),
+    sheetNext: $('sheet-next'), sheetFav: $('sheet-fav'),
+    sheetSleepRemaining: $('sheet-sleep-remaining'), sleepOptions: $('sleep-options'),
+    sheetShare: $('sheet-share'), sheetLocate: $('sheet-locate'), sheetWebsite: $('sheet-website'),
+    customModal: $('custom-station-modal'), customError: $('custom-form-error'),
+    customName: $('custom-name'), customUrl: $('custom-url'),
+    customCountry: $('custom-country'), customGenre: $('custom-genre'),
+    btnSaveCustom: $('btn-save-custom'), btnSettingsCustom: $('btn-settings-custom'),
+    settingsPanel: $('settings-panel'), toast: $('app-toast')
   };
 
-  /** Langues parlées d'une station. « Instrumental » = sans paroles (jamais une langue) ; « Mixte », « International »… ignorés. */
+  function showToast(message) {
+    if (!el.toast || !message) return;
+    clearTimeout(toastTimer);
+    el.toast.textContent = message;
+    el.toast.classList.remove('d-none');
+    toastTimer = setTimeout(() => { el.toast.classList.add('d-none'); }, 2800);
+  }
+
   function parseLanguages(value) {
     const out = [];
     String(value).replace(/\([^)]*\)/g, ' ').split(/[\/,;&]|\bet\b|\band\b/i).forEach((part) => {
@@ -203,7 +246,7 @@
       const key = normalize(label);
       if (!label) return;
       if (key.startsWith('instrumental') || key.includes('sans paroles')) {
-        out.push({ key: INSTRUMENTAL_KEY, label: '' });          // libellé affiché : tr('lang.instrumental')
+        out.push({ key: INSTRUMENTAL_KEY, label: '' });
       } else if (/^(international|mixte|mixed|multilingu|divers|various|non precis|not specified|__unspecified)/.test(key)) {
         return;
       } else {
@@ -214,84 +257,67 @@
   }
 
   function annotate(st) {
-    const full = normalize(st.genre) + ' | ' + normalize(st.name);   // texte « genre | nom » : un motif commençant par ^ cible le genre
+    const full = normalize(st.genre) + ' | ' + normalize(st.name);
     const genre = normalize(st.genre);
     st.themeIds = st.themes
       ? THEMES.filter((t) => st.themes.includes(t.id)).map((t) => t.id)
       : THEMES.filter((t) => t.re.test(full)).map((t) => t.id);
     st.families = FAMILIES.filter((f) => f.re.test(genre)).map((f) => f.id);
-    // Genre that fits no family: listed on its own (first genre of a comma-separated list)
     st.looseGenre = st.families.length ? '' : (st.genre === UNSPECIFIED ? UNSPECIFIED : st.genre.split(/[,&/]/)[0].trim());
     const langs = parseLanguages(st.language);
     st.langs = [...new Set(langs.map((l) => l.key))];
     langs.forEach((l) => { if (!state.langLabels.has(l.key)) state.langLabels.set(l.key, l.label); });
+    st.searchText = normalize([st.name, st.country, st.language, st.genre].join(' '));
   }
 
+  /* Drapeau : généré depuis le nom du pays (Intl.DisplayNames) */
+  let flagSupport = null;
+  let regionByName = null;
 
-/* Drapeau : généré depuis le nom du pays (Intl.DisplayNames),
-   en français ou en anglais, uniquement si le système sait afficher les emoji-drapeaux */
-let flagSupport = null;
-let regionByName = null;
-
-function flagsSupported() {
-  if (flagSupport !== null) return flagSupport;
-  flagSupport = false;
-
-  try {
-    const c = document.createElement('canvas');
-    c.width = c.height = 16;
-    const x = c.getContext('2d');
-    if (!x) return false;
-
-    x.textBaseline = 'top';
-    x.font = '14px sans-serif';
-    x.fillText('\uD83C\uDDEB\uD83C\uDDF7', 0, 0);
-
-    const d = x.getImageData(0, 0, 16, 16).data;
-    for (let i = 0; i < d.length; i += 4) {
-      if (d[i + 3] > 0 && Math.abs(d[i] - d[i + 2]) > 40) {
-        flagSupport = true;
-        break;
-      }
-    }
-  } catch (e) { /* Pas de canvas : on garde l'icône */ }
-
-  return flagSupport;
-}
-
-function countryFlag(name) {
-  if (!flagsSupported() || !name) return '';
-
-  if (!regionByName) {
-    regionByName = new Map();
-
+  function flagsSupported() {
+    if (flagSupport !== null) return flagSupport;
+    flagSupport = false;
     try {
-      for (const locale of ['en', 'fr']) {
-        const dn = new Intl.DisplayNames([locale], { type: 'region' });
+      const c = document.createElement('canvas');
+      c.width = c.height = 16;
+      const x = c.getContext('2d');
+      if (!x) return false;
+      x.textBaseline = 'top';
+      x.font = '14px sans-serif';
+      x.fillText('\uD83C\uDDEB\uD83C\uDDF7', 0, 0);
+      const d = x.getImageData(0, 0, 16, 16).data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] > 0 && Math.abs(d[i] - d[i + 2]) > 40) {
+          flagSupport = true;
+          break;
+        }
+      }
+    } catch (e) { /* Pas de canvas */ }
+    return flagSupport;
+  }
 
-        for (let a = 65; a <= 90; a++) {
-          for (let b = 65; b <= 90; b++) {
-            const code = String.fromCharCode(a, b);
-            const n = dn.of(code);
-
-            if (n && n !== code) {
-              regionByName.set(normalize(n), code);
+  function countryFlag(name) {
+    if (!flagsSupported() || !name) return '';
+    if (!regionByName) {
+      regionByName = new Map();
+      try {
+        for (const locale of ['en', 'fr']) {
+          const dn = new Intl.DisplayNames([locale], { type: 'region' });
+          for (let a = 65; a <= 90; a++) {
+            for (let b = 65; b <= 90; b++) {
+              const code = String.fromCharCode(a, b);
+              const n = dn.of(code);
+              if (n && n !== code) regionByName.set(normalize(n), code);
             }
           }
         }
-      }
-    } catch (e) { /* Intl.DisplayNames indisponible */ }
+      } catch (e) { /* Intl.DisplayNames indisponible */ }
+    }
+    const code = regionByName.get(normalize(name));
+    return code
+      ? String.fromCodePoint(...[...code].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65))
+      : '';
   }
-
-  const code = regionByName.get(normalize(name));
-  return code
-    ? String.fromCodePoint(...[...code].map(
-        c => 0x1F1E6 + c.charCodeAt(0) - 65
-      ))
-    : '';
-}
-
-
 
   /* ---------- Éléments d'interface ---------- */
   function icon(name) {
@@ -341,7 +367,15 @@ function countryFlag(name) {
     name.textContent = st.name;
     const meta = document.createElement('div');
     meta.className = 'station-meta text-truncate';
-    meta.textContent = [st.country, st.language, st.genre].map(shown).join(' · ');
+    const flag = st.country !== UNSPECIFIED ? countryFlag(st.country) : '';
+    const countryShown = (flag ? flag + ' ' : '') + shown(st.country);
+    meta.textContent = [countryShown, shown(st.language), shown(st.genre)].join(' · ');
+    if (st.custom) {
+      const cBadge = document.createElement('span');
+      cBadge.className = 'badge-custom';
+      cBadge.textContent = '· ' + tr('station.custom.badge');
+      meta.appendChild(cBadge);
+    }
     if (st.insecure) {
       const b = document.createElement('span');
       b.className = 'badge-http';
@@ -359,7 +393,16 @@ function countryFlag(name) {
     main.append(makeLogo(st, false), text, eq);
     card.appendChild(main);
 
-    if (st.website) {
+    if (st.custom) {
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'station-action';
+      del.dataset.action = 'remove-custom';
+      del.title = tr('station.custom.remove');
+      del.setAttribute('aria-label', tr('station.custom.removeAria', { name: st.name }));
+      del.appendChild(icon('bi-x-lg'));
+      card.appendChild(del);
+    } else if (st.website) {
       const a = document.createElement('a');
       a.className = 'station-action';
       a.href = st.website;
@@ -382,11 +425,33 @@ function countryFlag(name) {
   }
 
   function paintFavoriteButton(btn, st) {
+    if (!btn || !st) return;
     const on = state.favorites.has(st.id);
     btn.setAttribute('aria-pressed', String(on));
     btn.setAttribute('aria-label', tr(on ? 'station.fav.removeAria' : 'station.fav.addAria', { name: st.name }));
     btn.title = tr(on ? 'station.fav.remove' : 'station.fav.add');
     btn.replaceChildren(icon(on ? 'bi-heart-fill' : 'bi-heart'));
+  }
+
+  /* ---------- Catalogue combiné (officiel + flux personnalisés) ---------- */
+  function rebuildCatalog() {
+    state.stations = [];
+    state.byId.clear();
+    state.langLabels.clear();
+
+    const builtin = Array.isArray(window.STATIONS) ? window.STATIONS : [];
+    const custom = Array.isArray(state.customStations) ? state.customStations : [];
+
+    builtin.concat(custom).forEach((r) => {
+      const st = normalizeStation(r);
+      if (!st) return;
+      if (state.byId.has(st.id)) return;
+      state.byId.set(st.id, st);
+      state.stations.push(st);
+      annotate(st);
+    });
+
+    fillFilterSelects();
   }
 
   /* ---------- Filtres et liste ---------- */
@@ -419,7 +484,6 @@ function countryFlag(name) {
       });
   }
 
-  /** Genre filter = the same families as the home page ("f:<id>"), then the genres that fit no family ("g:<genre>"). */
   function fillGenreSelect() {
     const option = (value, label) => { const o = document.createElement('option'); o.value = value; o.textContent = label; return o; };
     const families = FAMILIES.filter((f) => state.stations.some((s) => s.families.includes(f.id)))
@@ -435,12 +499,18 @@ function countryFlag(name) {
     fillGenreSelect();
   }
 
+  function matchesSearch(st, q) {
+    if (!q) return true;
+    const terms = q.split(/\s+/).filter(Boolean);
+    return terms.every((t) => st.searchText.includes(t));
+  }
+
   function filteredStations() {
     const f = state.filters;
     const q = normalize(f.query);
     return state.stations
       .filter((s) =>
-        (!q || normalize(s.name).includes(q)) &&
+        matchesSearch(s, q) &&
         (f.country === ALL || s.country === f.country) &&
         (f.language === ALL || s.langs.includes(f.language)) &&
         (f.genre === ALL || s.looseGenre === f.genre) &&
@@ -449,19 +519,44 @@ function countryFlag(name) {
       .sort((a, b) => a.name.localeCompare(b.name, loc()));
   }
 
-  /* ---------- Favoris ----------
-   * state.favorites contient les identifiants enregistrés (même ceux absents du catalogue, pour ne rien
-   * perdre si le catalogue est momentanément vide ou modifié). Seuls ceux présents dans le catalogue sont affichés. */
   function favoriteStations(q) {
     return state.stations
-      .filter((s) => state.favorites.has(s.id) && (!q || normalize(s.name).includes(q)))
+      .filter((s) => state.favorites.has(s.id) && matchesSearch(s, q))
       .sort((a, b) => a.name.localeCompare(b.name, loc()));
+  }
+
+  function getNavigationQueue() {
+    const q = normalize(state.filters.query);
+    if (state.view === 'favorites') {
+      const favs = favoriteStations(q);
+      if (favs.length) return favs;
+    }
+    if (state.view === 'radios') {
+      const list = filteredStations();
+      if (list.length) return list;
+    }
+    return [...state.stations].sort((a, b) => a.name.localeCompare(b.name, loc()));
   }
 
   function paintAllFavButtons() {
     document.querySelectorAll('.station-card .btn-fav').forEach((btn) => {
       const st = state.byId.get(btn.closest('.station-card').dataset.id);
       if (st) paintFavoriteButton(btn, st);
+    });
+    paintPlayerFav();
+  }
+
+  function paintPlayerFav() {
+    const st = state.current;
+    const on = !!st && state.favorites.has(st.id);
+    [el.playerFav, el.sheetFav].forEach((btn) => {
+      if (!btn) return;
+      btn.disabled = !st;
+      btn.setAttribute('aria-pressed', String(on));
+      btn.classList.toggle('is-fav-active', on);
+      btn.setAttribute('aria-label', st ? tr(on ? 'station.fav.removeAria' : 'station.fav.addAria', { name: st.name }) : tr('station.fav.add'));
+      btn.title = tr(on ? 'station.fav.remove' : 'station.fav.add');
+      btn.replaceChildren(icon(on ? 'bi-heart-fill' : 'bi-heart'));
     });
   }
 
@@ -478,14 +573,38 @@ function countryFlag(name) {
   function toggleFavorite(id) {
     const st = state.byId.get(id);
     if (!st) return;
-    if (state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+    const adding = !state.favorites.has(id);
+    if (adding) state.favorites.add(id); else state.favorites.delete(id);
     persistFavorites();
     if (state.view === 'favorites') {
-      renderList();                    // la station disparaît (ou apparaît) immédiatement
+      renderList();
+      paintPlayerFav();
     } else {
-      paintAllFavButtons();            // une station peut apparaître dans plusieurs sections de l'accueil
+      paintAllFavButtons();
       paintNav();
     }
+    showToast(tr(adding ? 'station.fav.add' : 'station.fav.remove'));
+  }
+
+  function removeCustomStation(id) {
+    const idx = state.customStations.findIndex((s) => s.id === id);
+    if (idx === -1) return;
+    state.customStations.splice(idx, 1);
+    if (!store.set(KEYS.custom, state.customStations)) showStorageWarning();
+    if (state.favorites.delete(id)) persistFavorites();
+    state.history = state.history.filter((x) => x !== id);
+    store.set(KEYS.history, state.history);
+    if (state.current && state.current.id === id) {
+      state.wantPlay = false;
+      releaseAudio();
+      state.current = null;
+      paintPlayerStation();
+      setStatus('idle');
+    }
+    rebuildCatalog();
+    syncFilterControls();
+    if (state.view === 'home') renderHome(); else renderList();
+    showToast(tr('custom.removed'));
   }
 
   function showEmpty(iconName, text, withAction) {
@@ -508,7 +627,6 @@ function countryFlag(name) {
     return f.query ? tr('view.search') : tr('view.all');
   }
 
-  /** Chip for the filter that has no drop-down list (activity). */
   function renderChips() {
     const f = state.filters;
     const chips = [];
@@ -561,16 +679,14 @@ function countryFlag(name) {
 
     const orphans = inFav && total > 0 ? orphanIds().length : 0;
     el.orphans.classList.toggle('d-none', orphans === 0);
-    if (orphans > 0) {
-      el.orphansText.textContent = trn('orphans.text', orphans);
-    }
+    if (orphans > 0) el.orphansText.textContent = trn('orphans.text', orphans);
     el.viewTitle.textContent = viewTitleText();
     renderChips();
     paintNav();
     paintCardStates();
   }
 
-  /* ---------- Accueil : sections construites à partir du catalogue ---------- */
+  /* ---------- Accueil ---------- */
   function makeCategoryCard(opts) {
     const col = document.createElement('div');
     col.className = 'col';
@@ -602,7 +718,6 @@ function countryFlag(name) {
     return col;
   }
 
-  /** Remplit une section de cards ; la masque s'il n'y en a aucune. */
   function fillSection(listEl, cards) {
     listEl.replaceChildren(...cards);
     listEl.closest('section').classList.toggle('d-none', cards.length === 0);
@@ -617,13 +732,26 @@ function countryFlag(name) {
     fillSection(target, frag);
   }
 
+  function renderHero() {
+    const total = state.stations.length;
+    el.homeHero.classList.toggle('d-none', total === 0);
+    if (total === 0) return;
+    const countries = new Set(state.stations.map((s) => s.country).filter((c) => c !== UNSPECIFIED)).size;
+    el.heroSummary.textContent = tr('home.hero.summary', { stations: I18N.number(total), countries: I18N.number(countries) });
+    if (state.current && !state.wantPlay) {
+      el.btnResumeLabel.textContent = tr('home.hero.resume', { name: state.current.name });
+      el.btnResumeHome.classList.remove('d-none');
+    } else {
+      el.btnResumeHome.classList.add('d-none');
+    }
+  }
+
   function renderRecents() {
     const list = state.history.map((id) => state.byId.get(id)).filter(Boolean).slice(0, 3);
     stationCards(list, el.recents);
     paintCardStates();
   }
 
-  /** Sélection du jour : ordre éditorial déterministe (même résultat toute la journée, change chaque jour). */
   function dailyPicks(count) {
     const d = new Date();
     const seed = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
@@ -640,10 +768,8 @@ function countryFlag(name) {
   function renderCategories() {
     const st = state.stations;
     const count = (n) => trn('count.stations', n);
-    // Activités
     fillSection(el.themes, THEMES.map((t) => [t, st.filter((s) => s.themeIds.includes(t.id)).length]).filter(([, n]) => n > 0)
       .map(([t, n]) => makeCategoryCard({ icon: t.icon, title: tr('theme.' + t.id + '.title'), lines: [tr('theme.' + t.id + '.desc'), count(n)], patch: { theme: t.id } })));
-    // Genres : familles non vides, puis genres du catalogue qui n'entrent dans aucune famille
     const genreCards = FAMILIES.map((f) => [f, st.filter((s) => s.families.includes(f.id)).length]).filter(([, n]) => n > 0)
       .map(([f, n]) => makeCategoryCard({ icon: f.icon, title: tr('family.' + f.id), lines: [count(n)], patch: { family: f.id } }));
     const loose = new Map();
@@ -651,12 +777,10 @@ function countryFlag(name) {
     [...loose.entries()].sort((a, b) => shown(a[0]).localeCompare(shown(b[0]), loc())).forEach(([g, n]) =>
       genreCards.push(makeCategoryCard({ icon: 'bi-vinyl', title: shown(g), lines: [count(n)], patch: { genre: g } })));
     fillSection(el.genres, genreCards);
-    // Pays
     const byCountry = new Map();
     st.forEach((s) => byCountry.set(s.country, (byCountry.get(s.country) || 0) + 1));
     fillSection(el.countries, [...byCountry.entries()].sort((a, b) => b[1] - a[1] || shown(a[0]).localeCompare(shown(b[0]), loc()))
       .map(([c, n]) => makeCategoryCard({ icon: 'bi-geo-alt-fill', flag: countryFlag(c), title: shown(c), lines: [count(n)], patch: { country: c } })));
-    // Langues (parlées) + « Instrumental » à part
     const byLang = new Map();
     st.forEach((s) => s.langs.forEach((k) => byLang.set(k, (byLang.get(k) || 0) + 1)));
     fillSection(el.languages, [...byLang.entries()].sort((a, b) => b[1] - a[1] || langLabel(a[0]).localeCompare(langLabel(b[0]), loc()))
@@ -669,9 +793,11 @@ function countryFlag(name) {
     el.homeEmpty.classList.toggle('d-none', !empty);
     if (empty) {
       el.homeEmpty.textContent = tr('empty.catalog');
+      el.homeHero.classList.add('d-none');
       [el.recents, el.picks, el.themes, el.genres, el.countries, el.languages].forEach((l) => fillSection(l, []));
       return;
     }
+    renderHero();
     renderRecents();
     renderPicks();
     renderCategories();
@@ -684,7 +810,6 @@ function countryFlag(name) {
     if (state.view === 'home') renderRecents();
   }
 
-  /** Ouvre le catalogue filtré par une card de l'accueil (les filtres de la vue Radios restent combinables ensuite). */
   function openFiltered(patch) {
     resetFilters();
     Object.assign(state.filters, patch);
@@ -692,9 +817,7 @@ function countryFlag(name) {
     if (state.view === 'radios') applyView('radios', true); else goTo('radios');
   }
 
-  /* ---------- Navigation entre les vues ----------
-   * Le lecteur (barre fixe + unique objet Audio) est indépendant des vues : changer de vue ne touche pas à la lecture.
-   * La vue est mémorisée dans l'adresse (#favoris), ce qui permet le bouton Retour et l'actualisation. */
+  /* ---------- Navigation ---------- */
   const VIEW_HASH = { home: '#accueil', radios: '#radios', favorites: '#favoris' };
 
   function viewFromHash() {
@@ -738,6 +861,7 @@ function countryFlag(name) {
   function syncFilterControls() {
     const f = state.filters;
     el.search.value = f.query;
+    el.clearSearch.classList.toggle('d-none', !f.query);
     el.country.value = f.country;
     el.language.value = f.language;
     el.genre.value = f.family ? 'f:' + f.family : (f.genre ? 'g:' + f.genre : ALL);
@@ -748,7 +872,6 @@ function countryFlag(name) {
     syncFilterControls();
   }
 
-  /** « En lecture » : amène la station en cours à l'écran (changement de vue / filtres si nécessaire). */
   function revealCurrent() {
     const st = state.current;
     if (!st) return;
@@ -762,6 +885,17 @@ function countryFlag(name) {
     setTimeout(() => card.classList.remove('flash'), 1200);
   }
 
+  function openNowPlayingSheet() {
+    if (!state.current || !window.bootstrap || !el.sheet) return;
+    window.bootstrap.Offcanvas.getOrCreateInstance(el.sheet).show();
+  }
+
+  function closeNowPlayingSheet() {
+    if (!window.bootstrap || !el.sheet) return;
+    const inst = window.bootstrap.Offcanvas.getInstance(el.sheet);
+    if (inst) inst.hide();
+  }
+
   function paintCardStates() {
     document.querySelectorAll('.station-card').forEach((card) => {
       const isCurrent = !!state.current && card.dataset.id === state.current.id;
@@ -770,10 +904,7 @@ function countryFlag(name) {
     });
   }
 
-  /* ---------- Statut et lecteur ---------- */
-  /* ---------- Media Session (notification Android, écran verrouillé, casque) ----------
-   * Utile pour : nom de la station dans la notification et boutons Lecture/Pause traités comme des actions de
-   * l'utilisateur (donc jamais confondus avec une interruption). Ne détecte PAS les appels ni les annonces d'autres applis. */
+  /* ---------- Media Session ---------- */
   const hasMediaSession = 'mediaSession' in navigator && typeof window.MediaMetadata === 'function';
   let mediaSessionStation = null;
 
@@ -785,44 +916,121 @@ function countryFlag(name) {
         const artwork = st.logoUrl
           ? [{ src: st.logoUrl }]
           : [{ src: new URL('assets/icons/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }];
-        navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: tr('app.name'), artwork });
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: st.name,
+          artist: st.country !== UNSPECIFIED ? st.country + ' · ' + tr('app.name') : tr('app.name'),
+          album: st.genre !== UNSPECIFIED ? st.genre : undefined,
+          artwork
+        });
         mediaSessionStation = st.id;
       } else if (!st) {
         navigator.mediaSession.metadata = null;
         mediaSessionStation = null;
       }
       navigator.mediaSession.playbackState = state.wantPlay ? 'playing' : (st ? 'paused' : 'none');
-    } catch (e) { /* Media Session indisponible : sans conséquence */ }
+    } catch (e) { /* Media Session indisponible */ }
   }
 
   function initMediaSession() {
     if (!hasMediaSession) return;
-    const handle = (action, fn) => { try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) { /* action non prise en charge */ } };
+    const handle = (action, fn) => { try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) { /* non pris en charge */ } };
     handle('play', () => { if (state.current && !state.wantPlay) startPlayback(); });
     handle('pause', () => { if (state.current) stopPlayback(); });
     handle('stop', () => { if (state.current) stopPlayback(); });
+    handle('previoustrack', () => { stepStation(-1); });
+    handle('nexttrack', () => { stepStation(1); });
   }
 
-  /** kind : état visuel ; key/params : texte affiché (clé i18n, 'status.<kind>' par défaut). params.insecure ajoute l'avertissement HTTP. */
+  /* ---------- Métadonnées temps réel (durée + qualité de flux) ---------- */
+  function updateLiveMeta() {
+    const st = state.current;
+    const streaming = state.status === 'playing';
+    const quality = state.streamInfoKey ? tr(state.streamInfoKey, state.streamInfoParams) : (st ? tr(st.hls ? 'player.streamHls' : 'player.streamDirect') : '');
+    const elapsed = streaming && state.playStartedAt ? formatDuration(Date.now() - state.playStartedAt) : '';
+
+    if (el.playerMeta) {
+      const parts = [];
+      if (elapsed) parts.push(tr('player.live') + ' ' + elapsed);
+      if (st && quality) parts.push(quality);
+      el.playerMeta.textContent = parts.join(' · ');
+      el.playerMeta.classList.toggle('d-none', !st || parts.length === 0);
+    }
+    if (el.sheetTimer) {
+      el.sheetTimer.textContent = elapsed ? '· ' + elapsed : '';
+      el.sheetTimer.classList.toggle('d-none', !elapsed);
+    }
+    if (el.sheetQuality) {
+      el.sheetQuality.textContent = st && quality ? '· ' + quality : '';
+      el.sheetQuality.classList.toggle('d-none', !st || !quality);
+    }
+  }
+
+  function startLiveTick() {
+    if (liveTickTimer) return;
+    liveTickTimer = setInterval(updateLiveMeta, 1000);
+  }
+
+  function stopLiveTick() {
+    if (liveTickTimer) { clearInterval(liveTickTimer); liveTickTimer = null; }
+  }
+
+  /* ---------- Statut et lecteur ---------- */
   function setStatus(kind, key, params) {
     state.status = kind;
     state.statusKey = key || ('status.' + kind);
     state.statusParams = params || null;
     const streaming = kind === 'playing';
+    const buffering = kind === 'connecting' || kind === 'buffering';
+    const text = tr(state.statusKey, state.statusParams) + (params && params.insecure ? ' ' + tr('error.insecure') : '');
+
     el.dot.className = 'status-dot status-' + kind;
-    el.statusText.textContent = tr(state.statusKey) + (params && params.insecure ? ' ' + tr('error.insecure') : '');
+    el.statusText.textContent = text;
     el.eq.classList.toggle('is-playing', streaming);
     el.player.dataset.status = kind;
     el.player.classList.toggle('is-streaming', streaming);
     el.navCurrent.classList.toggle('is-streaming', streaming);
+
+    if (el.sheet) {
+      el.sheet.classList.toggle('is-streaming', streaming);
+      el.sheetDot.className = 'status-dot status-' + kind;
+      el.sheetStatus.textContent = text;
+      el.sheetEq.classList.toggle('is-playing', streaming);
+      el.sheetEq.classList.toggle('is-buffering', buffering && !streaming);
+    }
+
     const active = state.wantPlay;
-    el.play.replaceChildren(icon(active ? 'bi-pause-fill' : 'bi-play-fill'));
-    el.play.setAttribute('aria-label', active ? tr('player.pause') : tr('player.play'));
-    el.play.disabled = !state.current;
-    el.navCurrent.disabled = !state.current;
-    el.retry.classList.toggle('d-none', !state.current || kind === 'idle' || kind === 'ready');
+    const playIcon = active ? 'bi-pause-fill' : 'bi-play-fill';
+    const playLabel = active ? tr('player.pause') : tr('player.play');
+    [el.play, el.sheetPlay].forEach((btn) => {
+      if (!btn) return;
+      btn.replaceChildren(icon(playIcon));
+      btn.setAttribute('aria-label', playLabel);
+      btn.disabled = !state.current;
+    });
+
+    const hasStation = !!state.current;
+    const canZap = state.stations.length > 1;
+    el.navCurrent.disabled = !hasStation;
+    el.playerOpen.disabled = !hasStation;
+    el.expandPlayer.disabled = !hasStation;
+    el.prev.disabled = !canZap;
+    el.next.disabled = !canZap;
+    el.sheetPrev.disabled = !canZap;
+    el.sheetNext.disabled = !canZap;
+    el.retry.classList.toggle('d-none', !hasStation || kind === 'idle' || kind === 'ready');
+
+    if (streaming) {
+      if (!state.playStartedAt) state.playStartedAt = Date.now();
+      startLiveTick();
+    } else if (!state.wantPlay) {
+      state.playStartedAt = 0;
+      stopLiveTick();
+    }
+
+    updateLiveMeta();
     updateMediaSession();
     paintCardStates();
+    if (state.view === 'home') renderHero();
   }
 
   function paintPlayerStation() {
@@ -830,28 +1038,184 @@ function countryFlag(name) {
     el.name.textContent = st ? st.name : tr('player.none');
     const logo = makeLogo(st, true);
     el.logo.replaceChildren(...logo.childNodes);
+
+    if (el.sheet) {
+      el.sheetName.textContent = st ? st.name : tr('player.none');
+      const sLogo = makeLogo(st, true);
+      el.sheetLogo.replaceChildren(...sLogo.childNodes);
+      if (st) {
+        const flag = st.country !== UNSPECIFIED ? countryFlag(st.country) : '';
+        const countryShown = (flag ? flag + ' ' : '') + shown(st.country);
+        el.sheetMeta.textContent = [countryShown, shown(st.language), shown(st.genre)].join(' · ');
+        if (st.website) {
+          el.sheetWebsite.href = st.website;
+          el.sheetWebsite.classList.remove('d-none');
+        } else {
+          el.sheetWebsite.classList.add('d-none');
+        }
+      } else {
+        el.sheetMeta.textContent = '';
+        el.sheetWebsite.classList.add('d-none');
+      }
+    }
+    paintPlayerFav();
   }
 
-  /* ---------- Lecture audio ---------- */
+  /* ---------- Minuterie de sommeil ---------- */
+  function clearSleepTimer(silent) {
+    state.sleepEndsAt = 0;
+    state.sleepMinutes = 0;
+    if (sleepTickTimer) { clearInterval(sleepTickTimer); sleepTickTimer = null; }
+    updateSleepUi();
+    if (!silent) showToast(tr('nowPlaying.sleepCancelled'));
+  }
+
+  function updateSleepUi() {
+    const active = state.sleepEndsAt > Date.now();
+    const remaining = active ? formatDuration(state.sleepEndsAt - Date.now()) : '';
+    if (el.btnSleep) el.btnSleep.classList.toggle('is-active', active);
+    if (el.sleepBadge) {
+      el.sleepBadge.textContent = remaining;
+      el.sleepBadge.classList.toggle('d-none', !active);
+    }
+    if (el.sheetSleepRemaining) {
+      el.sheetSleepRemaining.textContent = active ? tr('player.sleepActive', { time: remaining }) : '';
+    }
+    if (el.sleepOptions) {
+      el.sleepOptions.querySelectorAll('button[data-sleep]').forEach((b) => {
+        const val = Number(b.dataset.sleep);
+        b.classList.toggle('active', active ? val === state.sleepMinutes : val === 0);
+      });
+    }
+  }
+
+  function setSleepTimer(minutes) {
+    if (!minutes || minutes <= 0) {
+      clearSleepTimer(false);
+      return;
+    }
+    state.sleepMinutes = minutes;
+    state.sleepEndsAt = Date.now() + minutes * 60000;
+    if (!sleepTickTimer) {
+      sleepTickTimer = setInterval(() => {
+        const left = state.sleepEndsAt - Date.now();
+        if (left <= 0) {
+          clearSleepTimer(true);
+          if (state.wantPlay) {
+            fadeOutAndStop(() => showToast(tr('nowPlaying.sleepEnded')));
+          } else {
+            showToast(tr('nowPlaying.sleepEnded'));
+          }
+          return;
+        }
+        updateSleepUi();
+      }, 1000);
+    }
+    updateSleepUi();
+    showToast(tr('nowPlaying.sleepSet', { m: minutes }));
+  }
+
+  /* ---------- Lecture audio résiliente ---------- */
   function clearConnectTimer() {
     if (connectTimer) { clearTimeout(connectTimer); connectTimer = null; }
+  }
+
+  function clearReconnectTimer() {
+    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  }
+
+  function stopStallWatchdog() {
+    if (stallTimer) { clearInterval(stallTimer); stallTimer = null; }
+    lastAudioTime = -1;
+    stallElapsedMs = 0;
+  }
+
+  function startStallWatchdog() {
+    stopStallWatchdog();
+    lastAudioTime = audio.currentTime;
+    stallTimer = setInterval(() => {
+      if (!state.wantPlay || state.status !== 'playing') {
+        stallElapsedMs = 0;
+        return;
+      }
+      const nowTime = audio.currentTime;
+      if (Math.abs(nowTime - lastAudioTime) < 0.05) {
+        stallElapsedMs += 3000;
+        if (stallElapsedMs >= STALL_THRESHOLD_MS) {
+          stallElapsedMs = 0;
+          if (hls) {
+            setStatus('buffering');
+            try { hls.startLoad(); } catch (e) { startPlayback(true); }
+          } else {
+            startPlayback(true);
+          }
+        }
+      } else {
+        lastAudioTime = nowTime;
+        stallElapsedMs = 0;
+      }
+    }, 3000);
+  }
+
+  function cancelFade() {
+    if (fadeRaf) { cancelAnimationFrame(fadeRaf); fadeRaf = null; }
+  }
+
+  function fadeInVolume() {
+    cancelFade();
+    const target = state.muted ? 0 : state.volume / 100;
+    if (target <= 0) { audio.volume = 0; return; }
+    const start = performance.now();
+    const duration = 240;
+    audio.volume = 0;
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      audio.volume = target * p;
+      if (p < 1 && state.wantPlay) fadeRaf = requestAnimationFrame(tick);
+      else fadeRaf = null;
+    };
+    fadeRaf = requestAnimationFrame(tick);
+  }
+
+  function fadeOutAndStop(done) {
+    cancelFade();
+    const startVol = audio.volume;
+    const start = performance.now();
+    const duration = 2200;
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      audio.volume = startVol * (1 - p);
+      if (p < 1 && state.wantPlay) {
+        fadeRaf = requestAnimationFrame(tick);
+      } else {
+        fadeRaf = null;
+        stopPlayback();
+        audio.volume = state.volume / 100;
+        if (done) done();
+      }
+    };
+    fadeRaf = requestAnimationFrame(tick);
   }
 
   function armConnectTimer() {
     clearConnectTimer();
     connectTimer = setTimeout(() => {
       if (state.wantPlay && (state.status === 'connecting' || state.status === 'buffering')) {
-        state.wantPlay = false;
-        releaseAudio();
-        setStatus('error', 'error.timeout');
+        if (!scheduleReconnect('error.timeout')) {
+          state.wantPlay = false;
+          releaseAudio();
+          setStatus('error', 'error.timeout');
+        }
       }
     }, CONNECT_TIMEOUT_MS);
   }
 
-  /** Coupe le flux et libère la connexion réseau (indispensable pour un flux en direct). */
   function releaseAudio() {
+    cancelFade();
     clearConnectTimer();
-    state.interrupted = false;      // plus de source : aucune reprise automatique possible après un arrêt voulu
+    clearReconnectTimer();
+    stopStallWatchdog();
+    state.interrupted = false;
     playToken++;
     if (hls) { try { hls.destroy(); } catch (e) { /* already detached */ } hls = null; }
     audio.pause();
@@ -863,12 +1227,42 @@ function countryFlag(name) {
     return code === 2 ? 'error.network' : code === 3 ? 'error.decode' : code === 4 ? 'error.unsupported' : 'error.generic';
   }
 
-  /** Flux HTTP sur page HTTPS : le message d'erreur ajoute l'avertissement de contenu mixte. */
   function insecureParams() {
     return state.current && state.current.insecure ? { insecure: true } : null;
   }
 
-  /** Loads hls.js once, on demand (it is only needed for .m3u8 streams on browsers without native HLS). */
+  function scheduleReconnect(fallbackErrorKey) {
+    if (!state.wantPlay || !state.current) return false;
+    if (navigator.onLine === false) {
+      state.autoResumeOnOnline = true;
+      releaseAudio();
+      state.wantPlay = false;
+      setStatus('error', 'error.offline');
+      return true;
+    }
+    if (state.reconnectAttempts >= RECONNECT_DELAYS_MS.length) {
+      state.reconnectAttempts = 0;
+      return false;
+    }
+    const delay = RECONNECT_DELAYS_MS[state.reconnectAttempts];
+    state.reconnectAttempts++;
+    const attempt = state.reconnectAttempts;
+    const max = RECONNECT_DELAYS_MS.length;
+    clearConnectTimer();
+    clearReconnectTimer();
+    stopStallWatchdog();
+    if (hls) { try { hls.destroy(); } catch (e) { /* detached */ } hls = null; }
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+    setStatus('connecting', 'status.reconnecting', { attempt, max });
+    reconnectTimer = setTimeout(() => {
+      if (state.wantPlay && state.current) startPlayback(true);
+    }, delay);
+    if (fallbackErrorKey) state.lastErrorKey = fallbackErrorKey;
+    return true;
+  }
+
   function loadHls() {
     if (window.Hls) return Promise.resolve(window.Hls);
     if (!hlsLoader) {
@@ -886,37 +1280,106 @@ function countryFlag(name) {
 
   function playbackFailed(token, key) {
     if (token !== playToken) return;
+    if (scheduleReconnect(key)) return;
     state.wantPlay = false;
     releaseAudio();
     setStatus('error', key, insecureParams());
   }
 
-  function startPlayback() {
+  async function resolvePlaylistUrl(url) {
+    if (!isPlaylistFile(url)) return url;
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(t);
+      if (!res.ok) return url;
+      const body = await res.text();
+      const match = body.match(/https?:\/\/[^\s"'<>]+/i);
+      return match ? match[0] : url;
+    } catch (e) {
+      return url;
+    }
+  }
+
+  function startPlayback(isRetry) {
     const st = state.current;
     if (!st) return;
-    releaseAudio();                     // arrête tout flux précédent (un seul flux actif)
+    if (!isRetry) state.reconnectAttempts = 0;
+    state.autoResumeOnOnline = false;
+    state.streamInfoKey = st.hls ? 'player.streamHls' : 'player.streamDirect';
+    state.streamInfoParams = null;
+
+    releaseAudio();
     const token = ++playToken;
     state.wantPlay = true;
-    setStatus('connecting');
+    if (!isRetry) setStatus('connecting');
     armConnectTimer();
-    if (st.hls && !audio.canPlayType('application/vnd.apple.mpegurl')) {
-      // HLS without native support (Chrome desktop, Firefox...): hls.js feeds the same, unique audio element.
-      // hls.js is fetched on first use only; the user's tap stays valid for autoplay rules while it loads.
-      loadHls().then((Hls) => {
-        if (token !== playToken) return;
-        if (!Hls.isSupported()) { playbackFailed(token, errorKey(4)); return; }
-        hls = new Hls({ enableWorker: true, lowLatencyMode: false, backBufferLength: 30 });
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data && data.fatal) playbackFailed(token, data.type === Hls.ErrorTypes.NETWORK_ERROR ? 'error.network' : 'error.generic');
-        });
-        hls.attachMedia(audio);
-        hls.loadSource(st.streamUrl);
-        playPromise(token);
-      }, () => playbackFailed(token, 'error.network'));
-      return;
+
+    const beginStream = (targetUrl) => {
+      if (token !== playToken || !state.wantPlay) return;
+      const useHls = isHls(targetUrl) || st.hls;
+      if (useHls && !audio.canPlayType('application/vnd.apple.mpegurl')) {
+        loadHls().then((Hls) => {
+          if (token !== playToken || !state.wantPlay) return;
+          if (!Hls.isSupported()) { playbackFailed(token, errorKey(4)); return; }
+          let hlsNetRetries = 0;
+          let hlsMediaRecovered = false;
+          hls = new Hls({
+            enableWorker: true,
+            lowLatencyMode: false,
+            backBufferLength: 30,
+            fragLoadingMaxRetry: 4,
+            manifestLoadingMaxRetry: 3
+          });
+          hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+            if (token !== playToken) return;
+            const lv = data && Array.isArray(data.levels) && data.levels[0];
+            if (lv && lv.bitrate) {
+              state.streamInfoKey = 'player.streamHlsBitrate';
+              state.streamInfoParams = { kbps: Math.round(lv.bitrate / 1000) };
+              updateLiveMeta();
+            }
+          });
+          hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+            if (token !== playToken || !hls || !hls.levels) return;
+            const lv = hls.levels[data.level];
+            if (lv && lv.bitrate) {
+              state.streamInfoKey = 'player.streamHlsBitrate';
+              state.streamInfoParams = { kbps: Math.round(lv.bitrate / 1000) };
+              updateLiveMeta();
+            }
+          });
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            if (token !== playToken || !data || !data.fatal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR && hlsNetRetries < 2) {
+              hlsNetRetries++;
+              setStatus('buffering');
+              hls.startLoad();
+              return;
+            }
+            if (data.type === Hls.ErrorTypes.MEDIA_ERROR && !hlsMediaRecovered) {
+              hlsMediaRecovered = true;
+              hls.recoverMediaError();
+              return;
+            }
+            playbackFailed(token, data.type === Hls.ErrorTypes.NETWORK_ERROR ? 'error.network' : 'error.generic');
+          });
+          hls.attachMedia(audio);
+          hls.loadSource(targetUrl);
+          playPromise(token);
+        }, () => playbackFailed(token, 'error.network'));
+        return;
+      }
+      audio.src = targetUrl;
+      playPromise(token);
+    };
+
+    if (isPlaylistFile(st.streamUrl)) {
+      resolvePlaylistUrl(st.streamUrl).then(beginStream);
+    } else {
+      beginStream(st.streamUrl);
     }
-    audio.src = st.streamUrl;
-    playPromise(token);
   }
 
   function playPromise(token) {
@@ -931,7 +1394,7 @@ function countryFlag(name) {
         } else if (err && err.name === 'NotSupportedError') {
           setStatus('error', errorKey(4), insecureParams());
         } else {
-          setStatus('error', errorKey(0), insecureParams());
+          playbackFailed(token, errorKey(0));
         }
       });
     }
@@ -939,6 +1402,8 @@ function countryFlag(name) {
 
   function stopPlayback() {
     state.wantPlay = false;
+    state.autoResumeOnOnline = false;
+    state.reconnectAttempts = 0;
     releaseAudio();
     setStatus(state.current ? 'ready' : 'idle');
   }
@@ -956,7 +1421,11 @@ function countryFlag(name) {
       return;
     }
     state.wantPlay = false;
-    releaseAudio();                     // coupe le flux précédent
+    state.reconnectAttempts = 0;
+    state.playStartedAt = 0;
+    state.streamInfoKey = '';
+    state.streamInfoParams = null;
+    releaseAudio();
     state.current = st;
     store.set(KEYS.last, st.id);
     paintPlayerStation();
@@ -964,51 +1433,98 @@ function countryFlag(name) {
     if (autoplay) startPlayback();
   }
 
+  function stepStation(delta) {
+    const queue = getNavigationQueue();
+    if (!queue.length) return;
+    if (!state.current) {
+      selectStation(queue[0].id, true);
+      return;
+    }
+    const idx = queue.findIndex((s) => s.id === state.current.id);
+    const nextIdx = idx === -1 ? 0 : (idx + delta + queue.length) % queue.length;
+    selectStation(queue[nextIdx].id, true);
+  }
+
+  function playRandomStation() {
+    const pool = state.stations.length > 1 && state.current
+      ? state.stations.filter((s) => s.id !== state.current.id)
+      : state.stations;
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    selectStation(pick.id, true);
+  }
+
   /* Événements de l'élément Audio */
   audio.addEventListener('playing', () => {
-    if (state.interrupted) {                 // Chrome a repris la lecture après l'interruption (une seule fois)
+    if (state.interrupted) {
       const away = Date.now() - state.interruptedAt;
       state.interrupted = false;
-      if (away >= LIVE_REFRESH_MS) { startPlayback(); return; }   // longue interruption : on se recale sur le direct
+      if (away >= LIVE_REFRESH_MS) { startPlayback(); return; }
       state.wantPlay = true;
     }
     if (!state.wantPlay) return;
     clearConnectTimer();
+    clearReconnectTimer();
+    state.reconnectAttempts = 0;
+    if (!state.playStartedAt) state.playStartedAt = Date.now();
+    fadeInVolume();
+    startStallWatchdog();
     if (state.current && state.history[0] !== state.current.id) recordListen(state.current.id);
     setStatus('playing');
   });
+
   audio.addEventListener('waiting', () => {
     if (!state.wantPlay || !audio.getAttribute('src')) return;
     setStatus('buffering');
     armConnectTimer();
   });
+
+  audio.addEventListener('stalled', () => {
+    if (!state.wantPlay || !audio.getAttribute('src')) return;
+    setStatus('buffering');
+    armConnectTimer();
+  });
+
   audio.addEventListener('error', () => {
-    if (!audio.getAttribute('src')) return;   // erreur due à la libération volontaire du flux
+    if (!audio.getAttribute('src')) return;
+    const key = errorKey(audio.error && audio.error.code);
+    if (state.wantPlay && scheduleReconnect(key)) return;
     state.wantPlay = false;
     clearConnectTimer();
-    setStatus('error', errorKey(audio.error && audio.error.code), insecureParams());
+    setStatus('error', key, insecureParams());
   });
+
   audio.addEventListener('ended', () => {
     if (!state.wantPlay) return;
+    if (scheduleReconnect('error.ended')) return;
     state.wantPlay = false;
     setStatus('error', 'error.ended');
   });
+
   audio.addEventListener('pause', () => {
-    // Nos boutons retirent la source avant que cet événement n'arrive : ils ne passent jamais ici.
-    // Une pause avec source conservée vient donc du système (appel, autre appli qui prend le focus audio...).
-    // On garde le flux : Chrome Android reprend de lui-même quand l'autre appli rend le focus, et le bouton Lecture relance si besoin.
     if (!audio.paused || !state.wantPlay || !audio.getAttribute('src')) return;
     clearConnectTimer();
+    stopStallWatchdog();
     state.wantPlay = false;
     state.interrupted = true;
     state.interruptedAt = Date.now();
     setStatus('interrupted');
   });
+
   window.addEventListener('offline', () => {
-    if (state.wantPlay) setStatus('error', 'error.offline');
+    if (state.wantPlay) {
+      state.autoResumeOnOnline = true;
+      releaseAudio();
+      state.wantPlay = false;
+      setStatus('error', 'error.offline');
+    }
   });
+
   window.addEventListener('online', () => {
-    if (state.current && state.status === 'error') {
+    if (state.autoResumeOnOnline && state.current) {
+      state.autoResumeOnOnline = false;
+      startPlayback();
+    } else if (state.current && state.status === 'error') {
       setStatus('error', 'error.online');
     }
   });
@@ -1037,10 +1553,7 @@ function countryFlag(name) {
     applyTheme();
   }
 
-  /* ---------- Langue de l'interface ----------
-   * Le sélecteur (Paramètres) est construit depuis I18N.languages() ; il reste masqué tant qu'une seule langue est enregistrée.
-   * Changer de langue : textes statiques retraduits (data-i18n), puis rendu des vues/états dynamiques. Ni la lecture audio,
-   * ni les favoris, l'historique, les filtres ou la vue courante ne sont touchés. */
+  /* ---------- Langue de l'interface ---------- */
   let languageControlsBuilt = false;
 
   function nativeName(code) {
@@ -1069,7 +1582,7 @@ function countryFlag(name) {
         const label = document.createElement('label');
         label.className = 'btn btn-outline-secondary btn-touch text-start';
         label.htmlFor = input.id;
-        if (o.name) { label.textContent = o.name; label.setAttribute('lang', o.value); }      // native name, never translated
+        if (o.name) { label.textContent = o.name; label.setAttribute('lang', o.value); }
         else label.setAttribute('data-i18n', 'settings.language.auto');
         input.addEventListener('change', () => { if (input.checked) changeLanguage(o.value); });
         el.langOptions.append(input, label);
@@ -1091,10 +1604,12 @@ function countryFlag(name) {
     setStatus(state.status, state.statusKey, state.statusParams);
     applyView(state.view, false);
     updateLanguageControls();
+    updateSleepUi();
   }
 
   /* ---------- Volume ---------- */
   function applyVolume() {
+    cancelFade();
     audio.volume = state.volume / 100;
     audio.muted = state.muted;
     const silent = state.muted || state.volume === 0;
@@ -1106,6 +1621,77 @@ function countryFlag(name) {
     el.volumeValue.textContent = state.muted ? '0' : String(state.volume);
   }
 
+  /* ---------- Partage et stations personnalisées ---------- */
+  function shareCurrentStation() {
+    const st = state.current;
+    if (!st) return;
+    const shareUrl = new URL(location.href);
+    shareUrl.hash = '';
+    shareUrl.searchParams.set('station', st.id);
+    const urlStr = shareUrl.toString();
+    if (navigator.share) {
+      navigator.share({
+        title: st.name + ' — ' + tr('app.name'),
+        text: tr('nowPlaying.shareText', { name: st.name }),
+        url: urlStr
+      }).catch(() => {});
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(urlStr).then(() => showToast(tr('nowPlaying.copied')), () => {});
+    }
+  }
+
+  function saveCustomStation() {
+    const name = el.customName.value.trim();
+    const url = el.customUrl.value.trim();
+    const country = el.customCountry.value.trim();
+    const genre = el.customGenre.value.trim();
+
+    if (!name) {
+      el.customError.textContent = tr('custom.invalidName');
+      el.customError.classList.remove('d-none');
+      el.customName.focus();
+      return;
+    }
+    if (!isHttpUrl(url)) {
+      el.customError.textContent = tr('custom.invalidUrl');
+      el.customError.classList.remove('d-none');
+      el.customUrl.focus();
+      return;
+    }
+    el.customError.classList.add('d-none');
+
+    const slug = normalize(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'stream';
+    const id = 'custom-' + slug + '-' + Date.now().toString(36);
+    const entry = {
+      id,
+      name,
+      streamUrl: url,
+      country: country || UNSPECIFIED,
+      language: 'Mixed',
+      genre: genre || 'Eclectic',
+      custom: true
+    };
+    state.customStations.push(entry);
+    if (!store.set(KEYS.custom, state.customStations)) showStorageWarning();
+
+    rebuildCatalog();
+    syncFilterControls();
+    if (state.view === 'home') renderHome(); else renderList();
+
+    el.customName.value = '';
+    el.customUrl.value = '';
+    el.customCountry.value = '';
+    el.customGenre.value = '';
+    if (window.bootstrap && el.customModal) {
+      const m = window.bootstrap.Modal.getInstance(el.customModal);
+      if (m) m.hide();
+    }
+    selectStation(id, true);
+    showToast(tr('custom.added', { name }));
+  }
+
   /* ---------- Événements d'interface ---------- */
   function onStationClick(e) {
     const btn = e.target.closest('button[data-action]');
@@ -1115,13 +1701,14 @@ function countryFlag(name) {
     const id = card.dataset.id;
     if (btn.dataset.action === 'play') selectStation(id, true);
     else if (btn.dataset.action === 'favorite') toggleFavorite(id);
+    else if (btn.dataset.action === 'remove-custom') removeCustomStation(id);
   }
   [el.list, el.recents, el.picks].forEach((c) => c.addEventListener('click', onStationClick));
 
   [el.themes, el.genres, el.countries, el.languages].forEach((c) => c.addEventListener('click', (e) => {
     const btn = e.target.closest('.cat-card');
     if (!btn) return;
-    try { openFiltered(JSON.parse(btn.dataset.patch)); } catch (err) { /* card illisible : ignorée */ }
+    try { openFiltered(JSON.parse(btn.dataset.patch)); } catch (err) { /* ignoré */ }
   }));
   el.chips.addEventListener('click', (e) => {
     const b = e.target.closest('[data-clear]');
@@ -1137,9 +1724,18 @@ function countryFlag(name) {
 
   el.search.addEventListener('input', () => {
     state.filters.query = el.search.value;
+    el.clearSearch.classList.toggle('d-none', !el.search.value);
     if (state.view !== 'home') renderList();
-    else if (el.search.value.trim()) goTo('radios');     // taper une recherche depuis l'accueil ouvre les résultats
+    else if (el.search.value.trim()) goTo('radios');
   });
+  el.clearSearch.addEventListener('click', () => {
+    state.filters.query = '';
+    el.search.value = '';
+    el.clearSearch.classList.add('d-none');
+    if (state.view !== 'home') renderList();
+    el.search.focus();
+  });
+
   el.country.addEventListener('change', () => { state.filters.country = el.country.value; renderList(); });
   el.language.addEventListener('change', () => { state.filters.language = el.language.value; renderList(); });
   el.genre.addEventListener('change', () => {
@@ -1154,7 +1750,10 @@ function countryFlag(name) {
     persistFavorites();
     renderList();
   });
-  el.navCurrent.addEventListener('click', revealCurrent);
+
+  el.navCurrent.addEventListener('click', openNowPlayingSheet);
+  el.playerOpen.addEventListener('click', openNowPlayingSheet);
+
   window.addEventListener('hashchange', () => {
     const view = viewFromHash();
     if (view !== state.view) applyView(view, true);
@@ -1162,15 +1761,55 @@ function countryFlag(name) {
 
   el.themeInputs.forEach((input) => input.addEventListener('change', () => { if (input.checked) setTheme(input.value); }));
   if (systemDark) {
-    const onSystemChange = () => { if (state.theme === 'auto') applyTheme(); };   // le choix explicite n'est jamais écrasé
+    const onSystemChange = () => { if (state.theme === 'auto') applyTheme(); };
     if (systemDark.addEventListener) systemDark.addEventListener('change', onSystemChange);
     else if (systemDark.addListener) systemDark.addListener(onSystemChange);
   }
 
-  window.addEventListener('languagechange', () => I18N.refresh());     // suit la langue de l'appareil si le choix est « Automatique »
+  window.addEventListener('languagechange', () => I18N.refresh());
 
   el.play.addEventListener('click', togglePlay);
-  el.retry.addEventListener('click', startPlayback);
+  el.sheetPlay.addEventListener('click', togglePlay);
+  el.prev.addEventListener('click', () => stepStation(-1));
+  el.next.addEventListener('click', () => stepStation(1));
+  el.sheetPrev.addEventListener('click', () => stepStation(-1));
+  el.sheetNext.addEventListener('click', () => stepStation(1));
+  el.btnRandomHome.addEventListener('click', playRandomStation);
+  el.btnCatalogRandom.addEventListener('click', playRandomStation);
+  el.sheetRandom.addEventListener('click', playRandomStation);
+  el.btnResumeHome.addEventListener('click', () => { if (state.current) startPlayback(); });
+  el.retry.addEventListener('click', () => startPlayback());
+
+  [el.playerFav, el.sheetFav].forEach((btn) => {
+    if (btn) btn.addEventListener('click', () => { if (state.current) toggleFavorite(state.current.id); });
+  });
+
+  el.sleepOptions.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-sleep]');
+    if (!btn) return;
+    setSleepTimer(Number(btn.dataset.sleep));
+  });
+
+  el.sheetShare.addEventListener('click', shareCurrentStation);
+  el.sheetLocate.addEventListener('click', () => {
+    closeNowPlayingSheet();
+    revealCurrent();
+  });
+
+  if (el.btnSettingsCustom) {
+    el.btnSettingsCustom.addEventListener('click', () => {
+      if (window.bootstrap) {
+        const s = window.bootstrap.Offcanvas.getInstance(el.settingsPanel);
+        if (s) s.hide();
+        window.bootstrap.Modal.getOrCreateInstance(el.customModal).show();
+      }
+    });
+  }
+  el.btnSaveCustom.addEventListener('click', saveCustomStation);
+  [el.customName, el.customUrl, el.customCountry, el.customGenre].forEach((inp) => {
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveCustomStation(); });
+  });
+
   el.mute.addEventListener('click', () => {
     state.muted = !state.muted;
     store.set(KEYS.muted, state.muted);
@@ -1183,9 +1822,51 @@ function countryFlag(name) {
     applyVolume();
   });
 
+  /* Raccourcis clavier (ordinateur) */
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable)) {
+      return;
+    }
+    if (e.key === '/' ) {
+      e.preventDefault();
+      el.search.focus();
+    } else if ((e.key === ' ' || e.key.toLowerCase() === 'k') && state.current) {
+      e.preventDefault();
+      togglePlay();
+    } else if (e.key.toLowerCase() === 'm') {
+      e.preventDefault();
+      state.muted = !state.muted;
+      store.set(KEYS.muted, state.muted);
+      applyVolume();
+    } else if (e.key.toLowerCase() === 'f' && state.current) {
+      e.preventDefault();
+      toggleFavorite(state.current.id);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      stepStation(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      stepStation(1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      state.volume = Math.min(100, state.volume + 5);
+      state.muted = false;
+      store.set(KEYS.volume, state.volume);
+      store.set(KEYS.muted, false);
+      applyVolume();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      state.volume = Math.max(0, state.volume - 5);
+      store.set(KEYS.volume, state.volume);
+      applyVolume();
+    }
+  });
+
   /* ---------- Initialisation ---------- */
   function init() {
-    I18N.init();                      // langue : choix enregistré > langue de l'appareil > anglais
+    I18N.init();
     I18N.applyTo(document);
     I18N.onChange(refreshLanguage);
     const savedTheme = store.get(KEYS.theme, 'auto');
@@ -1193,20 +1874,11 @@ function countryFlag(name) {
     applyTheme();
     initMediaSession();
 
-    const raw = Array.isArray(window.STATIONS) ? window.STATIONS : [];
-    raw.forEach((r) => {
-      const st = normalizeStation(r);
-      if (!st) return;
-      if (state.byId.has(st.id)) { console.warn('Duplicate station id ignored:', st.id); return; }
-      state.byId.set(st.id, st);
-      state.stations.push(st);
-      annotate(st);
-    });
-
-    fillFilterSelects();
+    const savedCustom = store.get(KEYS.custom, []);
+    state.customStations = Array.isArray(savedCustom) ? savedCustom : [];
+    rebuildCatalog();
 
     const favs = store.get(KEYS.favorites, []);
-    // Set => pas de doublons ; on garde aussi les identifiants absents du catalogue (voir « Favoris » plus haut)
     state.favorites = new Set((Array.isArray(favs) ? favs : []).filter((id) => typeof id === 'string' && id));
     if (!store.available()) showStorageWarning();
     const hist = store.get(KEYS.history, []);
@@ -1219,12 +1891,17 @@ function countryFlag(name) {
     applyView(viewFromHash(), false);
     setStatus('idle');
     updateLanguageControls();
+    updateSleepUi();
 
-    // Restaure la dernière station SANS lancer la lecture
+    const params = new URLSearchParams(location.search);
+    const linkedId = params.get('station');
     const last = store.get(KEYS.last, null);
-    if (typeof last === 'string' && state.byId.has(last)) selectStation(last, false);
+    if (linkedId && state.byId.has(linkedId)) {
+      selectStation(linkedId, false);
+    } else if (typeof last === 'string' && state.byId.has(last)) {
+      selectStation(last, false);
+    }
 
-    // Réserve la place de la barre de lecture en bas de page
     const syncPlayerHeight = () =>
       document.documentElement.style.setProperty('--player-h', el.player.offsetHeight + 'px');
     syncPlayerHeight();
