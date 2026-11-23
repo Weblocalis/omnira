@@ -222,7 +222,7 @@
   </footer>
 
   <!-- Barre de lecture, toujours accessible en bas de l'écran -->
-  <section id="player" class="player fixed-bottom" aria-label="Player" data-i18n-aria-label="player.aria">
+  <section id="player" class="player fixed-bottom" aria-label="Player" data-i18n-aria-label="player.aria" data-status="idle">
     <div class="container">
       <div class="d-flex align-items-center gap-3">
         <div id="player-logo" class="logo logo-lg" aria-hidden="true"><i class="bi bi-broadcast"></i></div>
@@ -232,9 +232,11 @@
 <div class="small text-muted-ui d-flex align-items-center gap-2" role="status" aria-live="polite">
   <span id="status-dot" class="status-dot status-idle" aria-hidden="true"></span>
   <span id="status-text" class="text-truncate">Choose a station from the list</span>
-  <span id="player-eq" class="eq" aria-hidden="true"><span></span><span></span><span></span></span>
 </div>
           
+        </div>
+        <div id="player-eq" class="eq eq-player" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
         </div>
         <button id="btn-retry" type="button" class="btn btn-outline-secondary btn-icon d-none"
                 title="Restart stream" aria-label="Restart stream" data-i18n-title="player.retry" data-i18n-aria-label="player.retry">
@@ -266,7 +268,9 @@
     <span id="fav-badge" class="nav-badge d-none" aria-hidden="true">0</span>
   </a>
   <button id="nav-current" type="button" class="nav-item-btn" disabled>
-    <i class="bi bi-music-note-beamed" aria-hidden="true"></i><span data-i18n="nav.current">Now Playing</span>
+    <i class="bi bi-music-note-beamed nav-current-icon" aria-hidden="true"></i>
+    <span class="eq eq-nav" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+    <span data-i18n="nav.current">Now Playing</span>
   </button>
 </nav>
       

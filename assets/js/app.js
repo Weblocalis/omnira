@@ -808,9 +808,13 @@ function countryFlag(name) {
     state.status = kind;
     state.statusKey = key || ('status.' + kind);
     state.statusParams = params || null;
+    const streaming = kind === 'playing';
     el.dot.className = 'status-dot status-' + kind;
     el.statusText.textContent = tr(state.statusKey) + (params && params.insecure ? ' ' + tr('error.insecure') : '');
-    el.eq.classList.toggle('is-playing', kind === 'playing');
+    el.eq.classList.toggle('is-playing', streaming);
+    el.player.dataset.status = kind;
+    el.player.classList.toggle('is-streaming', streaming);
+    el.navCurrent.classList.toggle('is-streaming', streaming);
     const active = state.wantPlay;
     el.play.replaceChildren(icon(active ? 'bi-pause-fill' : 'bi-play-fill'));
     el.play.setAttribute('aria-label', active ? tr('player.pause') : tr('player.play'));
